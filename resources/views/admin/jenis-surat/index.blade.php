@@ -316,6 +316,29 @@
                             <input type="file" name="file_template" required class="w-full text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100" accept=".doc,.docx,.pdf,.odt">
                             <p class="text-xs text-gray-500 mt-1">Pilih file template untuk melihat preview contoh surat</p>
                         </div>
+                        
+                        <!-- Requirements Section -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Syarat Pengajuan Surat</label>
+                            <p class="text-xs text-gray-500 mb-3">Tambahkan syarat-syarat yang diperlukan untuk pengajuan surat ini</p>
+                            <div id="syaratContainer">
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500" name="nama_syarat[]" placeholder="Masukkan nama syarat (contoh: KTP Asli)">
+                                    <button type="button" class="btn btn-outline-danger px-3 py-2 border border-l-0 border-gray-300 rounded-r-md hover:bg-red-50" onclick="removeInput(this)">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-primary mt-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" onclick="addSyarat()">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                </svg>
+                                Tambah Syarat
+                            </button>
+                        </div>
+                        
                         <div class="flex justify-end space-x-2">
                             <button type="button" onclick="closeAddModal()" class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">Batal</button>
                             <button type="submit" id="submitBtn" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
@@ -372,6 +395,29 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
                     <textarea name="deskripsi" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
                 </div>
+                
+                <!-- Requirements Section -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Syarat Pengajuan Surat</label>
+                    <p class="text-xs text-gray-500 mb-3">Edit syarat-syarat yang diperlukan untuk pengajuan surat ini</p>
+                    <div id="editSyaratContainer">
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500" name="nama_syarat[]" placeholder="Masukkan nama syarat (contoh: KTP Asli)">
+                            <button type="button" class="btn btn-outline-danger px-3 py-2 border border-l-0 border-gray-300 rounded-r-md hover:bg-red-50" onclick="removeEditInput(this)">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-primary mt-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" onclick="addEditSyarat()">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Tambah Syarat
+                    </button>
+                </div>
+                
                 <div class="flex justify-end space-x-2">
                     <button type="button" onclick="toggleModal('editModal')" class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">Batal</button>
                     <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700">Update</button>
@@ -580,7 +626,52 @@ function closeAddModal() {
     toggleModal('addModal');
     resetPreview();
     document.getElementById('addForm').reset();
+    
+    // Reset to single requirement input
+    const container = document.getElementById('syaratContainer');
+    container.innerHTML = `
+        <div class="input-group mb-2">
+            <input type="text" class="form-control flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500" name="nama_syarat[]" placeholder="Masukkan nama syarat (contoh: KTP Asli)">
+            <button type="button" class="btn btn-outline-danger px-3 py-2 border border-l-0 border-gray-300 rounded-r-md hover:bg-red-50" onclick="removeInput(this)">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    `;
+    
     setSubmitButtonState(false);
+}
+
+// Add requirement input function
+function addSyarat() {
+    const container = document.getElementById('syaratContainer');
+    const newInput = document.createElement('div');
+    newInput.className = 'input-group mb-2';
+    newInput.innerHTML = `
+        <input type="text" class="form-control flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500" name="nama_syarat[]" placeholder="Masukkan nama syarat">
+        <button type="button" class="btn btn-outline-danger px-3 py-2 border border-l-0 border-gray-300 rounded-r-md hover:bg-red-50" onclick="removeInput(this)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    `;
+    container.appendChild(newInput);
+}
+
+// Remove requirement input function
+function removeInput(button) {
+    const inputGroups = button.parentElement.parentElement.querySelectorAll('.input-group');
+    
+    // Minimal harus ada 1 input
+    if (inputGroups.length > 1) {
+        const inputGroup = button.parentElement;
+        inputGroup.remove();
+    } else {
+        // Jika hanya 1 input, clear valuenya
+        const input = button.parentElement.querySelector('input');
+        input.value = '';
+    }
 }
 
 function setSubmitButtonState(loading) {
@@ -662,7 +753,73 @@ function editJenisSurat(id) {
         document.querySelector('#editForm [name="id"]').value = item.id;
         document.querySelector('#editForm [name="nama_surat"]').value = item.nama_surat;
         document.querySelector('#editForm [name="deskripsi"]').value = item.deskripsi || '';
+        
+        // Populate requirements
+        const container = document.getElementById('editSyaratContainer');
+        container.innerHTML = ''; // Clear existing
+        
+        // Check if there are existing requirements
+        if (item.syarat && Array.isArray(item.syarat) && item.syarat.length > 0) {
+            item.syarat.forEach(function(syarat) {
+                const newInput = document.createElement('div');
+                newInput.className = 'input-group mb-2';
+                newInput.innerHTML = `
+                    <input type="text" class="form-control flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500" name="nama_syarat[]" value="${syarat}" placeholder="Masukkan nama syarat">
+                    <button type="button" class="btn btn-outline-danger px-3 py-2 border border-l-0 border-gray-300 rounded-r-md hover:bg-red-50" onclick="removeEditInput(this)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                `;
+                container.appendChild(newInput);
+            });
+        } else {
+            // If no requirements, add one empty input
+            const newInput = document.createElement('div');
+            newInput.className = 'input-group mb-2';
+            newInput.innerHTML = `
+                <input type="text" class="form-control flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500" name="nama_syarat[]" placeholder="Masukkan nama syarat (contoh: KTP Asli)">
+                <button type="button" class="btn btn-outline-danger px-3 py-2 border border-l-0 border-gray-300 rounded-r-md hover:bg-red-50" onclick="removeEditInput(this)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            `;
+            container.appendChild(newInput);
+        }
+        
         toggleModal('editModal');
+    }
+}
+
+// Add requirement input function for edit form
+function addEditSyarat() {
+    const container = document.getElementById('editSyaratContainer');
+    const newInput = document.createElement('div');
+    newInput.className = 'input-group mb-2';
+    newInput.innerHTML = `
+        <input type="text" class="form-control flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500" name="nama_syarat[]" placeholder="Masukkan nama syarat">
+        <button type="button" class="btn btn-outline-danger px-3 py-2 border border-l-0 border-gray-300 rounded-r-md hover:bg-red-50" onclick="removeEditInput(this)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    `;
+    container.appendChild(newInput);
+}
+
+// Remove requirement input function for edit form
+function removeEditInput(button) {
+    const inputGroups = button.parentElement.parentElement.querySelectorAll('.input-group');
+    
+    // Minimal harus ada 1 input
+    if (inputGroups.length > 1) {
+        const inputGroup = button.parentElement;
+        inputGroup.remove();
+    } else {
+        // Jika hanya 1 input, clear valuenya
+        const input = button.parentElement.querySelector('input');
+        input.value = '';
     }
 }
 

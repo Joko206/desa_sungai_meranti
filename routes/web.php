@@ -57,6 +57,8 @@ Route::middleware('auth')->group(function () {
     // Warga Routes
     Route::middleware('role:warga')->group(function () {
         Route::get('/warga/dashboard', [WargaDashboardController::class, 'index'])->name('warga.dashboard');
+        Route::get('/warga/jenis-surat', [WargaDashboardController::class, 'jenisSurat'])->name('warga.jenis-surat');
+        Route::get('/warga/syarat/{jenisSurat}', [WargaDashboardController::class, 'syarat'])->name('warga.syarat');
         Route::get('/warga/pengajuan/{pengajuan}', [WargaDashboardController::class, 'show'])->name('warga.pengajuan.show');
         Route::post('/warga/pengajuan/{pengajuan}/batal', [WargaDashboardController::class, 'cancel'])->name('warga.pengajuan.cancel');
     });
