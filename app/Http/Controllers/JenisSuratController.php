@@ -40,6 +40,8 @@ class JenisSuratController extends Controller
                 'nama_surat' => 'required|string|max:150',
                 'file_template' => 'nullable|file|mimes:pdf,docx,doc,xlsx|max:10240',
                 'deskripsi' => 'nullable|string',
+                'nama_syarat' => 'nullable|array',
+                'nama_syarat.*' => 'string|max:200',
                 'is_active' => 'nullable|boolean',
             ]);
 
@@ -62,11 +64,19 @@ class JenisSuratController extends Controller
                 $formStructure = $this->extractFormStructure($absolutePath, $ext);
             }
 
+            // Proses array nama syarat
+            $namaSyarat = $request->input('nama_syarat', []);
+            // Filter yang kosong dan bersihkan
+            $namaSyarat = array_filter(array_map('trim', $namaSyarat), function($value) {
+                return !empty($value);
+            });
+
             $jenisSurat = JenisSurat::create([
                 'nama_surat' => $request->input('nama_surat'),
                 'file_template' => $filePath,
                 'form_structure' => $formStructure,
                 'deskripsi' => $request->input('deskripsi'),
+                'syarat' => $namaSyarat,
                 'is_active' => $request->boolean('is_active', true),
             ]);
 
@@ -94,6 +104,8 @@ class JenisSuratController extends Controller
             $validator = Validator::make($request->all(), [
                 'nama_surat' => 'sometimes|string|max:150',
                 'deskripsi' => 'sometimes|nullable|string',
+                'nama_syarat' => 'sometimes|nullable|array',
+                'nama_syarat.*' => 'string|max:200',
                 'is_active' => 'sometimes|boolean',
                 'file_template' => 'nullable|file|mimes:pdf,docx,doc,xlsx|max:10240',
             ]);
@@ -111,6 +123,17 @@ class JenisSuratController extends Controller
 
             if (isset($payload['nama_surat'])) $updates['nama_surat'] = $payload['nama_surat'];
             if (isset($payload['deskripsi'])) $updates['deskripsi'] = $payload['deskripsi'];
+            
+            // Process nama syarat array
+            if (array_key_exists('nama_syarat', $payload)) {
+                $namaSyarat = $payload['nama_syarat'] ?? [];
+                // Filter yang kosong dan bersihkan
+                $namaSyarat = array_filter(array_map('trim', $namaSyarat), function($value) {
+                    return !empty($value);
+                });
+                $updates['syarat'] = $namaSyarat;
+            }
+            
             if (isset($payload['is_active'])) $updates['is_active'] = $payload['is_active'];
 
             if ($request->hasFile('file_template')) {

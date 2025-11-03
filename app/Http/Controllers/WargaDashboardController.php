@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PengajuanSurat;
+use App\Models\JenisSurat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -65,5 +66,30 @@ class WargaDashboardController extends Controller
         return redirect()
             ->route('warga.dashboard')
             ->with('success', 'Pengajuan berhasil dibatalkan.');
+    }
+
+    // Method untuk menampilkan jenis surat (existing method)
+    public function jenisSurat()
+    {
+        $jenisSuratList = JenisSurat::active()
+            ->orderBy('nama_surat')
+            ->get();
+
+        return view('warga.jenis-surat', [
+            'jenisSuratList' => $jenisSuratList
+        ]);
+    }
+
+    // Method untuk menampilkan syarat jenis surat
+    public function syarat(JenisSurat $jenisSurat)
+    {
+        // Pastikan jenis surat masih aktif
+        if (!$jenisSurat->is_active) {
+            abort(404, 'Jenis surat tidak tersedia.');
+        }
+
+        return view('warga.syarat', [
+            'jenisSurat' => $jenisSurat
+        ]);
     }
 }

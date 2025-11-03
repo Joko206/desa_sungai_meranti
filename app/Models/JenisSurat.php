@@ -12,11 +12,13 @@ class JenisSurat extends Model
         'file_template',
         'form_structure',
         'deskripsi',
+        'syarat',
         'is_active'
     ];
     
     protected $casts = [
         'form_structure' => 'array',
+        'syarat' => 'array',
         'is_active' => 'boolean'
     ];
 
