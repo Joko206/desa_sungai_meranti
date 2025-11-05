@@ -10,7 +10,7 @@
 <body class="bg-gray-50 font-sans antialiased">
     <!-- Enhanced Navbar -->
     <nav class="bg-green-700 text-white shadow-xl sticky top-0 z-50">
-        <div class="container mx-auto px-8">
+        <div class="w-full px-4 sm:px-8 lg:px-14 xl:px-20">
             <div class="flex justify-between items-center py-3">
                 <!-- Logo and Brand -->
                 <a href="{{ route('home') }}" class="flex items-center space-x-4 hover:bg-green-600 rounded-lg p-2 transition-all duration-300 cursor-pointer">
@@ -144,7 +144,7 @@
 
     <!-- Enhanced Footer -->
     <footer class="bg-gray-900 text-white">
-        <div class="container mx-auto px-8 py-12">
+        <div class="w-full px-4 sm:px-8 lg:px-14 xl:px-20 py-12">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <!-- Company Info -->
                 <div class="col-span-1 md:col-span-2">
