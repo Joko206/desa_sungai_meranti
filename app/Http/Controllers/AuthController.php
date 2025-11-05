@@ -31,7 +31,9 @@ class AuthController extends Controller
             $r->validate([
                 'nik' => 'required|string|size:16|unique:user_desa,nik',
                 'nama' => 'required|string',
-                'email' => 'required|email|unique:user_desa,email',
+                'alamat' => 'required|string|min:10',
+                'no_hp' => 'required|string|regex:/^[0-9]{10,15}$/',
+                'email' => 'nullable|email|unique:user_desa,email',
                 'password' => 'required|min:6'
             ]);
 
@@ -60,6 +62,8 @@ class AuthController extends Controller
                 $user = UserDesa::create([
                     'nik' => $r->nik,
                     'nama' => $r->nama,
+                    'alamat' => $r->alamat,
+                    'no_hp' => $r->no_hp,
                     'email' => $r->email,
                     'password' => $r->password,
                     'role_id' => $role->id,
