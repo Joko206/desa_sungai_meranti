@@ -223,7 +223,6 @@ async function loadPengajuan(page = 1) {
             `;
         }
     } catch (error) {
-        console.error('Error loading pengajuan:', error);
         tbody.innerHTML = `
             <tr>
                 <td colspan="6" class="px-6 py-12 text-center text-red-500">
@@ -402,7 +401,6 @@ async function approvePengajuan(id) {
             alert('Error: ' + result.message);
         }
     } catch (error) {
-        console.error('Error approving pengajuan:', error);
         alert('Terjadi kesalahan saat menyetujui pengajuan');
     }
 }
@@ -434,7 +432,6 @@ async function rejectPengajuan(id) {
             alert('Error: ' + result.message);
         }
     } catch (error) {
-        console.error('Error rejecting pengajuan:', error);
         alert('Terjadi kesalahan saat menolak pengajuan');
     }
 }
@@ -462,7 +459,6 @@ async function generateSurat(id) {
             alert('Error: ' + result.message);
         }
     } catch (error) {
-        console.error('Error generating surat:', error);
         alert('Terjadi kesalahan saat generate surat');
     }
 }

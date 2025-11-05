@@ -88,7 +88,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => $role->nama_role === 'admin' ? 'Registrasi berhasil sebagai admin' : 'Registrasi berhasil sebagai warga',
+                'message' => 'Registrasi berhasil',
                 'token' => $token,
                 'user' => [
                     'nik' => $user->nik,

@@ -75,26 +75,52 @@ class PengajuanController extends Controller
         try {
             DB::beginTransaction();
 
-            // Validate the request
             $validated = $request->validate([
                 'jenis_surat_id' => 'required|integer|exists:jenis_surat,id',
                 'data_pemohon' => 'required|array',
-                'data_pemohon.nama' => 'required|string',
-                'data_pemohon.nik_pemohon' => 'required|string',
-                'data_pemohon.alamat' => 'required|string',
                 'keterangan' => 'required|string',
-                'file_syarat.*' => 'sometimes|file|mimes:jpg,jpeg,png,pdf,docx|max:204', // 5MB, mendukung docx & xlsx
+                'data_pemohon.*' => 'nullable|string',
             ]);
 
-            $nik = $validated['data_pemohon']['nik_pemohon'];
             $jenisSuratId = $validated['jenis_surat_id'];
             $dataPemohon = $validated['data_pemohon'];
             $keterangan = $validated['keterangan'];
 
-            // Upload files
+            $nik = null;
+            $nama = null;
+
+            foreach ($dataPemohon as $key => $value) {
+                $keyLower = strtolower($key);
+                if (in_array($keyLower, ['nik', 'nik_pemohon', 'no_ktp', 'ktp'])) {
+                    $nik = trim($value);
+                    break;
+                }
+            }
+
+            foreach ($dataPemohon as $key => $value) {
+                $keyLower = strtolower($key);
+                if (in_array($keyLower, ['nama', 'nama_lengkap', 'nama_pemohon'])) {
+                    $nama = trim($value);
+                    break;
+                }
+            }
+
+            if (!$nik || strlen($nik) != 16 || !is_numeric($nik)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'NIK harus 16 digit angka dan wajib diisi'
+                ], 422);
+            }
+
+            if (!$nama || strlen(trim($nama)) < 2) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Nama lengkap wajib diisi dan minimal 2 karakter'
+                ], 422);
+            }
+
             $files = $this->uploadFiles($request, $jenisSuratId);
 
-            // Create pengajuan
             $pengajuan = $this->createPengajuan($nik, $jenisSuratId, $dataPemohon, $files, $keterangan);
 
             DB::commit();
@@ -130,35 +156,39 @@ class PengajuanController extends Controller
         }
     }
 
-    
     private function uploadFiles(Request $request, $jenisSuratId)
     {
         $files = [];
-        if ($request->hasFile('file_syarat')) {
-            foreach ($request->file('file_syarat') as $file) {
+
+        $uploadedFiles = $request->allFiles();
+
+        foreach ($uploadedFiles as $fieldName => $file) {
+            if (str_starts_with($fieldName, 'dokumen_') && $file instanceof \Illuminate\Http\UploadedFile) {
                 $ext = strtolower($file->getClientOriginalExtension());
                 $allowedExt = ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'xlsx'];
+
                 if (!in_array($ext, $allowedExt)) {
-                    continue; // skip file tidak valid
+                    continue;
                 }
 
-                // simpan file ke folder berdasarkan jenis surat
                 $folder = 'public/persyaratan/' . $jenisSuratId;
                 $filename = Str::uuid() . '.' . $ext;
                 $path = $file->storeAs($folder, $filename);
 
-                // catat metadata file
                 $files[] = [
+                    'field_name' => $fieldName,
                     'name' => $file->getClientOriginalName(),
                     'path' => $path,
                     'mime' => $file->getMimeType(),
-                    'size_kb' => round($file->getSize() / 1024, 2)
+                    'size_kb' => round($file->getSize() / 1024, 2),
+                    'uploaded_at' => now()->toISOString()
                 ];
             }
         }
+
         return $files;
     }
-  
+
     private function createPengajuan($nik, $jenisSuratId, $dataPemohon, $files, $keterangan)
     {
         return PengajuanSurat::create([
@@ -167,8 +197,9 @@ class PengajuanController extends Controller
             'tanggal_pengajuan' => now()->toDateString(),
             'status' => 'menunggu',
             'data_isian' => [
-                'data_pemohon' => $dataPemohon,
-                'keterangan' => $keterangan
+                'form_structure_data' => $dataPemohon,
+                'keterangan' => $keterangan,
+                'submission_timestamp' => now()->toISOString()
             ],
             'file_syarat' => $files,
         ]);
@@ -177,7 +208,7 @@ class PengajuanController extends Controller
     public function show($id)
     {
         try {
-            $pengajuan = PengajuanSurat::with('jenis','suratTerbit','pemohon')->findOrFail($id);
+            $pengajuan = PengajuanSurat::with('jenis', 'suratTerbit', 'pemohon')->findOrFail($id);
 
             return response()->json([
                 'success' => true,
@@ -196,8 +227,8 @@ class PengajuanController extends Controller
     public function create(Request $request)
     {
         $jenisSuratList = JenisSurat::where('is_active', true)->get();
-        $selectedJenisId = $request->query('jenis'); // Get selected jenis from URL parameter
-        $user = $request->user(); // Get authenticated user
+        $selectedJenisId = $request->query('jenis');
+        $user = $request->user();
         return view('warga/pengajuan/form-pengajuan', compact('jenisSuratList', 'selectedJenisId', 'user'));
     }
 
@@ -211,41 +242,38 @@ class PengajuanController extends Controller
     {
         try {
             $jenisSurat = JenisSurat::findOrFail($jenisSuratId);
-            
+
             $formStructure = [];
-            
+
             if ($jenisSurat->form_structure) {
-                // Check if it's already an array or needs to be decoded from JSON
-                if (is_array($jenisSurat->form_structure)) {
-                    $formStructure = $jenisSurat->form_structure;
-                } else {
-                    $formStructure = json_decode($jenisSurat->form_structure, true);
-                }
+                $formStructure = is_array($jenisSurat->form_structure)
+                    ? $jenisSurat->form_structure
+                    : json_decode($jenisSurat->form_structure, true) ?? [];
             }
-            
-            // If no form structure, return empty array (frontend will show "no data" message)
+
             if (empty($formStructure)) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Form structure berhasil dimuat',
                     'data' => []
                 ]);
-            } else {
-                // Convert existing structure to match expected format
-                $formStructure = array_map(function($field) {
-                    return [
-                        'key' => $field['name'] ?? $field['field_name'] ?? '',
-                        'name' => $field['name'] ?? $field['field_name'] ?? '',
-                        'label' => $field['label'] ?? $field['name'] ?? $field['field_name'] ?? '',
-                        'type' => $field['type'] ?? 'text'
-                    ];
-                }, $formStructure);
             }
+
+            $mappedFields = array_map(function ($field) {
+                return [
+                    'key' => $field['name'] ?? $field['field_name'] ?? '',
+                    'name' => $field['name'] ?? $field['field_name'] ?? '',
+                    'label' => $field['label'] ?? $field['name'] ?? $field['field_name'] ?? '',
+                    'type' => $field['type'] ?? 'text',
+                    'placeholder' => $field['placeholder'] ?? '',
+                    'required' => $field['required'] ?? true
+                ];
+            }, $formStructure);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Form structure berhasil dimuat',
-                'data' => $formStructure
+                'data' => $mappedFields
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -256,92 +284,146 @@ class PengajuanController extends Controller
         }
     }
 
+    public function getPlaceholders($jenisSuratId)
+    {
+        return $this->getFormStructure($jenisSuratId);
+    }
+
+    public function getJenisSurat($jenisSuratId)
+    {
+        try {
+            $cacheKey = "jenis_surat_{$jenisSuratId}";
+
+            $jenisSurat = cache()->remember($cacheKey, 3600, function () use ($jenisSuratId) {
+                return JenisSurat::findOrFail($jenisSuratId);
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data jenis surat berhasil dimuat',
+                'data' => $jenisSurat
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jenis surat tidak ditemukan',
+                'error' => $e->getMessage()
+            ], 404);
+        }
+    }
+
     public function store(Request $request)
     {
         try {
-            // Handle web form submission - support both dynamic and legacy formats
             $rules = [
                 'jenis_surat_id' => 'required|exists:jenis_surat,id',
-                'keterangan' => 'required|string',
-                'ktp' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-                'kk' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-                'dokumen_lainnya' => 'nullable|file|mimes:jpg,jpeg,png,pdf,docx|max:2048',
-                'agree_terms' => 'required',
+                'keterangan' => 'required|string|min:10',
+                'agree_terms' => 'required|accepted',
             ];
 
-            // Check if this is a dynamic form submission
-            if ($request->has('data_pemohon') && is_array($request->data_pemohon)) {
-                // Dynamic form - validate the data_pemohon array
-                $dataPemohon = $request->data_pemohon;
-                $rules['data_pemohon.*'] = 'required|string';
-            } else {
-                // Legacy form - validate individual fields
-                $rules = array_merge($rules, [
-                    'nama_pemohon' => 'required|string',
-                    'nik_pemohon' => 'required|string|size:16',
-                    'tempat_lahir' => 'required|string',
-                    'tanggal_lahir' => 'required|date',
-                    'alamat' => 'required|string',
-                    'no_hp' => 'required|string',
-                    'pekerjaan' => 'required|string',
-                ]);
+            $fileRules = [];
+            foreach ($request->allFiles() as $key => $file) {
+                if (str_starts_with($key, 'dokumen_')) {
+                    $fileRules[$key] = 'file|mimes:jpg,jpeg,png,pdf,docx,xlsx|max:2048';
+                }
             }
 
-            $validated = $request->validate($rules);
+            $validated = $request->validate(array_merge($rules, $fileRules));
 
-            // Prepare data for API method
-            if ($request->has('data_pemohon') && is_array($request->data_pemohon)) {
-                // Dynamic form data
-                $webRequest = new Request([
-                    'jenis_surat_id' => $validated['jenis_surat_id'],
-                    'data_pemohon' => $validated['data_pemohon'],
-                    'keterangan' => $validated['keterangan']
-                ]);
-            } else {
-                // Legacy form data
-                $webRequest = new Request([
-                    'jenis_surat_id' => $validated['jenis_surat_id'],
-                    'data_pemohon' => [
-                        'nama' => $validated['nama_pemohon'],
-                        'nik_pemohon' => $validated['nik_pemohon'],
-                        'alamat' => $validated['alamat'],
-                        'tempat_lahir' => $validated['tempat_lahir'],
-                        'tanggal_lahir' => $validated['tanggal_lahir'],
-                        'no_hp' => $validated['no_hp'],
-                        'pekerjaan' => $validated['pekerjaan'],
-                    ],
-                    'keterangan' => $validated['keterangan']
-                ]);
+            $dataPemohon = $request->input('data_pemohon', []);
+            if (empty($dataPemohon)) {
+                $nestedData = [];
+                foreach ($request->all() as $key => $value) {
+                    if (str_starts_with($key, 'data_pemohon[') && str_ends_with($key, ']')) {
+                        $fieldName = substr($key, 14, -1);
+                        $nestedData[$fieldName] = $value;
+                    }
+                }
+                if (!empty($nestedData)) {
+                    $dataPemohon = $nestedData;
+                }
             }
 
-            // Handle file uploads manually since we're converting from web form
-            $webRequest->files->set('file_syarat', []);
-            
-            if ($request->hasFile('ktp')) {
-                $webRequest->files->add([$request->file('ktp')]);
-            }
-            if ($request->hasFile('kk')) {
-                $webRequest->files->add([$request->file('kk')]);
-            }
-            if ($request->hasFile('dokumen_lainnya')) {
-                $webRequest->files->add([$request->file('dokumen_lainnya')]);
+            if (empty($dataPemohon)) {
+                $user = $request->user();
+                $dataPemohon = [
+                    'nama' => $user->nama ?? '',
+                    'nik' => $user->nik ?? '',
+                    'alamat' => $user->alamat ?? '',
+                    'no_hp' => $user->no_hp ?? '',
+                ];
             }
 
-            $response = $this->AddPengajuan($webRequest);
-            $data = $response->getData();
+            $nik = null;
+            foreach ($dataPemohon as $key => $value) {
+                if (in_array(strtolower($key), ['nik', 'nik_pemohon', 'no_ktp', 'ktp'])) {
+                    $nik = trim($value);
+                    break;
+                }
+            }
 
-            if ($data->success) {
-                return redirect()->route('warga.dashboard')
-                    ->with('success', 'Pengajuan berhasil dikirim! Nomor pengajuan: #' . $data->data->id);
-            } else {
+            if (!$nik && $request->user()) {
+                $nik = $request->user()->nik;
+            }
+
+            if (!$nik || strlen($nik) !== 16 || !ctype_digit($nik)) {
                 return redirect()->back()
-                    ->withErrors(['error' => $data->message])
+                    ->withErrors(['data_pemohon_nik' => 'NIK harus 16 digit angka dan wajib diisi'])
                     ->withInput();
             }
 
+            $nama = null;
+            foreach ($dataPemohon as $key => $value) {
+                if (in_array(strtolower($key), ['nama', 'nama_lengkap', 'nama_pemohon'])) {
+                    $nama = trim($value);
+                    break;
+                }
+            }
+
+            if (!$nama && $request->user()) {
+                $nama = $request->user()->nama;
+            }
+
+            if (!$nama || strlen($nama) < 2) {
+                return redirect()->back()
+                    ->withErrors(['data_pemohon_nama' => 'Nama lengkap wajib diisi dan minimal 2 karakter'])
+                    ->withInput();
+            }
+
+            $normalizedData = $dataPemohon;
+            $normalizedData['nik_pemohon'] = $nik;
+            if (!isset($normalizedData['nama']) || empty(trim($normalizedData['nama']))) {
+                $normalizedData['nama'] = $nama;
+            }
+
+            $pengajuan = DB::transaction(function () use ($request, $validated, $normalizedData, $nik) {
+                $files = $this->uploadFiles($request, $validated['jenis_surat_id']);
+
+                return $this->createPengajuan(
+                    $nik,
+                    $validated['jenis_surat_id'],
+                    $normalizedData,
+                    $files,
+                    $validated['keterangan']
+                );
+            });
+
+            return redirect()->route('warga.dashboard')
+                ->with('success', 'Pengajuan berhasil dikirim! Nomor pengajuan: #' . ($pengajuan->id ?? 'NEW'));
         } catch (\Illuminate\Validation\ValidationException $e) {
+            $errors = $e->errors();
+            $errorMessages = [];
+
+            foreach ($errors as $field => $messages) {
+                if ($field === 'data_pemohon' || str_starts_with($field, 'data_pemohon.')) {
+                    $errorMessages['data_pemohon'] = 'Data pemohon tidak lengkap';
+                } else {
+                    $errorMessages[$field] = implode(' ', $messages);
+                }
+            }
+
             return redirect()->back()
-                ->withErrors($e->errors())
+                ->withErrors($errorMessages)
                 ->withInput();
         } catch (\Exception $e) {
             return redirect()->back()

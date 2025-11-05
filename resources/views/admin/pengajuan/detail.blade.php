@@ -155,7 +155,6 @@ async function loadPengajuanDetail() {
             throw new Error(result.message);
         }
     } catch (error) {
-        console.error('Error loading pengajuan detail:', error);
         document.getElementById('loading').innerHTML = `
             <div class="text-red-500">
                 <p>Error: ${error.message}</p>
@@ -390,7 +389,6 @@ async function approvePengajuan(id) {
             alert('Error: ' + result.message);
         }
     } catch (error) {
-        console.error('Error approving pengajuan:', error);
         alert('Terjadi kesalahan saat menyetujui pengajuan');
     }
 }
@@ -423,7 +421,6 @@ async function rejectPengajuan(event) {
             alert('Error: ' + result.message);
         }
     } catch (error) {
-        console.error('Error rejecting pengajuan:', error);
         alert('Terjadi kesalahan saat menolak pengajuan');
     }
 }
@@ -451,7 +448,6 @@ async function generateSurat(id) {
             alert('Error: ' + result.message);
         }
     } catch (error) {
-        console.error('Error generating surat:', error);
         alert('Terjadi kesalahan saat generate surat');
     }
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\PengajuanController;
 use App\Http\Controllers\AdminPengajuanController;
 use App\Http\Controllers\AuthController;
@@ -45,7 +46,8 @@ Route::view('/penduduk', 'home')->name('penduduk');
 Route::view('/profil', 'home')->name('profil');
 
 // API Routes for dynamic form (Public - no auth required)
-Route::get('api/jenis-surat/{jenisSuratId}/placeholders', [PengajuanController::class, 'getFormStructure'])->name('jenis-surat.placeholders');
+Route::get('api/jenis-surat/{jenisSuratId}/placeholders', [PengajuanController::class, 'getPlaceholders'])->name('jenis-surat.placeholders');
+Route::get('api/jenis-surat/{jenisSuratId}', [PengajuanController::class, 'getJenisSurat'])->name('jenis-surat.show');
 Route::get('api/pengajuan/form-structure/{jenisSuratId}', [PengajuanController::class, 'getFormStructure'])->name('pengajuan.form-structure');
 
 // Protected Routes
@@ -53,6 +55,7 @@ Route::middleware('auth')->group(function () {
     // Pengajuan Routes
     Route::get('pengajuan/create', [PengajuanController::class, 'create'])->name('pengajuan.create');
     Route::post('pengajuan/create', [PengajuanController::class, 'store'])->name('pengajuan.create.post');
+
 
     // Warga Routes
     Route::middleware('role:warga')->group(function () {
@@ -78,16 +81,12 @@ Route::middleware('auth')->group(function () {
             }
             
             $filePath = Storage::disk('public')->path($path);
-            $file = response()->file($filePath);
-            
-            // Add CORS headers for Office Online preview
-            $file->withHeaders([
+
+            return response()->file($filePath, [
                 'Access-Control-Allow-Origin' => '*',
                 'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS',
                 'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
             ]);
-            
-            return $file;
         })->name('admin.templates.download');
         
         // Admin Pengajuan Routes
@@ -118,7 +117,7 @@ Route::prefix('api/admin')->middleware(['auth', 'role:admin'])->group(function (
 });
 
 // Testing Route (remove in production)
-// Route::view('/testing', 'testing.frontend-test')->name('testing');
+Route::view('/testing', 'testing.frontend-test')->name('testing');
 
 // CSRF Test Route
 Route::get('/csrf-test', function() {

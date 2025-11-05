@@ -128,9 +128,10 @@ class AdminPengajuanController extends Controller
         }
     }
     
-    public function generate(Request $request, $id, SuratGeneratorService $generator)
+    public function generate(Request $request, $id)
     {
         try {
+            $generator = app(SuratGeneratorService::class);
             $p = PengajuanSurat::with('jenis','pemohon')->findOrFail($id);
     
             if ($p->status !== 'disetujui_verifikasi') {
