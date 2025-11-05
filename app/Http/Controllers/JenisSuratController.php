@@ -214,16 +214,20 @@ class JenisSuratController extends Controller
             }
         }
 
-        preg_match_all('/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/', $text, $matches);
-        if (!empty($matches[1])) {
-            foreach (array_unique($matches[1]) as $key) {
-                $placeholders[] = [
-                    'name' => trim($key),
-                    'label' => ucwords(str_replace('_', ' ', $key)),
-                    'type' => 'text',
-                ];
-            }
+        // Tambahkan support untuk {{key}} dan ${key}
+        preg_match_all('/(?:\{\{\s*([a-zA-Z0-9_]+)\s*\}\}|\$\{\s*([a-zA-Z0-9_]+)\s*\})/', $text, $matches);
+
+        // Group 1 dan group 2 merge
+        $rawKeys = array_filter(array_merge($matches[1], $matches[2]));
+
+        foreach (array_unique($rawKeys) as $key) {
+            $placeholders[] = [
+                'name'  => trim($key),
+                'label' => ucwords(str_replace('_', ' ', $key)),
+                'type'  => 'text',
+            ];
         }
+
         return $placeholders;
     }
 

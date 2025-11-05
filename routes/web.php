@@ -41,7 +41,7 @@ Route::get('reset-password/{token}', [AuthController::class, 'showResetPasswordF
 Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('reset-password.post');
 
 // Public Routes
-Route::get('/administrasi', [PengajuanController::class, 'jenis'])->name('administrasi');
+Route::get('/administrasi', [PengajuanController::class, 'listjenis'])->name('administrasi');
 Route::view('/penduduk', 'home')->name('penduduk');
 Route::view('/profil', 'home')->name('profil');
 
@@ -53,7 +53,7 @@ Route::get('api/pengajuan/form-structure/{jenisSuratId}', [PengajuanController::
 // Protected Routes
 Route::middleware('auth')->group(function () {
     // Pengajuan Routes
-    Route::get('pengajuan/create', [PengajuanController::class, 'create'])->name('pengajuan.create');
+    Route::get('pengajuan/create', [PengajuanController::class, 'showcreate'])->name('pengajuan.create');
     Route::post('pengajuan/create', [PengajuanController::class, 'store'])->name('pengajuan.create.post');
 
 

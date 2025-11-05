@@ -237,6 +237,7 @@
                     class="space-y-6" id="pengajuanForm">
                     @csrf
                     <input type="hidden" name="keterangan" id="keteranganField" value="">
+                    <input type="hidden" name="form_structure_definition" id="formStructureDefinitionField" value="">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
                     <!-- Optimized Letter Type Selection -->
@@ -390,7 +391,8 @@
                 submitSpinner: $('#submitSpinner'),
                 jenisSuratSelect: $('#jenis_surat_id'),
                 dynamicFields: $('#dynamicFields'),
-                dynamicUploads: $('#dynamicUploads')
+                dynamicUploads: $('#dynamicUploads'),
+                formStructureDefinitionField: $('#formStructureDefinitionField')
             };
 
             // Optimized field creation with proper form handling
@@ -481,7 +483,22 @@
 
                 return fieldDiv;
             };
-
+ 
+            const setFormStructureDefinition = (definition) => {
+                if (!elements.formStructureDefinitionField) {
+                    return;
+                }
+ 
+                try {
+                    const normalized = Array.isArray(definition) ? definition : [];
+                    elements.formStructureDefinitionField.value = JSON.stringify(normalized);
+                } catch {
+                    elements.formStructureDefinitionField.value = '[]';
+                }
+            };
+ 
+            setFormStructureDefinition([]);
+ 
             // Optimized API calls with error handling and caching
             const apiCall = (url, options = {}) => {
                 return fetch(url, {
@@ -515,14 +532,20 @@
             // Optimized dynamic fields loading
             const loadDynamicFields = async (jenisSuratId) => {
                 const container = elements.dynamicFields;
-                if (!jenisSuratId) return showInitialState(container);
+                if (!jenisSuratId) {
+                    setFormStructureDefinition([]);
+                    return showInitialState(container);
+                }
 
                 showLoading(container, 'Sedang menyiapkan form pengajuan...');
 
                 try {
                     const response = await apiCall(`/api/jenis-surat/${jenisSuratId}/placeholders`);
 
-                    const fields = response.data || [];
+                    const payload = response?.data ?? {};
+                    const fields = Array.isArray(payload)
+                        ? payload
+                        : (Array.isArray(payload.form_structure) ? payload.form_structure : []);
 
                     container.innerHTML = '';
 
@@ -538,6 +561,7 @@
                     <h3 class="text-lg font-medium text-gray-900 mb-2">Form Data Dasar</h3>
                     <p class="text-gray-600">Jenis surat ini menggunakan data yang sudah ada. Silakan isi keterangan di bawah.</p>
                 `;
+                        setFormStructureDefinition([]);
                         container.appendChild(noFieldsMsg);
                     } else {
                         const formHeader = document.createElement('div');
@@ -551,6 +575,7 @@
                         // Create fields
                         const fieldsContainer = document.createElement('div');
                         fieldsContainer.className = 'responsive-grid';
+                        setFormStructureDefinition(fields);
                         fields.forEach((field) => {
                             const fieldElement = createField(field);
                             fieldsContainer.appendChild(fieldElement);
@@ -564,6 +589,7 @@
                     setTimeout(autoFillUserData, 100);
 
                 } catch (error) {
+                    setFormStructureDefinition([]);
                     container.innerHTML = `
                 <div class="bg-red-50 border border-red-200 rounded-lg p-4">
                     <p class="text-red-800">Error memuat form: ${error.message}</p>
@@ -611,7 +637,7 @@
 
                     // Add additional documents section
                     addAdditionalDocuments(container);
-
+ 
                 } catch (error) {
                     container.innerHTML = `
                 <div class="bg-red-50 border border-red-200 rounded-lg p-4">
