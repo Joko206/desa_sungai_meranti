@@ -237,6 +237,7 @@
                     class="space-y-6" id="pengajuanForm">
                     @csrf
                     <input type="hidden" name="keterangan" id="keteranganField" value="">
+                    <input type="hidden" name="form_structure_definition" id="formStructureDefinitionField" value="">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
                     <!-- Optimized Letter Type Selection -->
@@ -253,7 +254,7 @@
                                     <option value="">Pilih jenis surat...</option>
                                     @foreach ($jenisSuratList as $jenis)
                                         <option value="{{ $jenis->id }}"
-                                            {{ request('jenis') == $jenis->id ? 'selected' : '' }}>
+                                            {{ (string) $selectedJenisId === (string) $jenis->id ? 'selected' : '' }}>
                                             {{ $jenis->nama_surat }}
                                         </option>
                                     @endforeach
@@ -390,7 +391,8 @@
                 submitSpinner: $('#submitSpinner'),
                 jenisSuratSelect: $('#jenis_surat_id'),
                 dynamicFields: $('#dynamicFields'),
-                dynamicUploads: $('#dynamicUploads')
+                dynamicUploads: $('#dynamicUploads'),
+                formStructureDefinitionField: $('#formStructureDefinitionField')
             };
 
             // Optimized field creation with proper form handling
@@ -481,7 +483,22 @@
 
                 return fieldDiv;
             };
-
+ 
+            const setFormStructureDefinition = (definition) => {
+                if (!elements.formStructureDefinitionField) {
+                    return;
+                }
+ 
+                try {
+                    const normalized = Array.isArray(definition) ? definition : [];
+                    elements.formStructureDefinitionField.value = JSON.stringify(normalized);
+                } catch {
+                    elements.formStructureDefinitionField.value = '[]';
+                }
+            };
+ 
+            setFormStructureDefinition([]);
+ 
             // Optimized API calls with error handling and caching
             const apiCall = (url, options = {}) => {
                 return fetch(url, {
@@ -515,15 +532,17 @@
             // Optimized dynamic fields loading
             const loadDynamicFields = async (jenisSuratId) => {
                 const container = elements.dynamicFields;
-                if (!jenisSuratId) return showInitialState(container);
+                if (!jenisSuratId) {
+                    setFormStructureDefinition([]);
+                    return showInitialState(container);
+                }
 
                 showLoading(container, 'Sedang menyiapkan form pengajuan...');
 
                 try {
-                    const response = await apiCall(`/api/jenis-surat/${jenisSuratId}/placeholders`);
+                    const response = await apiCall(`/api/pengajuan/form-structure/${jenisSuratId}`);
 
-                    const fields = response.data || [];
-
+                    const fields = response?.data?.form_structure || [];
                     container.innerHTML = '';
 
                     if (fields.length === 0) {
@@ -538,6 +557,7 @@
                     <h3 class="text-lg font-medium text-gray-900 mb-2">Form Data Dasar</h3>
                     <p class="text-gray-600">Jenis surat ini menggunakan data yang sudah ada. Silakan isi keterangan di bawah.</p>
                 `;
+                        setFormStructureDefinition([]);
                         container.appendChild(noFieldsMsg);
                     } else {
                         const formHeader = document.createElement('div');
@@ -551,6 +571,7 @@
                         // Create fields
                         const fieldsContainer = document.createElement('div');
                         fieldsContainer.className = 'responsive-grid';
+                        setFormStructureDefinition(fields);
                         fields.forEach((field) => {
                             const fieldElement = createField(field);
                             fieldsContainer.appendChild(fieldElement);
@@ -564,6 +585,7 @@
                     setTimeout(autoFillUserData, 100);
 
                 } catch (error) {
+                    setFormStructureDefinition([]);
                     container.innerHTML = `
                 <div class="bg-red-50 border border-red-200 rounded-lg p-4">
                     <p class="text-red-800">Error memuat form: ${error.message}</p>
@@ -582,9 +604,8 @@
                 showLoading(container, 'Memuat persyaratan dokumen...');
 
                 try {
-                    const response = await apiCall(`/api/jenis-surat/${jenisSuratId}`);
-                    const jenisSurat = response.data;
-                    const syaratList = jenisSurat?.syarat || [];
+                    const response = await apiCall(`/api/pengajuan/form-structure/${jenisSuratId}`);
+                    const syaratList = response?.data?.syarat || [];
 
                     container.innerHTML = '';
 
@@ -611,7 +632,7 @@
 
                     // Add additional documents section
                     addAdditionalDocuments(container);
-
+ 
                 } catch (error) {
                     container.innerHTML = `
                 <div class="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -625,26 +646,26 @@
 
             // Optimized upload field creation
             const createUploadField = (syarat, index) => {
-                const wrapper = document.createElement('div');
-                const fieldName = `dokumen_${index}`;
-                const cleanSyarat = typeof syarat === 'string' ? syarat : (syarat.nama || syarat.name ||
-                    `Dokumen ${index}`);
-                const fieldId = `upload_${index}`;
+            const wrapper = document.createElement('div');
+            // Ambil label dari JSON
+            const cleanSyarat = typeof syarat === 'string' ? syarat : (syarat.nama || syarat.name || `Dokumen ${index}`);
+            const safeLabel = cleanSyarat.replace(/\s+/g, '_'); // sama seperti di backend
+            const fieldId = `upload_${index}`;
 
-                wrapper.className = 'upload-field fade-in';
-                wrapper.innerHTML = `
-            <div class="flex items-start gap-4">
-                <div class="requirement-badge">${index}</div>
-                <div class="flex-1">
-                    <label for="${fieldId}" class="block text-sm font-medium text-gray-700 mb-2">${cleanSyarat}</label>
-                    <input type="file" id="${fieldId}" name="${fieldName}" accept=".pdf,.jpg,.jpeg,.png,.docx"
-                           class="optimized-input">
-                    <p class="mt-1 text-xs text-gray-500">Format: PDF, JPG, PNG, DOCX (Max 2MB)</p>
+            wrapper.className = 'upload-field fade-in';
+            wrapper.innerHTML = `
+                <div class="flex items-start gap-4">
+                    <div class="requirement-badge">${index}</div>
+                    <div class="flex-1">
+                        <label for="${fieldId}" class="block text-sm font-medium text-gray-700 mb-2">${cleanSyarat}</label>
+                        <input type="file" id="${fieldId}" name="file_syarat[${safeLabel}]" accept=".pdf,.jpg,.jpeg,.png,.docx"
+                            class="optimized-input">
+                        <p class="mt-1 text-xs text-gray-500">Format: PDF, JPG, PNG, DOCX (Max 2MB)</p>
+                    </div>
                 </div>
-            </div>
-        `;
-                return wrapper;
-            };
+            `;
+            return wrapper;
+        };
 
             // Helper functions
             const showInitialState = (container) => {
