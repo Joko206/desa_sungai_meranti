@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory as SpreadsheetIOFactory;
 use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\TemplateProcessor;
 class JenisSuratController extends Controller
 {
     // Menampilkan semua jenis surat
@@ -40,6 +41,8 @@ class JenisSuratController extends Controller
                 'nama_surat' => 'required|string|max:150',
                 'file_template' => 'nullable|file|mimes:pdf,docx,doc,xlsx|max:10240',
                 'deskripsi' => 'nullable|string',
+                'nama_syarat' => 'nullable|array',
+                'nama_syarat.*' => 'string|max:200',
                 'is_active' => 'nullable|boolean',
             ]);
 
@@ -62,11 +65,19 @@ class JenisSuratController extends Controller
                 $formStructure = $this->extractFormStructure($absolutePath, $ext);
             }
 
+            // Proses array nama syarat
+            $namaSyarat = $request->input('nama_syarat', []);
+            // Filter yang kosong dan bersihkan
+            $namaSyarat = array_filter(array_map('trim', $namaSyarat), function($value) {
+                return !empty($value);
+            });
+
             $jenisSurat = JenisSurat::create([
                 'nama_surat' => $request->input('nama_surat'),
                 'file_template' => $filePath,
                 'form_structure' => $formStructure,
                 'deskripsi' => $request->input('deskripsi'),
+                'syarat' => $namaSyarat,
                 'is_active' => $request->boolean('is_active', true),
             ]);
 
@@ -94,6 +105,8 @@ class JenisSuratController extends Controller
             $validator = Validator::make($request->all(), [
                 'nama_surat' => 'sometimes|string|max:150',
                 'deskripsi' => 'sometimes|nullable|string',
+                'nama_syarat' => 'sometimes|nullable|array',
+                'nama_syarat.*' => 'string|max:200',
                 'is_active' => 'sometimes|boolean',
                 'file_template' => 'nullable|file|mimes:pdf,docx,doc,xlsx|max:10240',
             ]);
@@ -111,6 +124,17 @@ class JenisSuratController extends Controller
 
             if (isset($payload['nama_surat'])) $updates['nama_surat'] = $payload['nama_surat'];
             if (isset($payload['deskripsi'])) $updates['deskripsi'] = $payload['deskripsi'];
+            
+            // Process nama syarat array
+            if (array_key_exists('nama_syarat', $payload)) {
+                $namaSyarat = $payload['nama_syarat'] ?? [];
+                // Filter yang kosong dan bersihkan
+                $namaSyarat = array_filter(array_map('trim', $namaSyarat), function($value) {
+                    return !empty($value);
+                });
+                $updates['syarat'] = $namaSyarat;
+            }
+            
             if (isset($payload['is_active'])) $updates['is_active'] = $payload['is_active'];
 
             if ($request->hasFile('file_template')) {
@@ -177,37 +201,47 @@ class JenisSuratController extends Controller
 
     private function extractDocxPlaceholders(string $filePath): array
     {
-        $placeholders = [];
+        if (!file_exists($filePath)) return [];
+
         try {
-            $phpWord = IOFactory::load($filePath);
+            $template = new TemplateProcessor($filePath);
+
+            // Ambil semua placeholder dari template
+            $variables = $template->getVariables(); // array string
+
+            $placeholders = [];
+
+            foreach ($variables as $key) {
+                $placeholders[] = [
+                    'name'  => $key,
+                    'label' => ucwords(str_replace(['_', '-'], ' ', $key)),
+                    'type'  => 'text',
+                ];
+            }
+
+            return $placeholders;
+
         } catch (\Throwable $e) {
             return [];
         }
-
-        $text = '';
-        foreach ($phpWord->getSections() as $section) {
-            foreach ($section->getElements() as $element) {
-                $text .= $this->extractTextFromElement($element);
-            }
-        }
-
-        preg_match_all('/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/', $text, $matches);
-        if (!empty($matches[1])) {
-            foreach (array_unique($matches[1]) as $key) {
-                $placeholders[] = [
-                    'name' => trim($key),
-                    'label' => ucwords(str_replace('_', ' ', $key)),
-                    'type' => 'text',
-                ];
-            }
-        }
-        return $placeholders;
     }
 
     private function extractTextFromElement($element): string
     {
         $text = '';
 
+        // ✅ Text inside table rows & cells
+        if ($element instanceof \PhpOffice\PhpWord\Element\Table) {
+            foreach ($element->getRows() as $row) {
+                foreach ($row->getCells() as $cell) {
+                    foreach ($cell->getElements() as $child) {
+                        $text .= $this->extractTextFromElement($child);
+                    }
+                }
+            }
+        }
+
+        // ✅ Handle TextRun (runs inside paragraphs/cells)
         if ($element instanceof \PhpOffice\PhpWord\Element\TextRun) {
             foreach ($element->getElements() as $child) {
                 $text .= $this->extractTextFromElement($child);
@@ -215,7 +249,7 @@ class JenisSuratController extends Controller
             return $text;
         }
 
-       
+        // ✅ Normal text
         if (method_exists($element, 'getText')) {
             $value = $element->getText();
             if (is_string($value)) {
@@ -223,6 +257,7 @@ class JenisSuratController extends Controller
             }
         }
 
+        // ✅ Recurse elements (paragraph etc.)
         if (method_exists($element, 'getElements')) {
             foreach ($element->getElements() as $child) {
                 $text .= $this->extractTextFromElement($child);

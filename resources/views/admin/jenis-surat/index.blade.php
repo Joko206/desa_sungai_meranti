@@ -299,60 +299,68 @@
     <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white">
         <div class="mt-3">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Tambah Jenis Surat</h3>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Form Column -->
-                <div>
-                    <form id="addForm" onsubmit="submitAddForm(event)" enctype="multipart/form-data">
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Surat</label>
-                            <input type="text" name="nama_surat" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
-                            <textarea name="deskripsi" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
-                        </div>
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">File Template</label>
-                            <input type="file" name="file_template" required class="w-full text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100" accept=".doc,.docx,.pdf,.odt">
-                            <p class="text-xs text-gray-500 mt-1">Pilih file template untuk melihat preview contoh surat</p>
-                        </div>
-                        <div class="flex justify-end space-x-2">
-                            <button type="button" onclick="closeAddModal()" class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">Batal</button>
-                            <button type="submit" id="submitBtn" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                                <span class="submit-text">Simpan</span>
-                                <span class="loading-text hidden inline-flex items-center">
-                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Menyimpan...
-                                </span>
-                            </button>
-                        </div>
-                    </form>
+            <form id="addForm" onsubmit="submitAddForm(event)" enctype="multipart/form-data">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Nama Surat</label>
+                    <input type="text" name="nama_surat" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
+                    <textarea name="deskripsi" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">File Template</label>
+                    <input type="file" name="file_template" required class="w-full text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100" accept=".doc,.docx,.pdf,.odt">
+                    <p class="text-xs text-gray-500 mt-1">Upload file template untuk jenis surat ini</p>
                 </div>
                 
-                <!-- Preview Column -->
-                <div>
-                    <div class="border border-gray-200 rounded-md p-4 bg-gray-50">
-                        <h4 class="text-sm font-medium text-gray-900 mb-3">Preview Contoh Surat</h4>
-                        <div id="templatePreview" class="min-h-[400px] bg-white border border-gray-200 rounded-md flex items-center justify-center">
-                            <div class="text-center text-gray-500">
-                                <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                </svg>
-                                <p class="text-sm">Pilih file template untuk melihat preview</p>
+                <!-- Requirements Section -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Syarat Pengajuan Surat</label>
+                    <p class="text-xs text-gray-500 mb-4">Tambahkan syarat-syarat yang diperlukan untuk pengajuan surat ini</p>
+                    
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4">
+                        <div id="syaratContainer">
+                            <div class="requirement-item bg-white border border-gray-300 rounded-lg p-4 mb-3 shadow-sm">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <span class="text-blue-600 font-medium text-sm">1</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" name="nama_syarat[]" placeholder="Contoh: KTP Asli, KK Asli, Foto 4x6">
+                                    </div>
+                                    <button type="button" class="remove-btn px-3 py-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors" onclick="removeInput(this)">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <p class="text-xs text-gray-500 mt-2">
-                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        
+                        <button type="button" class="add-btn w-full mt-3 px-4 py-3 border-2 border-dashed border-blue-300 text-blue-600 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors font-medium" onclick="addSyarat()">
+                            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                             </svg>
-                            Template akan dikonversi ke PDF untuk preview
-                        </p>
+                            Tambah Syarat Lain
+                        </button>
                     </div>
                 </div>
-            </div>
+                
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="closeAddModal()" class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">Batal</button>
+                    <button type="submit" id="submitBtn" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="submit-text">Simpan</span>
+                        <span class="loading-text hidden inline-flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Menyimpan...
+                        </span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -372,6 +380,29 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label>
                     <textarea name="deskripsi" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
                 </div>
+                
+                <!-- Requirements Section -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Syarat Pengajuan Surat</label>
+                    <p class="text-xs text-gray-500 mb-3">Edit syarat-syarat yang diperlukan untuk pengajuan surat ini</p>
+                    <div id="editSyaratContainer">
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500" name="nama_syarat[]" placeholder="Masukkan nama syarat (contoh: KTP Asli)">
+                            <button type="button" class="btn btn-outline-danger px-3 py-2 border border-l-0 border-gray-300 rounded-r-md hover:bg-red-50" onclick="removeEditInput(this)">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-primary mt-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" onclick="addEditSyarat()">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Tambah Syarat
+                    </button>
+                </div>
+                
                 <div class="flex justify-end space-x-2">
                     <button type="button" onclick="toggleModal('editModal')" class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">Batal</button>
                     <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700">Update</button>
@@ -578,9 +609,77 @@ function hideSuccessNotification() {
 
 function closeAddModal() {
     toggleModal('addModal');
-    resetPreview();
     document.getElementById('addForm').reset();
+    
+    // Reset to single requirement input with improved styling
+    const container = document.getElementById('syaratContainer');
+    const count = container.querySelectorAll('.requirement-item').length;
+    container.innerHTML = `
+        <div class="requirement-item bg-white border border-gray-300 rounded-lg p-4 mb-3 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span class="text-blue-600 font-medium text-sm">1</span>
+                </div>
+                <div class="flex-1">
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" name="nama_syarat[]" placeholder="Contoh: KTP Asli, KK Asli, Foto 4x6">
+                </div>
+                <button type="button" class="remove-btn px-3 py-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors" onclick="removeInput(this)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    `;
+    
     setSubmitButtonState(false);
+}
+
+// Add requirement input function
+function addSyarat() {
+    const container = document.getElementById('syaratContainer');
+    const count = container.querySelectorAll('.requirement-item').length + 1;
+    
+    const newItem = document.createElement('div');
+    newItem.className = 'requirement-item bg-white border border-gray-300 rounded-lg p-4 mb-3 shadow-sm';
+    newItem.innerHTML = `
+        <div class="flex items-center gap-3">
+            <div class="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <span class="text-blue-600 font-medium text-sm">${count}</span>
+            </div>
+            <div class="flex-1">
+                <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" name="nama_syarat[]" placeholder="Contoh: KTP Asli, KK Asli, Foto 4x6">
+            </div>
+            <button type="button" class="remove-btn px-3 py-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors" onclick="removeInput(this)">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+    `;
+    container.appendChild(newItem);
+}
+
+// Remove requirement input function
+function removeInput(button) {
+    const requirementItems = button.closest('#syaratContainer').querySelectorAll('.requirement-item');
+    
+    // Minimal harus ada 1 input
+    if (requirementItems.length > 1) {
+        const requirementItem = button.closest('.requirement-item');
+        requirementItem.remove();
+        
+        // Update numbering
+        const remainingItems = button.closest('#syaratContainer').querySelectorAll('.requirement-item');
+        remainingItems.forEach((item, index) => {
+            const numberSpan = item.querySelector('.flex-shrink-0 span');
+            numberSpan.textContent = index + 1;
+        });
+    } else {
+        // Jika hanya 1 input, clear valuenya
+        const input = button.closest('.requirement-item').querySelector('input');
+        input.value = '';
+    }
 }
 
 function setSubmitButtonState(loading) {
@@ -629,8 +728,7 @@ function sortTable(field) {
         currentSort.direction = 'asc';
     }
     
-    // Implement sorting logic here
-    console.log('Sorting by', field, 'direction:', currentSort.direction);
+    // Sorting logic placeholder (no logging)
 }
 
 function toggleModal(modalId) {
@@ -662,7 +760,73 @@ function editJenisSurat(id) {
         document.querySelector('#editForm [name="id"]').value = item.id;
         document.querySelector('#editForm [name="nama_surat"]').value = item.nama_surat;
         document.querySelector('#editForm [name="deskripsi"]').value = item.deskripsi || '';
+        
+        // Populate requirements
+        const container = document.getElementById('editSyaratContainer');
+        container.innerHTML = ''; // Clear existing
+        
+        // Check if there are existing requirements
+        if (item.syarat && Array.isArray(item.syarat) && item.syarat.length > 0) {
+            item.syarat.forEach(function(syarat) {
+                const newInput = document.createElement('div');
+                newInput.className = 'input-group mb-2';
+                newInput.innerHTML = `
+                    <input type="text" class="form-control flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500" name="nama_syarat[]" value="${syarat}" placeholder="Masukkan nama syarat">
+                    <button type="button" class="btn btn-outline-danger px-3 py-2 border border-l-0 border-gray-300 rounded-r-md hover:bg-red-50" onclick="removeEditInput(this)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                `;
+                container.appendChild(newInput);
+            });
+        } else {
+            // If no requirements, add one empty input
+            const newInput = document.createElement('div');
+            newInput.className = 'input-group mb-2';
+            newInput.innerHTML = `
+                <input type="text" class="form-control flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500" name="nama_syarat[]" placeholder="Masukkan nama syarat (contoh: KTP Asli)">
+                <button type="button" class="btn btn-outline-danger px-3 py-2 border border-l-0 border-gray-300 rounded-r-md hover:bg-red-50" onclick="removeEditInput(this)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            `;
+            container.appendChild(newInput);
+        }
+        
         toggleModal('editModal');
+    }
+}
+
+// Add requirement input function for edit form
+function addEditSyarat() {
+    const container = document.getElementById('editSyaratContainer');
+    const newInput = document.createElement('div');
+    newInput.className = 'input-group mb-2';
+    newInput.innerHTML = `
+        <input type="text" class="form-control flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-500" name="nama_syarat[]" placeholder="Masukkan nama syarat">
+        <button type="button" class="btn btn-outline-danger px-3 py-2 border border-l-0 border-gray-300 rounded-r-md hover:bg-red-50" onclick="removeEditInput(this)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+        </button>
+    `;
+    container.appendChild(newInput);
+}
+
+// Remove requirement input function for edit form
+function removeEditInput(button) {
+    const inputGroups = button.parentElement.parentElement.querySelectorAll('.input-group');
+    
+    // Minimal harus ada 1 input
+    if (inputGroups.length > 1) {
+        const inputGroup = button.parentElement;
+        inputGroup.remove();
+    } else {
+        // Jika hanya 1 input, clear valuenya
+        const input = button.parentElement.querySelector('input');
+        input.value = '';
     }
 }
 
@@ -731,7 +895,6 @@ async function submitAddForm(event) {
         }, 1500);
 
     } catch (error) {
-        console.error('Error:', error);
         alert('Error: ' + error.message);
         setSubmitButtonState(false); // Reset loading state on error
     }
@@ -777,7 +940,6 @@ async function submitEditForm(event) {
         setTimeout(() => location.reload(), 1500);
         
     } catch (error) {
-        console.error('Error:', error);
         alert('Error: ' + error.message);
     }
 }
@@ -878,7 +1040,6 @@ function previewJenisSurat(id) {
     document.getElementById('fileExtension').textContent = extension.toUpperCase();
 
     if (previewUrl) {
-        console.log('Preview URL:', previewUrl); // Debug log
         previewFrame.src = previewUrl;
         
         // Try to load preview, show fallback if it fails
@@ -887,7 +1048,6 @@ function previewJenisSurat(id) {
         };
         
         previewFrame.onerror = function() {
-            console.log('Preview failed, showing fallback');
             previewFrame.classList.add('hidden');
             previewFallback.classList.remove('hidden');
         };
@@ -904,7 +1064,6 @@ function previewJenisSurat(id) {
     }
 
     if (downloadUrl) {
-        console.log('Download URL:', downloadUrl); // Debug log
         downloadTemplateLink.href = downloadUrl;
         downloadTemplateLink.target = '_blank';
     } else {

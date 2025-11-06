@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\PengajuanController;
 use App\Http\Controllers\AdminPengajuanController;
 use App\Http\Controllers\AuthController;
@@ -40,23 +41,22 @@ Route::get('reset-password/{token}', [AuthController::class, 'showResetPasswordF
 Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('reset-password.post');
 
 // Public Routes
-Route::get('/administrasi', [PengajuanController::class, 'jenis'])->name('administrasi');
+Route::get('/administrasi', [PengajuanController::class, 'listjenis'])->name('administrasi');
 Route::view('/penduduk', 'home')->name('penduduk');
 Route::view('/profil', 'home')->name('profil');
-
-// API Routes for dynamic form (Public - no auth required)
-Route::get('api/jenis-surat/{jenisSuratId}/placeholders', [PengajuanController::class, 'getFormStructure'])->name('jenis-surat.placeholders');
-Route::get('api/pengajuan/form-structure/{jenisSuratId}', [PengajuanController::class, 'getFormStructure'])->name('pengajuan.form-structure');
 
 // Protected Routes
 Route::middleware('auth')->group(function () {
     // Pengajuan Routes
-    Route::get('pengajuan/create', [PengajuanController::class, 'create'])->name('pengajuan.create');
-    Route::post('pengajuan/create', [PengajuanController::class, 'store'])->name('pengajuan.create.post');
+    Route::get('pengajuan/create', [PengajuanController::class, 'showcreate'])->name('pengajuan.create');
+    Route::post('pengajuan/create', [PengajuanController::class, 'addPengajuan'])->name('pengajuan.create.post');
+
 
     // Warga Routes
     Route::middleware('role:warga')->group(function () {
         Route::get('/warga/dashboard', [WargaDashboardController::class, 'index'])->name('warga.dashboard');
+        Route::get('/warga/jenis-surat', [WargaDashboardController::class, 'jenisSurat'])->name('warga.jenis-surat');
+        Route::get('/warga/syarat/{jenisSurat}', [WargaDashboardController::class, 'syarat'])->name('warga.syarat');
         Route::get('/warga/pengajuan/{pengajuan}', [WargaDashboardController::class, 'show'])->name('warga.pengajuan.show');
         Route::post('/warga/pengajuan/{pengajuan}/batal', [WargaDashboardController::class, 'cancel'])->name('warga.pengajuan.cancel');
     });
@@ -76,16 +76,12 @@ Route::middleware('auth')->group(function () {
             }
             
             $filePath = Storage::disk('public')->path($path);
-            $file = response()->file($filePath);
-            
-            // Add CORS headers for Office Online preview
-            $file->withHeaders([
+
+            return response()->file($filePath, [
                 'Access-Control-Allow-Origin' => '*',
                 'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS',
                 'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
             ]);
-            
-            return $file;
         })->name('admin.templates.download');
         
         // Admin Pengajuan Routes
@@ -93,7 +89,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/pengajuan/{id}', [AdminPengajuanController::class, 'show'])->name('admin.pengajuan.show');
         Route::post('/pengajuan/{id}/approve', [AdminPengajuanController::class, 'approve'])->name('admin.pengajuan.approve');
         Route::post('/pengajuan/{id}/reject', [AdminPengajuanController::class, 'reject'])->name('admin.pengajuan.reject');
-        Route::post('/pengajuan/{id}/generate', [AdminPengajuanController::class, 'generate'])->name('admin.pengajuan.generate');
+        Route::post('/pengajuan/{id}/generate', [AdminPengajuanController::class, 'generateSurat'])->name('admin.pengajuan.generate');
         
         // Admin Jenis Surat Routes
         Route::get('/jenis-surat', [JenisSuratController::class, 'adminIndex'])->name('admin.jenis-surat.index');
@@ -116,7 +112,7 @@ Route::prefix('api/admin')->middleware(['auth', 'role:admin'])->group(function (
 });
 
 // Testing Route (remove in production)
-// Route::view('/testing', 'testing.frontend-test')->name('testing');
+Route::view('/testing', 'testing.frontend-test')->name('testing');
 
 // CSRF Test Route
 Route::get('/csrf-test', function() {

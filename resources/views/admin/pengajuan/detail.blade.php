@@ -155,7 +155,6 @@ async function loadPengajuanDetail() {
             throw new Error(result.message);
         }
     } catch (error) {
-        console.error('Error loading pengajuan detail:', error);
         document.getElementById('loading').innerHTML = `
             <div class="text-red-500">
                 <p>Error: ${error.message}</p>
@@ -174,7 +173,7 @@ function displayPengajuanDetail(pengajuan) {
     // Header info
     document.getElementById('pengajuan-id').textContent = pengajuan.id;
     document.getElementById('pemohon-nama').textContent = pengajuan.pemohon?.nama || 'Unknown';
-    document.getElementById('pemohon-nik').textContent = pengajuan.nik_pemohon;
+    document.getElementById('pemohon-nik').textContent = pengajuan.pemohon?.nik || 'Unknown';
     document.getElementById('pemohon-alamat').textContent = pengajuan.pemohon?.alamat || 'Unknown';
     document.getElementById('pemohon-hp').textContent = pengajuan.pemohon?.no_hp || 'Unknown';
     document.getElementById('jenis-surat').textContent = pengajuan.jenis?.nama_surat || 'Unknown';
@@ -187,7 +186,7 @@ function displayPengajuanDetail(pengajuan) {
     document.getElementById('status-text').textContent = getStatusLabel(pengajuan.status);
 
     // Data isian
-    displayDataIsian(pengajuan.data_isian);
+    displayDataIsian(pengajuan.data_isian, pengajuan.form_structure);
     
     // File requirements
     displayFileRequirements(pengajuan.file_syarat);
@@ -196,7 +195,7 @@ function displayPengajuanDetail(pengajuan) {
     displayActionButtons(pengajuan);
 }
 
-function displayDataIsian(dataIsian) {
+function displayDataIsian(dataIsian, formStructure = null) {
     const container = document.getElementById('data-isian-content');
     
     if (!dataIsian || typeof dataIsian !== 'object') {
@@ -206,31 +205,134 @@ function displayDataIsian(dataIsian) {
 
     let html = '';
     
-    if (dataIsian.data_pemohon) {
-        html += '<h4 class="font-medium text-gray-900 mb-3">Data Pemohon</h4>';
-        html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">';
-        Object.entries(dataIsian.data_pemohon).forEach(([key, value]) => {
-            if (value) {
+    // Extract actual data from the nested structure
+    let actualData = {};
+    let keterangan = '';
+    
+    // Handle different possible data structures
+    if (dataIsian.form_structure_data) {
+        actualData = dataIsian.form_structure_data;
+        keterangan = dataIsian.keterangan || '';
+    } else if (dataIsian.data_pemohon) {
+        actualData = dataIsian.data_pemohon;
+        keterangan = dataIsian.keterangan || '';
+    } else {
+        actualData = dataIsian;
+        keterangan = dataIsian.keterangan || '';
+    }
+    
+    // Create a field label mapping from form structure
+    const fieldLabels = {};
+    if (formStructure && Array.isArray(formStructure)) {
+        formStructure.forEach(field => {
+            const name = field.name || field.field_name || field.key;
+            const label = field.label || name;
+            fieldLabels[name] = label;
+        });
+    }
+    
+    // Display data in organized sections
+    html += '<div class="space-y-6">';
+    
+    // Data Pemohon Section
+    if (Object.keys(actualData).length > 0) {
+        html += `
+            <div>
+                <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    Data Pengajuan
+                </h4>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+        
+        Object.entries(actualData).forEach(([key, value]) => {
+            if (value !== null && value !== undefined && value !== '') {
+                const displayKey = fieldLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const displayValue = typeof value === 'object' ? JSON.stringify(value, null, 2) : value;
+                
                 html += `
                     <div>
-                        <label class="block text-sm font-medium text-gray-500 capitalize">
-                            ${key.replace('_', ' ')}
+                        <label class="block text-sm font-medium text-gray-600 mb-1">
+                            ${displayKey}
                         </label>
-                        <p class="text-sm text-gray-900">${value}</p>
+                        <p class="text-sm text-gray-900 bg-white p-2 rounded border">${displayValue}</p>
                     </div>
                 `;
             }
         });
-        html += '</div>';
-    }
-    
-    if (dataIsian.keterangan) {
+        
         html += `
-            <h4 class="font-medium text-gray-900 mb-3">Keperluan</h4>
-            <p class="text-sm text-gray-900 bg-gray-50 p-3 rounded">${dataIsian.keterangan}</p>
+                    </div>
+                </div>
+            </div>
         `;
     }
     
+    // Form Structure (Field Definitions) Section
+    if (formStructure && Array.isArray(formStructure) && formStructure.length > 0) {
+        html += `
+            <div>
+                <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Struktur Form
+                </h4>
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <div class="space-y-3">`;
+        
+        formStructure.forEach(field => {
+            const name = field.name || field.field_name || field.key;
+            const label = field.label || name;
+            const type = field.type || 'text';
+            const required = field.required ? ' <span class="text-red-500">*</span>' : '';
+            
+            html += `
+                <div class="flex items-start space-x-3 p-2 bg-white rounded border">
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-medium text-gray-900">${label}</span>
+                            ${required}
+                            <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded">${type}</span>
+                        </div>
+                        ${field.placeholder ? `<p class="text-sm text-gray-500 mt-1">Placeholder: "${field.placeholder}"</p>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Keterangan Section
+    if (keterangan) {
+        html += `
+            <div>
+                <h4 class="font-medium text-gray-900 mb-3 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                    </svg>
+                    Keterangan
+                </h4>
+                <div class="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-400">
+                    <p class="text-sm text-gray-900">${keterangan}</p>
+                </div>
+            </div>
+        `;
+    }
+    
+    // If no data at all
+    if (!Object.keys(actualData).length && !formStructure?.length && !keterangan) {
+        html += '<p class="text-gray-500 italic">Tidak ada data form atau informasi yang tersedia</p>';
+    }
+    
+    html += '</div>';
     container.innerHTML = html;
 }
 
@@ -245,7 +347,7 @@ function displayFileRequirements(files) {
     const html = files.map(file => `
         <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-3">
             <div>
-                <p class="text-sm font-medium text-gray-900">${file.name}</p>
+                <p class="text-sm font-medium text-gray-900">${file.label}</p>
                 <p class="text-xs text-gray-500">Size: ${file.size_kb || 'Unknown'} KB</p>
             </div>
             <div class="flex space-x-2">
@@ -390,7 +492,6 @@ async function approvePengajuan(id) {
             alert('Error: ' + result.message);
         }
     } catch (error) {
-        console.error('Error approving pengajuan:', error);
         alert('Terjadi kesalahan saat menyetujui pengajuan');
     }
 }
@@ -423,7 +524,6 @@ async function rejectPengajuan(event) {
             alert('Error: ' + result.message);
         }
     } catch (error) {
-        console.error('Error rejecting pengajuan:', error);
         alert('Terjadi kesalahan saat menolak pengajuan');
     }
 }
@@ -451,7 +551,6 @@ async function generateSurat(id) {
             alert('Error: ' + result.message);
         }
     } catch (error) {
-        console.error('Error generating surat:', error);
         alert('Terjadi kesalahan saat generate surat');
     }
 }

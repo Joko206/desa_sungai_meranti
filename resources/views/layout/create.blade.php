@@ -198,8 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
             })
-            .catch(error => {
-                console.error('Error fetching placeholders:', error);
+            .catch(() => {
                 dynamicFieldsContainer.innerHTML = '<div class="bg-red-50 border border-red-200 rounded-lg p-4"><p class="text-red-800 text-sm">Gagal memuat form. Silakan coba lagi.</p></div>';
             });
     }

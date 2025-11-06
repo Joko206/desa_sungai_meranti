@@ -11,7 +11,8 @@ class AdminPengajuanController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = PengajuanSurat::with('pemohon', 'jenis', 'suratTerbit')->orderBy('created_at', 'desc');
+            $query = PengajuanSurat::with('pemohon', 'jenis', 'suratTerbit')
+                ->orderBy('created_at', 'desc');
 
             if ($request->has('status')) {
                 $query->where('status', $request->status);
@@ -21,14 +22,43 @@ class AdminPengajuanController extends Controller
                 $searchTerm = $request->search;
                 $query->whereHas('pemohon', function ($q) use ($searchTerm) {
                     $q->where('nama', 'like', "%{$searchTerm}%")
-                      ->orWhere('nik', 'like', "%{$searchTerm}%");
+                    ->orWhere('nik', 'like', "%{$searchTerm}%");
                 });
             }
 
             $list = $query->paginate(15)->withQueryString();
 
-            // Check if this is an AJAX request (for data loading)
-            if ($request->header('Accept') === 'application/json' || $request->ajax()) {
+            // Check if this is an API request (JSON) or web request (HTML)
+            if ($request->expectsJson() || $request->header('Accept') === 'application/json') {
+                // Format response for API/JSON requests
+                $transformed = $list->getCollection()->map(function($item){
+                    return [
+                        "id" => $item->id,
+                        "status" => $item->status,
+                        "tanggal_pengajuan" => $item->created_at,
+                        "nik_pemohon" => $item->pemohon->nik ?? null,
+                        
+                        "pemohon" => [
+                            "nik" => $item->pemohon->nik ?? null,
+                            "nama" => $item->pemohon->nama ?? null
+                        ],
+
+                        "jenis" => [
+                            "nama_surat" => $item->jenis->nama_urat ?? null
+                        ],
+
+                        "data_isian" => $item->data_isian ?? null,
+
+                        "surat_terbit" => $item->suratTerbit ? [
+                            "tanggal_terbit" => $item->suratTerbit->tanggal_terbit,
+                            "status_cetak" => $item->suratTerbit->status_cetak,
+                            "file_surat" => $item->suratTerbit->file_surat,
+                        ] : null
+                    ];
+                });
+
+                $list->setCollection($transformed);
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Data pengajuan berhasil dimuat',
@@ -36,36 +66,79 @@ class AdminPengajuanController extends Controller
                 ]);
             }
 
-            // For web requests, return the view with data
+            // For web requests, return the view
             return view('admin.pengajuan.index', compact('list'));
         } catch (\Exception $e) {
-            if ($request->header('Accept') === 'application/json' || $request->ajax()) {
+            if ($request->expectsJson() || $request->header('Accept') === 'application/json') {
                 return response()->json([
                     'success' => false,
                     'message' => 'Gagal memuat data pengajuan',
                     'error' => $e->getMessage()
                 ], 500);
             }
-            throw $e;
+            
+            // For web requests, show error page
+            abort(500, 'Gagal memuat data pengajuan: ' . $e->getMessage());
         }
     }
+
 
     public function show($id, Request $request)
     {
         try {
             $pengajuan = PengajuanSurat::with('pemohon','jenis','suratTerbit')->findOrFail($id);
-            
-            // Check if this is a web request or API request
+
+            $fileSyarat = collect($pengajuan->file_syarat, true ?? [])
+            ->map(function($file) {
+                return [
+                    "label" => $file['label'] ?? 'Tidak Ada',
+                    "path" => $file['path'] ?? '',
+                    "original_name" => $file['original_name'] ?? '',
+                    "mime" => $file['mime'] ?? '',
+                    "size_kb" => isset($file['size']) ? round($file['size'] / 1024, 2) : null,
+                    "uploaded_at" => $file['uploaded_at'] ?? null,
+                ];
+            })->toArray();
+
+            $data = [
+                "id" => $pengajuan->id,
+                "status" => $pengajuan->status,
+                "tanggal_pengajuan" => $pengajuan->created_at,
+
+                "pemohon" => [
+                    "nik" => $pengajuan->pemohon->nik ?? null,
+                    "nama" => $pengajuan->pemohon->nama ?? null,
+                    "alamat" => $pengajuan->pemohon->alamat ?? null,
+                    "no_hp" => $pengajuan->pemohon->no_hp ?? null
+                ],
+
+                "jenis" => [
+                    "nama_surat" => $pengajuan->jenis->nama_surat ?? null
+                ],
+
+                "data_isian" => $pengajuan->data_isian ?? null,
+
+                "file_syarat" => $fileSyarat ?? null,
+
+                "surat_terbit" => $pengajuan->suratTerbit ? [
+                    "tanggal_terbit" => $pengajuan->suratTerbit->tanggal_terbit,
+                    "status_cetak"   => $pengajuan->suratTerbit->status_cetak,
+                    "file_surat"     => $pengajuan->suratTerbit->file_surat,
+                ] : null
+            ];
+
+            // ✅ If JSON request
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Data pengajuan berhasil dimuat',
-                    'data' => $pengajuan
+                    'data' => $data
                 ]);
             }
 
-            // For web requests, return the view with data
+            // ✅ Otherwise → return blade UI
             return view('admin.pengajuan.detail', compact('pengajuan'));
+
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -74,6 +147,7 @@ class AdminPengajuanController extends Controller
                     'error' => $e->getMessage()
                 ], 404);
             }
+
             abort(404);
         }
     }
@@ -128,9 +202,10 @@ class AdminPengajuanController extends Controller
         }
     }
     
-    public function generate(Request $request, $id, SuratGeneratorService $generator)
+    public function generateSurat(Request $request, $id)
     {
         try {
+            $generator = app(SuratGeneratorService::class);
             $p = PengajuanSurat::with('jenis','pemohon')->findOrFail($id);
     
             if ($p->status !== 'disetujui_verifikasi') {
@@ -141,6 +216,7 @@ class AdminPengajuanController extends Controller
             }
     
             $output = $generator->generateFromTemplate($p);
+            Log::info('Debug generate surat output:', $output);
     
             $surat = SuratTerbit::create([
                 'pengajuan_id' => $p->id,

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -31,7 +32,9 @@ class AuthController extends Controller
             $r->validate([
                 'nik' => 'required|string|size:16|unique:user_desa,nik',
                 'nama' => 'required|string',
-                'email' => 'required|email|unique:user_desa,email',
+                'alamat' => 'required|string|min:10',
+                'no_hp' => 'required|string|regex:/^[0-9]{10,15}$/',
+                'email' => 'nullable|email|unique:user_desa,email',
                 'password' => 'required|min:6'
             ]);
 
@@ -60,6 +63,8 @@ class AuthController extends Controller
                 $user = UserDesa::create([
                     'nik' => $r->nik,
                     'nama' => $r->nama,
+                    'alamat' => $r->alamat,
+                    'no_hp' => $r->no_hp,
                     'email' => $r->email,
                     'password' => $r->password,
                     'role_id' => $role->id,
@@ -80,15 +85,16 @@ class AuthController extends Controller
                 $successMessage = $roleName === 'admin'
                     ? 'Registrasi berhasil sebagai admin! Selamat datang ' . $user->nama
                     : 'Registrasi berhasil! Selamat datang ' . $user->nama;
+                $redirectTarget = $this->determineRoleRedirectUrl($r, $roleName, $dashboardRoute);
 
-                return redirect()->intended(route($dashboardRoute))->with('success', $successMessage);
+                return redirect()->to($redirectTarget)->with('success', $successMessage);
             }
 
             $token = $user->createToken('api-token')->plainTextToken;
 
             return response()->json([
                 'success' => true,
-                'message' => $role->nama_role === 'admin' ? 'Registrasi berhasil sebagai admin' : 'Registrasi berhasil sebagai warga',
+                'message' => 'Registrasi berhasil',
                 'token' => $token,
                 'user' => [
                     'nik' => $user->nik,
@@ -143,12 +149,10 @@ class AuthController extends Controller
                 
                 // Redirect based on user role
                 $roleName = $user->role ? $user->role->nama_role : 'warga';
-                
-                if ($roleName === 'admin') {
-                    return redirect()->intended(route('admin.dashboard'))->with('success', 'Selamat datang, ' . $user->nama . '!');
-                } else {
-                    return redirect()->intended(route('warga.dashboard'))->with('success', 'Selamat datang, ' . $user->nama . '!');
-                }
+                $dashboardRoute = $roleName === 'admin' ? 'admin.dashboard' : 'warga.dashboard';
+                $redirectTarget = $this->determineRoleRedirectUrl($r, $roleName, $dashboardRoute);
+
+                return redirect()->to($redirectTarget)->with('success', 'Selamat datang, ' . $user->nama . '!');
             }
 
             // Handle API login
@@ -231,6 +235,29 @@ class AuthController extends Controller
                 'message' => 'Gagal mengambil data user.',
             ], 500);
         }
+    }
+
+    protected function determineRoleRedirectUrl(Request $request, string $roleName, string $dashboardRouteName): string
+    {
+        $intendedUrl = $request->session()->pull('url.intended');
+
+        if ($intendedUrl) {
+            $path = parse_url($intendedUrl, PHP_URL_PATH) ?? '/';
+            $normalizedPath = '/' . ltrim($path, '/');
+
+            $allowedPrefixes = match ($roleName) {
+                'admin' => ['/admin'],
+                default => ['/warga'],
+            };
+
+            foreach ($allowedPrefixes as $prefix) {
+                if (Str::startsWith($normalizedPath, $prefix)) {
+                    return $intendedUrl;
+                }
+            }
+        }
+
+        return route($dashboardRouteName);
     }
 
     // Password Reset Methods
