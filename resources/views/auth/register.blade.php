@@ -82,6 +82,7 @@
                                         maxlength="16"
                                         class="w-full px-4 py-3 rounded-2xl bg-emerald-950/60 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-150"
                                         placeholder="Masukkan NIK 16 digit"
+                                        onblur="sanitizeInput(this)"
                                     >
                                     @error('nik')
                                         <p class="text-rose-200 text-sm">{{ $message }}</p>
@@ -99,6 +100,7 @@
                                         required
                                         class="w-full px-4 py-3 rounded-2xl bg-emerald-950/60 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-150"
                                         placeholder="Masukkan nama lengkap"
+                                        onblur="sanitizeInput(this)"
                                     >
                                     @error('nama')
                                         <p class="text-rose-200 text-sm">{{ $message }}</p>
@@ -116,6 +118,7 @@
                                         rows="3"
                                         class="w-full px-4 py-3 rounded-2xl bg-emerald-950/60 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-150 resize-none"
                                         placeholder="Masukkan alamat lengkap (RT/RW, Jalan, Desa, Kecamatan)"
+                                        onblur="sanitizeInput(this)"
                                     ></textarea>
                                     @error('alamat')
                                         <p class="text-rose-200 text-sm">{{ $message }}</p>
@@ -133,6 +136,7 @@
                                         required
                                         class="w-full px-4 py-3 rounded-2xl bg-emerald-950/60 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-150"
                                         placeholder="08xxxxxxxxxx"
+                                        onblur="sanitizeInput(this)"
                                     >
                                     @error('no_hp')
                                         <p class="text-rose-200 text-sm">{{ $message }}</p>
@@ -149,6 +153,7 @@
                                         name="email"
                                         class="w-full px-4 py-3 rounded-2xl bg-emerald-950/60 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-150"
                                         placeholder="nama@email.com (boleh kosong)"
+                                        onblur="sanitizeInput(this)"
                                     >
                                     @error('email')
                                         <p class="text-rose-200 text-sm">{{ $message }}</p>
@@ -170,6 +175,7 @@
                                         minlength="6"
                                         class="w-full px-4 py-3 rounded-2xl bg-emerald-950/60 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-150"
                                         placeholder="Minimal 6 karakter"
+                                        onblur="sanitizeInput(this)"
                                     >
                                     @error('password')
                                         <p class="text-rose-200 text-sm">{{ $message }}</p>
@@ -186,6 +192,7 @@
                                         name="kode_rahasia"
                                         class="w-full px-4 py-3 rounded-2xl bg-emerald-950/60 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-150"
                                         placeholder="Kosongkan jika mendaftar sebagai warga"
+                                        onblur="sanitizeInput(this)"
                                     >
                                     <p class="text-xs text-emerald-100/70 mt-1">
                                         Isi jika Anda adalah staf atau admin desa untuk mendapatkan akses khusus.
@@ -243,6 +250,21 @@ document.getElementById('no_hp').addEventListener('input', function(e) {
     }
     e.target.value = value;
 });
+
+function sanitizeInput(input) {
+    if (input && input.value) {
+        // Apply htmlspecialchars equivalent in JavaScript
+        const div = document.createElement('div');
+        div.textContent = input.value;
+        const sanitized = div.innerHTML;
+        input.value = sanitized.replace(/&/g, '&')
+                             .replace(/</g, '<')
+                             .replace(/>/g, '>')
+                             .replace(/"/g, '"')
+                             .replace(/'/g, '&#x27;')
+                             .replace(/\//g, '&#x2F;');
+    }
+}
 
 function validateForm() {
     const alamat = document.getElementById('alamat').value.trim();

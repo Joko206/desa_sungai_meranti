@@ -44,6 +44,7 @@
                                     class="w-full px-4 py-3 rounded-2xl bg-emerald-950/60 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-150"
                                     placeholder="Masukkan NIK 16 digit"
                                     autofocus
+                                    onblur="sanitizeInput(this)"
                                 >
                                 @error('nik')
                                     <p class="text-rose-200 text-sm">{{ $message }}</p>
@@ -168,6 +169,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     nikInput.focus();
 });
+
+function sanitizeInput(input) {
+    if (input && input.value) {
+        // Apply htmlspecialchars equivalent in JavaScript
+        const div = document.createElement('div');
+        div.textContent = input.value;
+        const sanitized = div.innerHTML;
+        input.value = sanitized.replace(/&/g, '&')
+                             .replace(/</g, '<')
+                             .replace(/>/g, '>')
+                             .replace(/"/g, '"')
+                             .replace(/'/g, '&#x27;')
+                             .replace(/\//g, '&#x2F;');
+    }
+}
 
 function togglePassword() {
     const passwordInput = document.getElementById('password');
