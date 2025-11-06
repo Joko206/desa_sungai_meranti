@@ -57,7 +57,7 @@ class PengajuanController extends Controller
     /* =============================
      |  API — CREATE PENGAJUAN
      ============================= */
-    public function AddPengajuan(Request $request)
+    public function addPengajuan(Request $request)
     {
         try {
             DB::beginTransaction();
@@ -66,54 +66,41 @@ class PengajuanController extends Controller
                 'jenis_surat_id' => 'required|exists:jenis_surat,id',
                 'data_pemohon'   => 'required|array',
                 'keterangan'     => 'required|string',
+                'agree_terms'    => 'required|accepted',
             ]);
 
             $jenisSuratId = (int) $validated['jenis_surat_id'];
             $dataPemohon  = $validated['data_pemohon'];
 
-            [$nik, $nama] = $this->parseNikNama($dataPemohon);
+            [$nik, $nama] = $this->parseNikNama($dataPemohon, $request);
 
             $this->validateNikNama($nik, $nama);
 
-            $formDefinition = $this->resolveFormStructureDefinition(
-                $jenisSuratId,
-                $request->input('form_structure_definition')
-            );
-
-            $files = $this->uploadFiles($request, $jenisSuratId);
-
             $pengajuan = $this->createPengajuan(
-                $nik,
-                $jenisSuratId,
-                $dataPemohon,
-                $files,
-                $validated['keterangan'],
-                $formDefinition
-            );
+            $nik,
+            $jenisSuratId,
+            $dataPemohon,
+            [], // kosong dulu
+            $validated['keterangan']
+        );
+
+            $files = $this->uploadFiles($request, $pengajuan->id);
+            $pengajuan->update(['file_syarat' => $files]);
 
             DB::commit();
 
-            return $this->ok('Pengajuan berhasil dikirim', [
-                'id'               => $pengajuan->id,
-                'nik_pemohon'      => $pengajuan->nik_pemohon,
-                'jenis_surat_id'   => $pengajuan->jenis_surat_id,
-                'tanggal_pengajuan'=> $pengajuan->tanggal_pengajuan,
-                'status'           => $pengajuan->status,
-                'data_isian'       => $pengajuan->data_isian,
-                'file_syarat'      => $pengajuan->file_syarat
-            ], 201);
+           return redirect()->route('warga.dashboard')
+                         ->with('success', 'Pengajuan berhasil dikirim');
 
         } catch (\Throwable $e) {
 
             DB::rollBack();
 
-            return $this->fail(
-                $e instanceof \Illuminate\Validation\ValidationException
-                    ? 'Validasi gagal'
-                    : 'Gagal mengajukan surat',
-                $e instanceof \Illuminate\Validation\ValidationException ? 422 : 500,
-                $e
-            );
+            $message = $e instanceof \Illuminate\Validation\ValidationException
+                ? 'Validasi gagal: ' . $e->getMessage()
+                : 'Gagal mengajukan surat: ' . $e->getMessage();
+
+            return redirect()->back()->withInput()->withErrors(['general' => $message]);
         }
     }
 
@@ -122,7 +109,7 @@ class PengajuanController extends Controller
      |  HELPERS
      ============================= */
 
-    private function parseNikNama(array $data): array
+    private function parseNikNama(array $data, Request $request = null): array
     {
         $nik = null;
         $nama = null;
@@ -137,6 +124,15 @@ class PengajuanController extends Controller
             if (!$nama && in_array($key, ['nama', 'nama_lengkap', 'nama_pemohon'])) {
                 $nama = trim($val);
             }
+        }
+
+        // Fallback to authenticated user data if not found in form
+        if (!$nik && $request && $request->user()) {
+            $nik = $request->user()->nik;
+        }
+
+        if (!$nama && $request && $request->user()) {
+            $nama = $request->user()->nama;
         }
 
         return [$nik, $nama];
@@ -159,47 +155,39 @@ class PengajuanController extends Controller
         }
     }
 
-
-    private function uploadFiles(Request $request, int $jenisId): array
+    private function uploadFiles(Request $request, $pengajuanId)
     {
-        $files = [];
+        $jenisSurat = JenisSurat::findOrFail($request->jenis_surat_id);
+        $syaratList = $jenisSurat->syarat ?? [];
+        $uploadedFiles = [];
+        $files = $request->file('file_syarat') ?? [];
 
-        foreach ($request->allFiles() as $name => $file) {
-            if (!str_starts_with($name, 'dokumen_')) {
-                continue;
+        foreach ($syaratList as $label) {
+            $safeLabel = str_replace(' ', '_', $label);
+
+            // Kalau file tidak di-upload, langsung throw exception
+            if (!isset($files[$safeLabel])) {
+                throw new \Exception("File persyaratan '{$label}' belum di-upload");
             }
 
-            if (!$file instanceof \Illuminate\Http\UploadedFile) {
-                continue;
-            }
+            $file = $files[$safeLabel];
+            $filename = $safeLabel . '-' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs("persyaratan/{$pengajuanId}", $filename);
 
-            $ext = strtolower($file->getClientOriginalExtension());
-            $allowed = ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'xlsx'];
-
-            if (!in_array($ext, $allowed)) {
-                continue;
-            }
-
-            $stored = $file->storeAs(
-                "public/persyaratan/$jenisId",
-                Str::uuid() . '.' . $ext
-            );
-
-            $files[] = [
-                'field_name' => $name,
-                'name'       => $file->getClientOriginalName(),
-                'path'       => $stored,
-                'mime'       => $file->getMimeType(),
-                'size_kb'    => round($file->getSize() / 1024, 2),
-                'uploaded_at'=> now()
+            $uploadedFiles[] = [
+                "label" => $label,
+                "path" => $path,
+                "mime" => $file->getClientMimeType(),
+                "size" => $file->getSize(),
+                "uploaded_at" => now(),
+                "original_name" => $file->getClientOriginalName()
             ];
         }
 
-        return $files;
+        return $uploadedFiles;
     }
 
-
-    private function createPengajuan(string $nik, int $jenisId, array $data, array $files, string $ket, array $form)
+    private function createPengajuan(string $nik, int $jenisId, array $data, array $files, string $ket)
     {
         return PengajuanSurat::create([
             'nik_pemohon'      => $nik,
@@ -207,35 +195,15 @@ class PengajuanController extends Controller
             'tanggal_pengajuan'=> now(),
             'status'           => 'menunggu',
             'data_isian'       => [
-                'form_structure_definition' => $form,
                 'form_structure_data'       => $data,
-                'keterangan'                => $ket,
-                'submission_timestamp'      => now(),
+                'keterangan'                => $ket
             ],
             'file_syarat'      => $files,
         ]);
     }
 
 
-    private function resolveFormStructureDefinition(int $jenisId, $input): array
-    {
-        // PRIORITY: input frontend
-        if (is_array($input) && !empty($input)) {
-            return $input;
-        }
-
-        if (is_string($input) && ($decoded = json_decode($input, true))) {
-            return $decoded;
-        }
-
-        // fallback DB
-        $model = JenisSurat::find($jenisId);
-        if (!$model) return [];
-
-        return is_array($model->form_structure)
-            ? $model->form_structure
-            : json_decode($model->form_structure ?? '[]', true) ?? [];
-    }
+    
 
 
     /* =============================
@@ -270,7 +238,7 @@ class PengajuanController extends Controller
         $jenisSuratList = JenisSurat::where('is_active', true)->get();
         $selectedJenisId = $request->query('jenis');
         $user = $request->user();
-        return view('warga/pengajuan/form-pengajuan', compact('jenisSuratList', 'selectedJenisId', 'user'));
+        return view('warga.pengajuan.form-pengajuan', compact('jenisSuratList', 'selectedJenisId', 'user'));
     }
 
     public function getFormStructure($jenisSuratId)
@@ -301,6 +269,12 @@ class PengajuanController extends Controller
                     'required'    => $field['required'] ?? true
                 ];
             }, $formStructure ?? []);
+
+            $hiddenFields = ['year', 'date_terbit', 'Date_Terbit']; // tambahkan variasi jika beda kapital
+            $mappedFields = array_values(array_filter($mappedFields, function ($field) use ($hiddenFields) 
+            {
+                return !in_array(strtolower($field['name']), array_map('strtolower', $hiddenFields));
+            }));
 
             return response()->json([
                 'success' => true,

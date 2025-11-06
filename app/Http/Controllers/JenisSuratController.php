@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory as SpreadsheetIOFactory;
 use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\TemplateProcessor;
 class JenisSuratController extends Controller
 {
     // Menampilkan semua jenis surat
@@ -200,41 +201,47 @@ class JenisSuratController extends Controller
 
     private function extractDocxPlaceholders(string $filePath): array
     {
-        $placeholders = [];
+        if (!file_exists($filePath)) return [];
+
         try {
-            $phpWord = IOFactory::load($filePath);
+            $template = new TemplateProcessor($filePath);
+
+            // Ambil semua placeholder dari template
+            $variables = $template->getVariables(); // array string
+
+            $placeholders = [];
+
+            foreach ($variables as $key) {
+                $placeholders[] = [
+                    'name'  => $key,
+                    'label' => ucwords(str_replace(['_', '-'], ' ', $key)),
+                    'type'  => 'text',
+                ];
+            }
+
+            return $placeholders;
+
         } catch (\Throwable $e) {
             return [];
         }
-
-        $text = '';
-        foreach ($phpWord->getSections() as $section) {
-            foreach ($section->getElements() as $element) {
-                $text .= $this->extractTextFromElement($element);
-            }
-        }
-
-        // Tambahkan support untuk {{key}} dan ${key}
-        preg_match_all('/(?:\{\{\s*([a-zA-Z0-9_]+)\s*\}\}|\$\{\s*([a-zA-Z0-9_]+)\s*\})/', $text, $matches);
-
-        // Group 1 dan group 2 merge
-        $rawKeys = array_filter(array_merge($matches[1], $matches[2]));
-
-        foreach (array_unique($rawKeys) as $key) {
-            $placeholders[] = [
-                'name'  => trim($key),
-                'label' => ucwords(str_replace('_', ' ', $key)),
-                'type'  => 'text',
-            ];
-        }
-
-        return $placeholders;
     }
 
     private function extractTextFromElement($element): string
     {
         $text = '';
 
+        // ✅ Text inside table rows & cells
+        if ($element instanceof \PhpOffice\PhpWord\Element\Table) {
+            foreach ($element->getRows() as $row) {
+                foreach ($row->getCells() as $cell) {
+                    foreach ($cell->getElements() as $child) {
+                        $text .= $this->extractTextFromElement($child);
+                    }
+                }
+            }
+        }
+
+        // ✅ Handle TextRun (runs inside paragraphs/cells)
         if ($element instanceof \PhpOffice\PhpWord\Element\TextRun) {
             foreach ($element->getElements() as $child) {
                 $text .= $this->extractTextFromElement($child);
@@ -242,7 +249,7 @@ class JenisSuratController extends Controller
             return $text;
         }
 
-       
+        // ✅ Normal text
         if (method_exists($element, 'getText')) {
             $value = $element->getText();
             if (is_string($value)) {
@@ -250,6 +257,7 @@ class JenisSuratController extends Controller
             }
         }
 
+        // ✅ Recurse elements (paragraph etc.)
         if (method_exists($element, 'getElements')) {
             foreach ($element->getElements() as $child) {
                 $text .= $this->extractTextFromElement($child);

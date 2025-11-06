@@ -254,7 +254,7 @@
                                     <option value="">Pilih jenis surat...</option>
                                     @foreach ($jenisSuratList as $jenis)
                                         <option value="{{ $jenis->id }}"
-                                            {{ request('jenis') == $jenis->id ? 'selected' : '' }}>
+                                            {{ (string) $selectedJenisId === (string) $jenis->id ? 'selected' : '' }}>
                                             {{ $jenis->nama_surat }}
                                         </option>
                                     @endforeach
@@ -540,13 +540,9 @@
                 showLoading(container, 'Sedang menyiapkan form pengajuan...');
 
                 try {
-                    const response = await apiCall(`/api/jenis-surat/${jenisSuratId}/placeholders`);
+                    const response = await apiCall(`/api/pengajuan/form-structure/${jenisSuratId}`);
 
-                    const payload = response?.data ?? {};
-                    const fields = Array.isArray(payload)
-                        ? payload
-                        : (Array.isArray(payload.form_structure) ? payload.form_structure : []);
-
+                    const fields = response?.data?.form_structure || [];
                     container.innerHTML = '';
 
                     if (fields.length === 0) {
@@ -608,9 +604,8 @@
                 showLoading(container, 'Memuat persyaratan dokumen...');
 
                 try {
-                    const response = await apiCall(`/api/jenis-surat/${jenisSuratId}`);
-                    const jenisSurat = response.data;
-                    const syaratList = jenisSurat?.syarat || [];
+                    const response = await apiCall(`/api/pengajuan/form-structure/${jenisSuratId}`);
+                    const syaratList = response?.data?.syarat || [];
 
                     container.innerHTML = '';
 
@@ -651,26 +646,26 @@
 
             // Optimized upload field creation
             const createUploadField = (syarat, index) => {
-                const wrapper = document.createElement('div');
-                const fieldName = `dokumen_${index}`;
-                const cleanSyarat = typeof syarat === 'string' ? syarat : (syarat.nama || syarat.name ||
-                    `Dokumen ${index}`);
-                const fieldId = `upload_${index}`;
+            const wrapper = document.createElement('div');
+            // Ambil label dari JSON
+            const cleanSyarat = typeof syarat === 'string' ? syarat : (syarat.nama || syarat.name || `Dokumen ${index}`);
+            const safeLabel = cleanSyarat.replace(/\s+/g, '_'); // sama seperti di backend
+            const fieldId = `upload_${index}`;
 
-                wrapper.className = 'upload-field fade-in';
-                wrapper.innerHTML = `
-            <div class="flex items-start gap-4">
-                <div class="requirement-badge">${index}</div>
-                <div class="flex-1">
-                    <label for="${fieldId}" class="block text-sm font-medium text-gray-700 mb-2">${cleanSyarat}</label>
-                    <input type="file" id="${fieldId}" name="${fieldName}" accept=".pdf,.jpg,.jpeg,.png,.docx"
-                           class="optimized-input">
-                    <p class="mt-1 text-xs text-gray-500">Format: PDF, JPG, PNG, DOCX (Max 2MB)</p>
+            wrapper.className = 'upload-field fade-in';
+            wrapper.innerHTML = `
+                <div class="flex items-start gap-4">
+                    <div class="requirement-badge">${index}</div>
+                    <div class="flex-1">
+                        <label for="${fieldId}" class="block text-sm font-medium text-gray-700 mb-2">${cleanSyarat}</label>
+                        <input type="file" id="${fieldId}" name="file_syarat[${safeLabel}]" accept=".pdf,.jpg,.jpeg,.png,.docx"
+                            class="optimized-input">
+                        <p class="mt-1 text-xs text-gray-500">Format: PDF, JPG, PNG, DOCX (Max 2MB)</p>
+                    </div>
                 </div>
-            </div>
-        `;
-                return wrapper;
-            };
+            `;
+            return wrapper;
+        };
 
             // Helper functions
             const showInitialState = (container) => {

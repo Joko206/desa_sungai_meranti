@@ -45,16 +45,11 @@ Route::get('/administrasi', [PengajuanController::class, 'listjenis'])->name('ad
 Route::view('/penduduk', 'home')->name('penduduk');
 Route::view('/profil', 'home')->name('profil');
 
-// API Routes for dynamic form (Public - no auth required)
-Route::get('api/jenis-surat/{jenisSuratId}/placeholders', [PengajuanController::class, 'getPlaceholders'])->name('jenis-surat.placeholders');
-Route::get('api/jenis-surat/{jenisSuratId}', [PengajuanController::class, 'getJenisSurat'])->name('jenis-surat.show');
-Route::get('api/pengajuan/form-structure/{jenisSuratId}', [PengajuanController::class, 'getFormStructure'])->name('pengajuan.form-structure');
-
 // Protected Routes
 Route::middleware('auth')->group(function () {
     // Pengajuan Routes
     Route::get('pengajuan/create', [PengajuanController::class, 'showcreate'])->name('pengajuan.create');
-    Route::post('pengajuan/create', [PengajuanController::class, 'store'])->name('pengajuan.create.post');
+    Route::post('pengajuan/create', [PengajuanController::class, 'addPengajuan'])->name('pengajuan.create.post');
 
 
     // Warga Routes
@@ -94,7 +89,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/pengajuan/{id}', [AdminPengajuanController::class, 'show'])->name('admin.pengajuan.show');
         Route::post('/pengajuan/{id}/approve', [AdminPengajuanController::class, 'approve'])->name('admin.pengajuan.approve');
         Route::post('/pengajuan/{id}/reject', [AdminPengajuanController::class, 'reject'])->name('admin.pengajuan.reject');
-        Route::post('/pengajuan/{id}/generate', [AdminPengajuanController::class, 'generate'])->name('admin.pengajuan.generate');
+        Route::post('/pengajuan/{id}/generate', [AdminPengajuanController::class, 'generateSurat'])->name('admin.pengajuan.generate');
         
         // Admin Jenis Surat Routes
         Route::get('/jenis-surat', [JenisSuratController::class, 'adminIndex'])->name('admin.jenis-surat.index');

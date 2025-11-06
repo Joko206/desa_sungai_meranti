@@ -28,7 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('pengajuan/{id}', [AdminPengajuanController::class, 'show']);
         Route::post('pengajuan/{id}/approve', [AdminPengajuanController::class, 'approve']);
         Route::post('pengajuan/{id}/reject', [AdminPengajuanController::class, 'reject']);
-        Route::post('pengajuan/{id}/generate', [AdminPengajuanController::class, 'generate']);
+        Route::post('pengajuan/{id}/generate', [AdminPengajuanController::class, 'generateSurat']);
     });
 
     // Auth routes
