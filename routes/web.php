@@ -42,6 +42,9 @@ Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('r
 
 // Public Routes
 Route::get('/administrasi', [PengajuanController::class, 'listjenis'])->name('administrasi');
+Route::get('/tutorial-pengajuan', function() {
+    return view('warga.tutorial-pengajuan');
+})->name('warga.tutorial-pengajuan');
 Route::view('/penduduk', 'home')->name('penduduk');
 Route::view('/profil', 'home')->name('profil');
 
