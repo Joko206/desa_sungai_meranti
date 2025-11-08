@@ -6,6 +6,9 @@ use App\Models\PengajuanSurat;
 use App\Models\JenisSurat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class WargaDashboardController extends Controller
 {
@@ -91,5 +94,70 @@ class WargaDashboardController extends Controller
         return view('warga.syarat', [
             'jenisSurat' => $jenisSurat
         ]);
+    }
+
+    public function serveFile($pengajuanId, $fileIndex, Request $request)
+    {
+        try {
+            $user = Auth::user();
+            
+            // Find the pengajuan and ensure it belongs to this user
+            $pengajuan = PengajuanSurat::findOrFail($pengajuanId);
+            
+            if ($pengajuan->nik_pemohon !== $user->nik) {
+                abort(403, 'Anda tidak berhak mengakses file ini.');
+            }
+            
+            // Get file_syarat array
+            $fileSyarat = $pengajuan->file_syarat;
+            
+            if (!$fileSyarat || !isset($fileSyarat[$fileIndex])) {
+                abort(404, 'File tidak ditemukan');
+            }
+
+            $file = $fileSyarat[$fileIndex];
+            $filePath = $file['path'] ?? null;
+
+            if (!$filePath) {
+                abort(404, 'Path file tidak ditemukan');
+            }
+
+            // Remove 'public/' prefix if present to get the storage path
+            $storagePath = str_replace('public/', '', $filePath);
+            
+            // Check if file exists in private storage
+            if (!Storage::exists($storagePath)) {
+                abort(404, 'File tidak ada');
+            }
+
+            // Get file contents and metadata
+            $fileContent = Storage::get($storagePath);
+            $mimeType = Storage::mimeType($storagePath);
+            $fileName = $file['original_name'] ?? $file['label'] ?? 'document';
+
+            // Determine response type based on request parameters
+            if ($request->has('download')) {
+                // Force download
+                return response($fileContent, 200, [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                    'Content-Length' => strlen($fileContent),
+                ]);
+            } else {
+                // Preview/view the file
+                return response($fileContent, 200, [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+                    'Content-Length' => strlen($fileContent),
+                    'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                    'Pragma' => 'no-cache',
+                    'Expires' => '0',
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Error serving warga file: ' . $e->getMessage());
+            abort(500, 'Error serving file');
+        }
     }
 }

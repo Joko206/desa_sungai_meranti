@@ -159,6 +159,143 @@
                 </div>
             </div>
         </div>
+        <!-- Data Isian Card -->
+        <div class="mb-6 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
+                <h2 class="text-lg font-semibold text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Data Pengajuan
+                </h2>
+                <p class="mt-1 text-sm text-green-100">Detail informasi yang Anda isi</p>
+            </div>
+            <div class="px-6 py-5">
+                @php
+                    // Get the actual data isian from the pengajuan
+                    $fullDataIsian = $pengajuan->data_isian ?? [];
+                    $actualData = [];
+                    $keteranganData = null;
+                    
+                    // Handle different possible data structures
+                    if (isset($fullDataIsian['form_structure_data'])) {
+                        $actualData = $fullDataIsian['form_structure_data'];
+                        $keteranganData = $fullDataIsian['keterangan'] ?? null;
+                    } elseif (isset($fullDataIsian['data_pemohon'])) {
+                        $actualData = $fullDataIsian['data_pemohon'];
+                        $keteranganData = $fullDataIsian['keterangan'] ?? null;
+                    } else {
+                        $actualData = $fullDataIsian;
+                        $keteranganData = $fullDataIsian['keterangan'] ?? null;
+                    }
+                    
+                    // Remove the keterangan from actualData if it exists
+                    unset($actualData['keterangan']);
+                @endphp
+
+                @if(count($actualData) > 0)
+                    <div class="space-y-6">
+                        <!-- Data Pengajuan Section -->
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                            <h4 class="font-semibold text-green-800 mb-4 flex items-center text-lg">
+                                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                </div>
+                                Data Pengajuan
+                            </h4>
+                            <div class="bg-white rounded-lg p-6 shadow-sm">
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    @foreach($actualData as $key => $value)
+                                        @if($value !== null && $value !== '' && $value !== 0)
+                                            @php
+                                                $displayKey = $key;
+                                                $displayValue = $value;
+                                                
+                                                // Format display key
+                                                $displayKey = str_replace('_', ' ', $displayKey);
+                                                $displayKey = ucwords($displayKey);
+                                                
+                                                // Determine field type and styling
+                                                $fieldTypeIcon = '📝';
+                                                $fieldTypeColor = 'text-gray-600';
+                                                
+                                                if (stripos($displayKey, 'nik') !== false || stripos($displayKey, 'nomor') !== false) {
+                                                    $fieldTypeIcon = '🆔';
+                                                    $fieldTypeColor = 'text-blue-600';
+                                                } elseif (stripos($displayKey, 'nama') !== false) {
+                                                    $fieldTypeIcon = '👤';
+                                                    $fieldTypeColor = 'text-green-600';
+                                                } elseif (stripos($displayKey, 'alamat') !== false || stripos($displayKey, 'tempat') !== false) {
+                                                    $fieldTypeIcon = '📍';
+                                                    $fieldTypeColor = 'text-red-600';
+                                                } elseif (stripos($displayKey, 'tanggal') !== false || stripos($displayKey, 'tgl') !== false) {
+                                                    $fieldTypeIcon = '📅';
+                                                    $fieldTypeColor = 'text-purple-600';
+                                                } elseif (stripos($displayKey, 'hp') !== false || stripos($displayKey, 'telepon') !== false || stripos($displayKey, 'phone') !== false) {
+                                                    $fieldTypeIcon = '📱';
+                                                    $fieldTypeColor = 'text-indigo-600';
+                                                }
+                                            @endphp
+                                            <div class="group">
+                                                <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                                    <span class="text-lg mr-2">{{ $fieldTypeIcon }}</span>
+                                                    <span class="{{ $fieldTypeColor }} group-hover:text-gray-900 transition-colors">{{ $displayKey }}</span>
+                                                </label>
+                                                <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 group-hover:border-gray-300 transition-colors">
+                                                    <p class="text-sm text-gray-900 font-medium break-words">
+                                                        @if(is_array($value) || is_object($value))
+                                                            {{ json_encode($value, JSON_PRETTY_PRINT) }}
+                                                        @else
+                                                            {{ $value }}
+                                                        @endif
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Keterangan Section -->
+                        @if($keteranganData)
+                            <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-6 border border-amber-200">
+                                <h4 class="font-semibold text-amber-800 mb-4 flex items-center text-lg">
+                                    <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center mr-3">
+                                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                                        </svg>
+                                    </div>
+                                    Keterangan Tambahan
+                                </h4>
+                                <div class="bg-white rounded-lg p-5 shadow-sm border-l-4 border-amber-400">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <svg class="h-5 w-5 text-amber-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm text-gray-900 leading-relaxed">{{ $keteranganData }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                @else
+                    <div class="text-center py-12">
+                        <svg class="w-16 h-16 mx-auto text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <p class="text-gray-500 text-lg font-medium">Belum ada data yang tersedia</p>
+                        <p class="text-gray-400 text-sm mt-1">Data pengajuan akan muncul di sini setelah diisi</p>
+                    </div>
+                @endif
+            </div>
+        </div>
 
         <!-- Keterangan Card -->
         <div class="mb-6 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
@@ -203,9 +340,7 @@
                     <div class="space-y-4">
                         @foreach($lampiran as $index => $file)
                             @php
-                                $fileUrl = isset($file['path'])
-                                    ? \Illuminate\Support\Facades\Storage::url(str_replace('public/', '', $file['path']))
-                                    : '#';
+                                $fileUrl = route('warga.file.serve', ['pengajuanId' => $pengajuan->id, 'fileIndex' => $index]);
                                 $fileName = $file['name'] ?? ('Lampiran-' . ($index + 1));
                                 $fileSize = $file['size_kb'] ?? null;
                                 

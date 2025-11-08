@@ -2,6 +2,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\PengajuanSurat;
 use App\Models\SuratTerbit;
 use App\Services\SuratGeneratorService;
@@ -266,6 +269,70 @@ class AdminPengajuanController extends Controller
                 'message' => 'Gagal memuat summary dashboard',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function serveFile($pengajuanId, $fileIndex, Request $request)
+    {
+        try {
+            // Validate user is admin
+            if (Auth::user()->role->nama_role !== 'admin') {
+                abort(403, 'Unauthorized access');
+            }
+
+            // Find the pengajuan
+            $pengajuan = PengajuanSurat::findOrFail($pengajuanId);
+            
+            // Get file_syarat array
+            $fileSyarat = $pengajuan->file_syarat;
+            
+            if (!$fileSyarat || !isset($fileSyarat[$fileIndex])) {
+                abort(404, 'File not found');
+            }
+
+            $file = $fileSyarat[$fileIndex];
+            $filePath = $file['path'] ?? null;
+
+            if (!$filePath) {
+                abort(404, 'File path not found');
+            }
+
+            // Remove 'public/' prefix if present to get the storage path
+            $storagePath = str_replace('public/', '', $filePath);
+            
+            // Check if file exists in private storage
+            if (!Storage::exists($storagePath)) {
+                abort(404, 'File does not exist');
+            }
+
+            // Get file contents and metadata
+            $fileContent = Storage::get($storagePath);
+            $mimeType = Storage::mimeType($storagePath);
+            $fileName = $file['original_name'] ?? $file['label'] ?? 'document';
+
+            // Determine response type based on request parameters
+            if ($request->has('download')) {
+                // Force download
+                return response($fileContent, 200, [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+                    'Content-Length' => strlen($fileContent),
+                ]);
+            } else {
+                // Preview/view the file
+                return response($fileContent, 200, [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => 'inline; filename="' . $fileName . '"',
+                    'Content-Length' => strlen($fileContent),
+                    'Cache-Control' => 'no-cache, no-store, must-revalidate',
+                    'Pragma' => 'no-cache',
+                    'Expires' => '0',
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Error serving file: ' . $e->getMessage());
+            abort(500, 'Error serving file');
         }
     }
 }

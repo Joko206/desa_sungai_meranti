@@ -59,6 +59,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/warga/syarat/{jenisSurat}', [WargaDashboardController::class, 'syarat'])->name('warga.syarat');
         Route::get('/warga/pengajuan/{pengajuan}', [WargaDashboardController::class, 'show'])->name('warga.pengajuan.show');
         Route::post('/warga/pengajuan/{pengajuan}/batal', [WargaDashboardController::class, 'cancel'])->name('warga.pengajuan.cancel');
+        Route::get('/warga/file/{pengajuanId}/{fileIndex}', [WargaDashboardController::class, 'serveFile'])->name('warga.file.serve');
     });
 
     // Admin Routes
@@ -83,6 +84,9 @@ Route::middleware('auth')->group(function () {
                 'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
             ]);
         })->name('admin.templates.download');
+        
+        // Secure file serving routes for private documents
+        Route::get('/file/{pengajuanId}/{fileIndex}', [AdminPengajuanController::class, 'serveFile'])->name('admin.file.serve');
         
         // Admin Pengajuan Routes
         Route::get('/pengajuan', [AdminPengajuanController::class, 'index'])->name('admin.pengajuan.index');
