@@ -65,23 +65,35 @@
         </div>
 
         <!-- Data Isian -->
-        <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">Data Pengajuan</h3>
+        <div class="bg-white shadow-sm rounded-xl border border-gray-200 mb-6 overflow-hidden">
+            <div class="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-green-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Data Pengajuan
+                </h3>
+                <p class="mt-1 text-sm text-green-600">Informasi lengkap yang diisi oleh pemohon</p>
             </div>
-            <div class="px-6 py-4">
-                <div id="data-isian-content">
+            <div class="px-6 py-5">
+                <div id="data-isian-content" class="space-y-6">
                     <!-- Content will be loaded here -->
                 </div>
             </div>
         </div>
 
         <!-- File Requirements -->
-        <div class="bg-white shadow-sm rounded-lg border border-gray-200 mb-6">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">Dokumen Persyaratan</h3>
+        <div class="bg-white shadow-sm rounded-xl border border-gray-200 mb-6 overflow-hidden">
+            <div class="px-6 py-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-blue-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Dokumen Persyaratan
+                </h3>
+                <p class="mt-1 text-sm text-blue-600">Berkas yang dilampirkan oleh pemohon</p>
             </div>
-            <div class="px-6 py-4">
+            <div class="px-6 py-5">
                 <div id="file-requirements-content">
                     <!-- Content will be loaded here -->
                 </div>
@@ -199,7 +211,14 @@ function displayDataIsian(dataIsian, formStructure = null) {
     const container = document.getElementById('data-isian-content');
     
     if (!dataIsian || typeof dataIsian !== 'object') {
-        container.innerHTML = '<p class="text-gray-500">Tidak ada data isian</p>';
+        container.innerHTML = `
+            <div class="text-center py-8">
+                <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p class="text-gray-500 text-sm">Tidak ada data isian yang tersedia</p>
+            </div>
+        `;
         return;
     }
 
@@ -232,32 +251,58 @@ function displayDataIsian(dataIsian, formStructure = null) {
     }
     
     // Display data in organized sections
-    html += '<div class="space-y-6">';
+    html += '<div class="space-y-8">';
     
-    // Data Pemohon Section
+    // Data Pengajuan Section - Enhanced styling
     if (Object.keys(actualData).length > 0) {
         html += `
-            <div>
-                <h4 class="font-medium text-gray-900 mb-3 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                    </svg>
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+                <h4 class="font-semibold text-green-800 mb-4 flex items-center text-lg">
+                    <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                        <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </div>
                     Data Pengajuan
                 </h4>
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+                <div class="bg-white rounded-lg p-6 shadow-sm">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">`;
         
         Object.entries(actualData).forEach(([key, value]) => {
             if (value !== null && value !== undefined && value !== '') {
                 const displayKey = fieldLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 const displayValue = typeof value === 'object' ? JSON.stringify(value, null, 2) : value;
                 
+                // Determine field type and styling
+                let fieldTypeIcon = '📝';
+                let fieldTypeColor = 'text-gray-600';
+                
+                if (displayKey.toLowerCase().includes('nik') || displayKey.toLowerCase().includes('nomor')) {
+                    fieldTypeIcon = '🆔';
+                    fieldTypeColor = 'text-blue-600';
+                } else if (displayKey.toLowerCase().includes('nama')) {
+                    fieldTypeIcon = '👤';
+                    fieldTypeColor = 'text-green-600';
+                } else if (displayKey.toLowerCase().includes('alamat') || displayKey.toLowerCase().includes('tempat')) {
+                    fieldTypeIcon = '📍';
+                    fieldTypeColor = 'text-red-600';
+                } else if (displayKey.toLowerCase().includes('tanggal') || displayKey.toLowerCase().includes('tgl')) {
+                    fieldTypeIcon = '📅';
+                    fieldTypeColor = 'text-purple-600';
+                } else if (displayKey.toLowerCase().includes('hp') || displayKey.toLowerCase().includes('telepon') || displayKey.toLowerCase().includes('phone')) {
+                    fieldTypeIcon = '📱';
+                    fieldTypeColor = 'text-indigo-600';
+                }
+                
                 html += `
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">
-                            ${displayKey}
+                    <div class="group">
+                        <label class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                            <span class="text-lg mr-2">${fieldTypeIcon}</span>
+                            <span class="${fieldTypeColor} group-hover:text-gray-900 transition-colors">${displayKey}</span>
                         </label>
-                        <p class="text-sm text-gray-900 bg-white p-2 rounded border">${displayValue}</p>
+                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 group-hover:border-gray-300 transition-colors">
+                            <p class="text-sm text-gray-900 font-medium break-words">${displayValue}</p>
+                        </div>
                     </div>
                 `;
             }
@@ -270,34 +315,66 @@ function displayDataIsian(dataIsian, formStructure = null) {
         `;
     }
     
-    // Form Structure (Field Definitions) Section
+    // Form Structure (Field Definitions) Section - Enhanced
     if (formStructure && Array.isArray(formStructure) && formStructure.length > 0) {
         html += `
-            <div>
-                <h4 class="font-medium text-gray-900 mb-3 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                <h4 class="font-semibold text-blue-800 mb-4 flex items-center text-lg">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
                     Struktur Form
                 </h4>
-                <div class="bg-blue-50 rounded-lg p-4">
-                    <div class="space-y-3">`;
+                <div class="bg-white rounded-lg p-6 shadow-sm">
+                    <div class="space-y-4">`;
         
-        formStructure.forEach(field => {
+        formStructure.forEach((field, index) => {
             const name = field.name || field.field_name || field.key;
             const label = field.label || name;
             const type = field.type || 'text';
-            const required = field.required ? ' <span class="text-red-500">*</span>' : '';
+            const required = field.required ? '<span class="inline-flex items-center px-2 py-1 text-xs font-semibold text-red-800 bg-red-100 rounded-full ml-2">Wajib</span>' : '';
+            const optional = !field.required ? '<span class="inline-flex items-center px-2 py-1 text-xs font-semibold text-gray-600 bg-gray-100 rounded-full ml-2">Opsional</span>' : '';
+            
+            let typeIcon = '📝';
+            let typeColor = 'bg-gray-100 text-gray-700';
+            
+            if (type === 'text') {
+                typeIcon = '🔤';
+            } else if (type === 'email') {
+                typeIcon = '📧';
+                typeColor = 'bg-blue-100 text-blue-700';
+            } else if (type === 'date') {
+                typeIcon = '📅';
+                typeColor = 'bg-purple-100 text-purple-700';
+            } else if (type === 'file') {
+                typeIcon = '📎';
+                typeColor = 'bg-orange-100 text-orange-700';
+            } else if (type === 'textarea') {
+                typeIcon = '📄';
+                typeColor = 'bg-green-100 text-green-700';
+            }
             
             html += `
-                <div class="flex items-start space-x-3 p-2 bg-white rounded border">
-                    <div class="flex-1">
-                        <div class="flex items-center space-x-2">
-                            <span class="font-medium text-gray-900">${label}</span>
-                            ${required}
-                            <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded">${type}</span>
+                <div class="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center border">
+                            <span class="text-sm font-bold text-gray-600">${index + 1}</span>
                         </div>
-                        ${field.placeholder ? `<p class="text-sm text-gray-500 mt-1">Placeholder: "${field.placeholder}"</p>` : ''}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center flex-wrap gap-2 mb-2">
+                            <h5 class="font-semibold text-gray-900 text-sm">${label}</h5>
+                            ${required}
+                            ${optional}
+                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium ${typeColor} rounded-full">
+                                <span class="mr-1">${typeIcon}</span>
+                                ${type}
+                            </span>
+                        </div>
+                        ${field.placeholder ? `<p class="text-xs text-gray-500 italic">Placeholder: "${field.placeholder}"</p>` : ''}
+                        ${field.description ? `<p class="text-xs text-gray-600 mt-1">${field.description}</p>` : ''}
                     </div>
                 </div>
             `;
@@ -310,18 +387,29 @@ function displayDataIsian(dataIsian, formStructure = null) {
         `;
     }
     
-    // Keterangan Section
+    // Keterangan Section - Enhanced
     if (keterangan) {
         html += `
-            <div>
-                <h4 class="font-medium text-gray-900 mb-3 flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
-                    </svg>
-                    Keterangan
+            <div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-6 border border-amber-200">
+                <h4 class="font-semibold text-amber-800 mb-4 flex items-center text-lg">
+                    <div class="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center mr-3">
+                        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                        </svg>
+                    </div>
+                    Keterangan Tambahan
                 </h4>
-                <div class="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-400">
-                    <p class="text-sm text-gray-900">${keterangan}</p>
+                <div class="bg-white rounded-lg p-5 shadow-sm border-l-4 border-amber-400">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-amber-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-900 leading-relaxed">${keterangan}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -329,7 +417,15 @@ function displayDataIsian(dataIsian, formStructure = null) {
     
     // If no data at all
     if (!Object.keys(actualData).length && !formStructure?.length && !keterangan) {
-        html += '<p class="text-gray-500 italic">Tidak ada data form atau informasi yang tersedia</p>';
+        html += `
+            <div class="text-center py-12">
+                <svg class="w-16 h-16 mx-auto text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p class="text-gray-500 text-lg font-medium">Belum ada data yang tersedia</p>
+                <p class="text-gray-400 text-sm mt-1">Data pengajuan akan muncul di sini setelah diisi</p>
+            </div>
+        `;
     }
     
     html += '</div>';
@@ -340,37 +436,109 @@ function displayFileRequirements(files) {
     const container = document.getElementById('file-requirements-content');
     
     if (!files || !Array.isArray(files) || files.length === 0) {
-        container.innerHTML = '<p class="text-gray-500">Tidak ada dokumen yang diupload</p>';
+        container.innerHTML = `
+            <div class="text-center py-8">
+                <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <p class="text-gray-500 text-sm">Belum ada dokumen yang diunggah</p>
+            </div>
+        `;
         return;
     }
 
-    const html = files.map(file => `
-        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-3">
-            <div>
-                <p class="text-sm font-medium text-gray-900">${file.label}</p>
-                <p class="text-xs text-gray-500">Size: ${file.size_kb || 'Unknown'} KB</p>
+    const html = files.map((file, index) => {
+        // Determine file type icon and color
+        let fileIcon = '📄';
+        let fileColor = 'text-blue-600';
+        let bgColor = 'bg-blue-50';
+        let borderColor = 'border-blue-200';
+        
+        if (file.label) {
+            const fileName = file.label.toLowerCase();
+            if (fileName.includes('foto') || fileName.includes('image') || fileName.includes('jpg') || fileName.includes('jpeg') || fileName.includes('png')) {
+                fileIcon = '🖼️';
+                fileColor = 'text-green-600';
+                bgColor = 'bg-green-50';
+                borderColor = 'border-green-200';
+            } else if (fileName.includes('ktp') || fileName.includes('kartu')) {
+                fileIcon = '🆔';
+                fileColor = 'text-purple-600';
+                bgColor = 'bg-purple-50';
+                borderColor = 'border-purple-200';
+            } else if (fileName.includes('pdf')) {
+                fileIcon = '📕';
+                fileColor = 'text-red-600';
+                bgColor = 'bg-red-50';
+                borderColor = 'border-red-200';
+            }
+        }
+        
+        const fileSize = file.size_kb ? `${file.size_kb} KB` : 'Unknown';
+        
+        return `
+            <div class="flex items-center justify-between p-5 ${bgColor} rounded-xl border ${borderColor} hover:shadow-md transition-all duration-200 group">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 ${bgColor} rounded-xl flex items-center justify-center border ${borderColor} group-hover:scale-105 transition-transform">
+                            <span class="text-xl">${fileIcon}</span>
+                        </div>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-semibold text-gray-900 truncate">${file.label}</p>
+                        <div class="flex items-center space-x-4 mt-1">
+                            <p class="text-xs text-gray-500 flex items-center">
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                </svg>
+                                ${fileSize}
+                            </p>
+                            <p class="text-xs text-gray-400">Dokumen #${index + 1}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <a href="/${file.path}" target="_blank"
+                       class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 shadow-sm">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        Lihat
+                    </a>
+                    <a href="/${file.path}" download
+                       class="inline-flex items-center px-4 py-2 text-sm font-medium text-green-700 bg-white border border-green-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-all duration-200 shadow-sm">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Unduh
+                    </a>
+                </div>
             </div>
-            <div class="flex space-x-2">
-                <a href="/${file.path}" target="_blank" 
-                   class="inline-flex items-center px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded hover:bg-blue-200">
+        `;
+    }).join('');
+    
+    container.innerHTML = `
+        <div class="space-y-4">
+            ${html}
+        </div>
+        <div class="mt-6 pt-4 border-t border-gray-200">
+            <div class="flex items-center justify-between text-sm text-gray-600">
+                <span class="flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
-                    Lihat
-                </a>
-                <a href="/${file.path}" download 
-                   class="inline-flex items-center px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded hover:bg-green-200">
+                    Total ${files.length} dokumen
+                </span>
+                <span class="flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    Download
-                </a>
+                    Terakhir diperbarui: ${new Date().toLocaleDateString('id-ID')}
+                </span>
             </div>
         </div>
-    `).join('');
-    
-    container.innerHTML = html;
+    `;
 }
 
 function displayActionButtons(pengajuan) {
