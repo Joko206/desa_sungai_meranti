@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use App\Models\PengajuanSurat;
 use Illuminate\Support\Facades\Log;
+use PhpOffice\PhpWord\Settings;
 
 class SuratGeneratorService
 {
@@ -17,24 +18,13 @@ class SuratGeneratorService
     $templateFile = $jenis->file_template;
     $templatePath = storage_path("app/public/{$templateFile}");
 
-    Log::info("Generate Surat: templatePath={$templatePath}");
-
     if (!file_exists($templatePath)) {
         throw new \Exception("Template {$templateFile} tidak ditemukan.");
     }
 
-    $tempDir = storage_path('app/temp');
-    if (!is_dir($tempDir)) mkdir($tempDir, 0755, true);
 
-    $tempDocPath = storage_path('app/temp/' . uniqid('doc_') . '.docx');
-    copy($templatePath, $tempDocPath);
-
-    Log::info("Temp DOCX path: {$tempDocPath}");
-
-    $tpl = new TemplateProcessor($tempDocPath);
+    $tpl = new TemplateProcessor($templatePath);
     $data = $this->buildTemplateData($pengajuan);
-
-    Log::info("Template Data: " . json_encode($data));
 
     foreach ($data as $key => $val) {
         $tpl->setValue($key, is_array($val) ? implode(', ', $val) : $val);
@@ -48,20 +38,9 @@ class SuratGeneratorService
     $outDocFullPath = $generateDir . '/' . $outDocName;
     $tpl->saveAs($outDocFullPath);
 
-    Log::info("Saved DOCX: {$outDocFullPath}");
-
-    // Simpan PDF langsung dari DOCX
-    $pdfName = 'surat_' . $pengajuan->id . '_' . time() . '.pdf';
-    $pdfPath = $generateDir . '/' . $pdfName;
-
-    $phpWord = \PhpOffice\PhpWord\IOFactory::load($outDocFullPath);
-    $pdfWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'PDF');
-    $pdfWriter->save($pdfPath);
-
     return [
-        'docx' => "generate/{$outDocName}",
-        'pdf'  => "generate/{$pdfName}",
-        'url'  => Storage::url("generate/{$pdfName}")
+        'path' => 'private/generate/' . $outDocName,
+        'url'  => url('private/generate/' . $outDocName)  // Path ke file DOCX hasil generate
     ];
 }
     

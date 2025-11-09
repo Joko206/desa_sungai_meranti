@@ -15,7 +15,6 @@ Route::post('login', [AuthController::class, 'login']);
 
 Route::get('jenis-surat', [JenisSuratController::class, 'jenisSuratList']);
 Route::get('pengajuan/form-structure/{jenisSuratId}', [PengajuanController::class, 'getFormStructure']);
-Route::post('tambah-jenis', [JenisSuratController::class, 'AddLetter']);
 Route::get('pengajuan/{id}', [PengajuanController::class, 'show']);
 
 // Protected routes (auth required)

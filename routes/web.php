@@ -10,6 +10,9 @@ use App\Http\Controllers\WargaDashboardController;
 use App\Http\Controllers\JenisSuratController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\FileController;
+
+// Home Route
 
 Route::get('/', function () {
     // Check if user is authenticated
@@ -62,7 +65,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/warga/syarat/{jenisSurat}', [WargaDashboardController::class, 'syarat'])->name('warga.syarat');
         Route::get('/warga/pengajuan/{pengajuan}', [WargaDashboardController::class, 'show'])->name('warga.pengajuan.show');
         Route::post('/warga/pengajuan/{pengajuan}/batal', [WargaDashboardController::class, 'cancel'])->name('warga.pengajuan.cancel');
-        Route::get('/warga/file/{pengajuanId}/{fileIndex}', [WargaDashboardController::class, 'serveFile'])->name('warga.file.serve');
+        Route::get('/warga/file/lihat/{pengajuanId}/{label}', [FileController::class, 'previewFile'])->name('warga.file.preview');
     });
 
     // Admin Routes
@@ -89,15 +92,15 @@ Route::middleware('auth')->group(function () {
         })->name('admin.templates.download');
         
         // Secure file serving routes for private documents
-        Route::get('/file/{pengajuanId}/{fileIndex}', [AdminPengajuanController::class, 'serveFile'])->name('admin.file.serve');
-        
+        Route::get('/file/lihat/{pengajuanId}/{label}', [FileController::class, 'previewFile'])->name('admin.file.preview');
+        Route::get('/file/download/{pengajuanId}/{label}', [FileController::class, 'downloadFile'])->name('admin.file.download');
+
+
         // Admin Pengajuan Routes
         Route::get('/pengajuan', [AdminPengajuanController::class, 'index'])->name('admin.pengajuan.index');
         Route::get('/pengajuan/{id}', [AdminPengajuanController::class, 'show'])->name('admin.pengajuan.show');
         Route::post('/pengajuan/{id}/approve', [AdminPengajuanController::class, 'approve'])->name('admin.pengajuan.approve');
-        Route::post('/pengajuan/{id}/reject', [AdminPengajuanController::class, 'reject'])->name('admin.pengajuan.reject');
-        Route::post('/pengajuan/{id}/generate', [AdminPengajuanController::class, 'generateSurat'])->name('admin.pengajuan.generate');
-        
+        Route::post('/pengajuan/{id}/reject', [AdminPengajuanController::class, 'reject'])->name('admin.pengajuan.reject');        
         // Admin Jenis Surat Routes
         Route::get('/jenis-surat', [JenisSuratController::class, 'adminIndex'])->name('admin.jenis-surat.index');
         Route::post('/jenis-surat', [JenisSuratController::class, 'AddLetter'])->name('admin.jenis-surat.store');
@@ -118,19 +121,4 @@ Route::prefix('api/admin')->middleware(['auth', 'role:admin'])->group(function (
     Route::get('/recent-pengajuan', [AdminDashboardController::class, 'recentPengajuan']);
 });
 
-// Testing Route (remove in production)
-Route::view('/testing', 'testing.frontend-test')->name('testing');
 
-// CSRF Test Route
-Route::get('/csrf-test', function() {
-    return view('csrf-test');
-})->name('test.csrf');
-
-Route::post('/csrf-test', function() {
-    return response()->json([
-        'success' => true,
-        'message' => 'CSRF token validated successfully!',
-        'data' => request()->all(),
-        'timestamp' => now()
-    ]);
-})->name('test.csrf.post');
