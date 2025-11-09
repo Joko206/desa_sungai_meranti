@@ -1,4 +1,4 @@
-<nav class="bg-gradient-to-r from-green-700 via-blue-700 to-green-700 shadow-md">
+<nav class="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 shadow-md">
   <div class="container mx-auto px-4">
     <div class="flex items-center justify-between py-3">
       <!-- Logo dan Nama Desa -->
@@ -15,13 +15,13 @@
   <div class="bg-white/10 backdrop-blur-sm">
     <div class="container mx-auto px-4">
       <div class="flex overflow-x-auto whitespace-nowrap py-2 space-x-4">
-        <a href="#" class="text-white hover:bg-green-600/50 rounded-md px-3 py-1 transition-all duration-300">Beranda</a>
-        <a href="#" class="text-white hover:bg-green-600/50 rounded-md px-3 py-1 transition-all duration-300">Profil Desa</a>
-        <a href="#" class="text-white hover:bg-green-600/50 rounded-md px-3 py-1 transition-all duration-300">Layanan Surat</a>
-        <a href="#" class="text-white hover:bg-green-600/50 rounded-md px-3 py-1 transition-all duration-300">Data Penduduk</a>
-        <a href="#" class="text-white hover:bg-green-600/50 rounded-md px-3 py-1 transition-all duration-300">Berita Desa</a>
-        <a href="#" class="text-white hover:bg-green-600/50 rounded-md px-3 py-1 transition-all duration-300">Galeri</a>
-        <a href="#" class="text-white hover:bg-green-600/50 rounded-md px-3 py-1 transition-all duration-300">Kontak</a>
+        <a href="#" class="text-white hover:bg-blue-600/50 rounded-md px-3 py-1 transition-all duration-300">Beranda</a>
+        <a href="#" class="text-white hover:bg-blue-600/50 rounded-md px-3 py-1 transition-all duration-300">Profil Desa</a>
+        <a href="#" class="text-white hover:bg-blue-600/50 rounded-md px-3 py-1 transition-all duration-300">Layanan Surat</a>
+        <a href="#" class="text-white hover:bg-blue-600/50 rounded-md px-3 py-1 transition-all duration-300">Data Penduduk</a>
+        <a href="#" class="text-white hover:bg-blue-600/50 rounded-md px-3 py-1 transition-all duration-300">Berita Desa</a>
+        <a href="#" class="text-white hover:bg-blue-600/50 rounded-md px-3 py-1 transition-all duration-300">Galeri</a>
+        <a href="#" class="text-white hover:bg-blue-600/50 rounded-md px-3 py-1 transition-all duration-300">Kontak</a>
       </div>
     </div>
   </div>

@@ -11,7 +11,7 @@
             @click="removeNotification(notification.id)"
             class="max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden cursor-pointer transform hover:scale-105 transition-transform"
             :class="{
-                'border-l-4 border-green-500': notification.type === 'success',
+                'border-l-4 border-blue-500': notification.type === 'success',
                 'border-l-4 border-red-500': notification.type === 'error',
                 'border-l-4 border-yellow-500': notification.type === 'warning',
                 'border-l-4 border-blue-500': notification.type === 'info'
@@ -21,7 +21,7 @@
                 <div class="flex items-start">
                     <div class="flex-shrink-0">
                         <template x-if="notification.type === 'success'">
-                            <svg class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                         </template>

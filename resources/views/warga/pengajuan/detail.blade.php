@@ -1,20 +1,20 @@
 @extends('layout.app')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8">
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-blue-50 py-8">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto">
             <!-- Header Section -->
             <div class="mb-8">
                 <div class="flex items-center justify-between bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                         </div>
                         <div>
-                            <p class="text-sm text-emerald-600 font-medium">Detail Pengajuan Surat</p>
+                            <p class="text-sm text-blue-600 font-medium">Detail Pengajuan Surat</p>
                             <h1 class="text-2xl font-bold text-gray-800">Informasi Lengkap</h1>
                         </div>
                     </div>
@@ -39,7 +39,7 @@
             $statusClasses = [
                 'menunggu' => 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white',
                 'menunggu_verifikasi' => 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white',
-                'disetujui' => 'bg-gradient-to-r from-emerald-400 to-green-500 text-white',
+                'disetujui' => 'bg-gradient-to-r from-blue-400 to-blue-500 text-white',
                 'ditolak' => 'bg-gradient-to-r from-red-400 to-rose-500 text-white',
                 'dibatalkan' => 'bg-gradient-to-r from-gray-400 to-gray-500 text-white',
             ];
@@ -58,7 +58,7 @@
 
         <!-- Status Card -->
         <div class="mb-6 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-            <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3">
                         <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
@@ -67,12 +67,12 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-sm text-green-100">Nomor Pengajuan</p>
+                            <p class="text-sm text-blue-100">Nomor Pengajuan</p>
                             <p class="text-xl font-bold text-white">#{{ $pengajuan->id }}</p>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-sm text-green-100">Tanggal Pengajuan</p>
+                        <p class="text-sm text-blue-100">Tanggal Pengajuan</p>
                         <p class="text-lg font-semibold text-white">{{ $tanggalPengajuan }}</p>
                     </div>
                 </div>
@@ -80,8 +80,8 @@
             <div class="px-6 py-5">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
                             </svg>
                         </div>
@@ -117,8 +117,8 @@
             <div class="px-6 py-5">
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div class="space-y-4">
-                        <div class="flex items-start space-x-3 p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
-                            <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <div class="flex items-start space-x-3 p-4 bg-gradient-to-br from-blue-50 to-blue-50 rounded-xl border border-blue-100">
+                            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center flex-shrink-0">
                                 <span class="text-lg">👤</span>
                             </div>
                             <div>
@@ -161,14 +161,14 @@
         </div>
         <!-- Data Isian Card -->
         <div class="mb-6 bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-            <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-4">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
                 <h2 class="text-lg font-semibold text-white flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
                     Data Pengajuan
                 </h2>
-                <p class="mt-1 text-sm text-green-100">Detail informasi yang Anda isi</p>
+                <p class="mt-1 text-sm text-blue-100">Detail informasi yang Anda isi</p>
             </div>
             <div class="px-6 py-5">
                 @php
@@ -196,10 +196,10 @@
                 @if(count($actualData) > 0)
                     <div class="space-y-6">
                         <!-- Data Pengajuan Section -->
-                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
-                            <h4 class="font-semibold text-green-800 mb-4 flex items-center text-lg">
-                                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-50 rounded-xl p-6 border border-blue-100">
+                            <h4 class="font-semibold text-blue-800 mb-4 flex items-center text-lg">
+                                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                     </svg>
                                 </div>

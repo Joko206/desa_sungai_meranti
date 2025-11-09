@@ -48,7 +48,7 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
                     <a href="{{ url('/admin/dashboard') }}"
-                       class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500">
+                       class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
@@ -61,7 +61,7 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <button onclick="toggleModal('addModal')"
-                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
@@ -79,10 +79,10 @@
                 <div class="flex flex-col sm:flex-row gap-4">
                     <div class="flex-1">
                         <input type="text" id="searchInput" placeholder="Cari jenis surat..."
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="flex gap-2">
-                        <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <option value="">Semua Status</option>
                             <option value="1">Aktif</option>
                             <option value="0">Nonaktif</option>
@@ -112,14 +112,14 @@
             </div>
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                 <div class="flex items-center">
-                    <div class="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
-                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-500">Aktif</p>
-                        <p class="text-2xl font-semibold text-green-700" id="active-count">{{ $jenisSuratList->where('is_active', true)->count() }}</p>
+                        <p class="text-2xl font-semibold text-blue-700" id="active-count">{{ $jenisSuratList->where('is_active', true)->count() }}</p>
                     </div>
                 </div>
             </div>
@@ -158,7 +158,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onclick="sortTable('nama_surat')">
                                 Nama Surat
@@ -186,20 +186,20 @@
                         @forelse($jenisSuratList as $jenis)
                             <tr class="hover:bg-gray-50" data-id="{{ $jenis->id }}">
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <input type="checkbox" name="selected[]" value="{{ $jenis->id }}" class="row-checkbox rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                    <input type="checkbox" name="selected[]" value="{{ $jenis->id }}" class="row-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
-                                            <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                                                <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                                 </svg>
                                             </div>
                                         </div>
                                         <div class="ml-4">
                                             <button type="button" class="text-left group focus:outline-none" onclick="previewJenisSurat({{ $jenis->id }})">
-                                                <div class="text-sm font-medium text-gray-900 group-hover:text-green-600 transition-colors">
+                                                <div class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
                                                     {{ $jenis->nama_surat }}
                                                 </div>
                                                 <div class="text-xs text-gray-500 group-hover:text-gray-700">Klik untuk melihat template</div>
@@ -211,7 +211,7 @@
                                     <div class="text-sm text-gray-900 max-w-xs truncate">{{ $jenis->deskripsi ?? 'Tidak ada deskripsi' }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $jenis->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $jenis->is_active ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $jenis->is_active ? 'Aktif' : 'Nonaktif' }}
                                     </span>
                                 </td>
@@ -250,7 +250,7 @@
                                     </svg>
                                     <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Jenis Surat</h3>
                                     <p class="text-gray-500 mb-4">Mulai dengan menambahkan jenis surat pertama</p>
-                                    <button onclick="toggleModal('addModal')" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                                    <button onclick="toggleModal('addModal')" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                                         </svg>

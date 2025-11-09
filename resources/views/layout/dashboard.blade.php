@@ -7,13 +7,13 @@
 
         <div class="mb-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <a href="{{ route('pengajuan.create') }}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 text-center flex items-center justify-center gap-2">
+                <a href="{{ route('pengajuan.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 text-center flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                     </svg>
                     Administrasi Online
                 </a>
-                <a href="https://desasungaimeranti.id/" target="_blank" class="bg-green-700 hover:bg-green-800 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 text-center flex items-center justify-center gap-2">
+                <a href="https://desasungaimeranti.id/" target="_blank" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition duration-300 text-center flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                     </svg>
@@ -86,7 +86,7 @@ async function fetchPengajuan() {
                 <td class="border border-gray-300 px-4 py-2">${tanggal}</td>
                 <td class="border border-gray-300 px-4 py-2">${statusText}</td>
                 <td class="border border-gray-300 px-4 py-2">
-                    <button class="btn-detail bg-emerald-600 text-white px-3 py-1 rounded mr-2" data-id="${pengajuan.id}">Detail</button>
+                    <button class="btn-detail bg-blue-600 text-white px-3 py-1 rounded mr-2" data-id="${pengajuan.id}">Detail</button>
                     ${status === 'menunggu' ? `<button class="btn-cancel bg-red-600 text-white px-3 py-1 rounded" data-id="${pengajuan.id}">Batal</button>` : ''}
                 </td>
             `;
@@ -141,7 +141,7 @@ async function cancelPengajuan(id) {
 function showNotification(message, type) {
     const notification = document.getElementById('notification');
     notification.textContent = message;
-    notification.className = `p-4 mt-4 rounded-md ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+    notification.className = `p-4 mt-4 rounded-md ${type === 'success' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}`;
     notification.classList.remove('hidden');
 }
 

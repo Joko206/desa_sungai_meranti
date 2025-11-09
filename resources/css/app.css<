@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+/* 🌿 Styling khusus untuk tampilan Desa Sungai Meranti dengan tema biru */
+.navbar {
+    @apply flex items-center justify-between px-6 py-4 shadow-md bg-gradient-to-r from-blue-800 to-blue-600 text-white;
+}
+
+.navbar-logo {
+    @apply flex items-center space-x-3;
+}
+
+.navbar-logo img {
+    @apply w-12 h-12 rounded border-2 border-white;
+}
+
+.navbar-text {
+    @apply leading-tight font-semibold;
+}
+
+.navbar-text span:first-child {
+    @apply text-xs uppercase tracking-wide;
+}
+
+.navbar-text span:last-child {
+    @apply text-sm font-bold;
+}
+
+/* 🌿 Tema warna Desa Sungai Meranti - Sekarang dengan gradasi biru */
+:root {
+    --desa-primary: #2563eb;
+    /* biru elegan */
+    --desa-secondary: #1e40af;
+    /* biru tua */
+    --desa-accent: #60a5fa;
+    /* biru cerah */
+}
+
+body {
+    @apply font-sans bg-gray-50 text-gray-800;
+}
+
+.container {
+    @apply mx-auto max-w-7xl;
+}
+
+/* 🌊 Animasi dan efek tambahan untuk tema biru */
+.bg-blue-gradient {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%);
+}
+
+.text-blue-gradient {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* 🌊 Card dengan bayangan biru */
+.card-blue-shadow {
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 10px 10px -5px rgba(59, 130, 246, 0.04);
+}
+
+/* 🌊 Hover effects untuk tema biru */
+.hover-lift-blue:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.1), 0 10px 10px -5px rgba(59, 130, 246, 0.04);
+}
