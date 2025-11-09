@@ -10,7 +10,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-3xl font-bold text-gray-900">Dashboard Warga</h1>
-                    <p class="text-gray-600 mt-1">Selamat datang, {{ Auth::user()->nama }}</p>
+                    <p class="text-gray-600 mt-1">Selamat datang, {{ $user->nama }}</p>
                 </div>
                 <div class="mt-2">
                     <a href="{{ route('warga.tutorial-pengajuan') }}" class="inline-flex items-center text-sm text-blue-600 hover:text-blue-700 font-medium">
@@ -114,8 +114,8 @@
                 <p class="mt-1 max-w-2xl text-sm text-gray-500">Daftar pengajuan surat Anda yang terbaru</p>
             </div>
             <ul class="divide-y divide-gray-200">
-                @if(isset($recentPengajuan) && $recentPengajuan->count() > 0)
-                    @foreach($recentPengajuan as $pengajuan)
+                @if(isset($pengajuanList) && $pengajuanList->count() > 0)
+                    @foreach($pengajuanList as $pengajuan)
                         <li>
                             <a href="{{ route('warga.pengajuan.show', $pengajuan) }}" class="block hover:bg-gray-50">
                                 <div class="px-4 py-4 sm:px-6">
