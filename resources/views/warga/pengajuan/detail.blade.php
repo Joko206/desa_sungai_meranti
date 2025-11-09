@@ -340,8 +340,9 @@
                     <div class="space-y-4">
                         @foreach($lampiran as $index => $file)
                             @php
-                                $fileUrl = route('warga.file.serve', ['pengajuanId' => $pengajuan->id, 'fileIndex' => $index]);
                                 $fileName = $file['name'] ?? ('Lampiran-' . ($index + 1));
+                                $fileLabel = $file['label'] ?? $fileName;
+                                $fileUrl = route('warga.file.preview', ['pengajuanId' => $pengajuan->id, 'label' => urlencode($fileLabel),]);
                                 $fileSize = $file['size_kb'] ?? null;
                                 
                                 // Determine file type
@@ -395,9 +396,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <a href="{{ $fileUrl }}"
-                                   target="_blank"
-                                   class="inline-flex items-center px-4 py-2 text-sm font-medium text-white {{ $textColor }} bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:shadow-md transition-all duration-200 shadow-sm">
+                                <a href="{{ $fileUrl }}" target="_blank"
+                                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 shadow-sm">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>

@@ -498,7 +498,7 @@ function displayFileRequirements(files) {
                     </div>
                 </div>
                 <div class="flex space-x-2">
-                    <a href="/admin/file/${currentPengajuanId}/${index}" target="_blank"
+                    <a href="/admin/file/lihat/${currentPengajuanId}/${encodeURIComponent(file.label)}" target="_blank"
                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 shadow-sm">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -506,7 +506,7 @@ function displayFileRequirements(files) {
                         </svg>
                         Lihat
                     </a>
-                    <a href="/admin/file/${currentPengajuanId}/${index}?download=1"
+                    <a href="/admin/file/download/${currentPengajuanId}/${encodeURIComponent(file.label)}"
                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-green-700 bg-white border border-green-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-all duration-200 shadow-sm">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -565,14 +565,14 @@ function displayActionButtons(pengajuan) {
             `;
             break;
         case 'disetujui_verifikasi':
+            // This status should no longer appear as letter is generated automatically
             html = `
-                <button onclick="generateSurat(${pengajuan.id})"
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                <div class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-blue-700 bg-blue-50 border border-blue-200">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
-                    Generate Surat
-                </button>
+                    Sedang memproses...
+                </div>
             `;
             break;
         case 'menunggu_tanda_tangan':
@@ -654,7 +654,11 @@ async function approvePengajuan(id) {
         const result = await response.json();
         
         if (result.success) {
-            alert('Pengajuan berhasil disetujui!');
+            if (result.file_url) {
+                alert('Pengajuan berhasil disetujui dan surat telah digenerate otomatis! Mengalihkan ke halaman detail...');
+            } else {
+                alert('Pengajuan berhasil disetujui!');
+            }
             location.reload();
         } else {
             alert('Error: ' + result.message);
