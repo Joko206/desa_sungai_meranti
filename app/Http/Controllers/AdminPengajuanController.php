@@ -187,59 +187,38 @@ class AdminPengajuanController extends Controller
     public function approve($id)
     {
         try {
-            $p = PengajuanSurat::findOrFail($id);
+            $p = PengajuanSurat::with('jenis','pemohon')->findOrFail($id);
+            
+            // Set status to disetujui first
             $p->status = 'disetujui_verifikasi';
             $p->save();
-    
-            return response()->json([
-                'success' => true,
-                'message' => 'Pengajuan disetujui, siap digenerate',
-                'data' => $p->load('pemohon', 'jenis', 'suratTerbit')
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menyetujui pengajuan',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-    
-    public function generateSurat(Request $request, $id)
-    {
-        try {
+
+            // Immediately generate the letter
             $generator = app(SuratGeneratorService::class);
-            $p = PengajuanSurat::with('jenis','pemohon')->findOrFail($id);
-    
-            if ($p->status !== 'disetujui_verifikasi') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Pengajuan belum disetujui atau tidak dalam status yang benar'
-                ], 422);
-            }
-    
             $output = $generator->generateFromTemplate($p);
-            Log::info('Debug generate surat output:', $output);
-    
+            
+            // Create surat record
             $surat = SuratTerbit::create([
                 'pengajuan_id' => $p->id,
                 'file_surat' => $output['path'],
                 'tanggal_terbit' => now(),
                 'status_cetak' => 'menunggu_tanda_tangan'
             ]);
-    
+            
+            // Update status to waiting for signature
             $p->status = 'menunggu_tanda_tangan';
             $p->save();
     
             return response()->json([
                 'success' => true,
-                'message' => 'Dokumen berhasil dibuat',
-                'file' => $output['url']
+                'message' => 'Pengajuan disetujui dan surat berhasil digenerate',
+                'data' => $p->load('pemohon', 'jenis', 'suratTerbit'),
+                'file_url' => $output['url']
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal membuat dokumen',
+                'message' => 'Gagal menyetujui pengajuan atau generate surat',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -269,70 +248,6 @@ class AdminPengajuanController extends Controller
                 'message' => 'Gagal memuat summary dashboard',
                 'error' => $e->getMessage()
             ], 500);
-        }
-    }
-
-    public function serveFile($pengajuanId, $fileIndex, Request $request)
-    {
-        try {
-            // Validate user is admin
-            if (Auth::user()->role->nama_role !== 'admin') {
-                abort(403, 'Unauthorized access');
-            }
-
-            // Find the pengajuan
-            $pengajuan = PengajuanSurat::findOrFail($pengajuanId);
-            
-            // Get file_syarat array
-            $fileSyarat = $pengajuan->file_syarat;
-            
-            if (!$fileSyarat || !isset($fileSyarat[$fileIndex])) {
-                abort(404, 'File not found');
-            }
-
-            $file = $fileSyarat[$fileIndex];
-            $filePath = $file['path'] ?? null;
-
-            if (!$filePath) {
-                abort(404, 'File path not found');
-            }
-
-            // Remove 'public/' prefix if present to get the storage path
-            $storagePath = str_replace('public/', '', $filePath);
-            
-            // Check if file exists in private storage
-            if (!Storage::exists($storagePath)) {
-                abort(404, 'File does not exist');
-            }
-
-            // Get file contents and metadata
-            $fileContent = Storage::get($storagePath);
-            $mimeType = Storage::mimeType($storagePath);
-            $fileName = $file['original_name'] ?? $file['label'] ?? 'document';
-
-            // Determine response type based on request parameters
-            if ($request->has('download')) {
-                // Force download
-                return response($fileContent, 200, [
-                    'Content-Type' => $mimeType,
-                    'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-                    'Content-Length' => strlen($fileContent),
-                ]);
-            } else {
-                // Preview/view the file
-                return response($fileContent, 200, [
-                    'Content-Type' => $mimeType,
-                    'Content-Disposition' => 'inline; filename="' . $fileName . '"',
-                    'Content-Length' => strlen($fileContent),
-                    'Cache-Control' => 'no-cache, no-store, must-revalidate',
-                    'Pragma' => 'no-cache',
-                    'Expires' => '0',
-                ]);
-            }
-
-        } catch (\Exception $e) {
-            Log::error('Error serving file: ' . $e->getMessage());
-            abort(500, 'Error serving file');
         }
     }
 }

@@ -68,8 +68,34 @@
                     <h3 class="text-3xl font-semibold text-white text-center mb-10 tracking-tight">Statistik Desa</h3>
                     <div class="grid grid-cols-2 gap-10">
                         <div class="text-center space-y-3">
+                            <div class="text-5xl md:text-6xl font-black text-blue-200" data-count="6243">0</div>
+                            <div class="text-blue-50 text-base uppercase tracking-[0.3em]">Total Penduduk</div>
+                        </div>
+                        <div class="text-center space-y-3">
+                            <div class="text-5xl md:text-6xl font-black text-blue-200" data-count="756">0</div>
+                            <div class="text-blue-50 text-base uppercase tracking-[0.3em]">Kepala Keluarga</div>
+                        </div>
+                        <div class="text-center space-y-3">
+                            <div class="text-5xl md:text-6xl font-black text-blue-200" data-count="23">0</div>
+                            <div class="text-blue-50 text-base uppercase tracking-[0.3em]">Dusun</div>
+                        </div>
+                        <div class="text-center space-y-3">
+                            <div class="text-5xl md:text-6xl font-black text-blue-200" data-count="1">0</div>
+                            <div class="text-blue-50 text-base uppercase tracking-[0.3em]">Desa</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<<<<<<< HEAD
                             <div class="text-5xl md:text-6xl font-black text-blue-200" data-count="2847">0</div>
                             <div class="text-blue-50 text-base uppercase tracking-[0.3em]">Total Penduduk</div>
+=======
+                            <div class="text-5xl md:text-6xl font-black text-emerald-200" data-count="6243">0</div>
+                            <div class="text-emerald-50 text-base uppercase tracking-[0.3em]">Total Penduduk</div>
+>>>>>>> 0d03fa85a59a54b2f6879eff923760827f2cf773
                         </div>
                         <div class="text-center space-y-3">
                             <div class="text-5xl md:text-6xl font-black text-blue-200" data-count="756">0</div>
