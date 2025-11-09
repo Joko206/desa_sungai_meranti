@@ -8,9 +8,17 @@
         <!-- Header -->
         <div class="text-center mb-12">
             <h1 class="text-3xl font-bold text-gray-800 mb-4">Administrasi Online</h1>
-            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-4">
                 Pilih jenis surat yang ingin Anda ajukan. Setiap jenis surat memiliki persyaratan dan proses yang berbeda.
             </p>
+            <div class="flex justify-center">
+                <a href="{{ route('warga.tutorial-pengajuan') }}" class="inline-flex items-center text-sm text-emerald-600 hover:text-emerald-700 font-medium bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-lg transition duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Lihat Tutorial Pengajuan
+                </a>
+            </div>
         </div>
 
         <!-- Back Button -->

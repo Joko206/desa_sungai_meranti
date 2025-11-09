@@ -46,12 +46,21 @@
     <div class="bg-white shadow-sm border-b border-gray-200">
         <div class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Kelola Jenis Surat</h1>
-                    <p class="text-sm text-gray-600">Kelola jenis-jenis surat yang tersedia untuk pengajuan</p>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url('/admin/dashboard') }}"
+                       class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Kembali
+                    </a>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Kelola Jenis Surat</h1>
+                        <p class="text-sm text-gray-600">Kelola jenis-jenis surat yang tersedia untuk pengajuan</p>
+                    </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button onclick="toggleModal('addModal')" 
+                    <button onclick="toggleModal('addModal')"
                             class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>

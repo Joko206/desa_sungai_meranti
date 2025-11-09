@@ -8,6 +8,12 @@
     <div class="mb-8">
         <div class="flex items-center justify-between">
             <div>
+                <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 mb-2">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Kembali ke Dashboard
+                </a>
                 <h1 class="text-3xl font-bold text-gray-900">Kelola Pengajuan</h1>
                 <p class="mt-2 text-gray-600">Kelola semua pengajuan surat dari warga</p>
             </div>

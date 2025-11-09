@@ -6,6 +6,9 @@ use App\Models\PengajuanSurat;
 use App\Models\JenisSurat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class WargaDashboardController extends Controller
 {
@@ -15,6 +18,12 @@ class WargaDashboardController extends Controller
 
         $pengajuanList = PengajuanSurat::with('jenis')
             ->where('nik_pemohon', $user->nik)
+            ->orderByRaw("
+                CASE
+                    WHEN status IN ('menunggu', 'disetujui_verifikasi', 'menunggu_tanda_tangan') THEN 1
+                    ELSE 2
+                END
+            ")
             ->orderByDesc('tanggal_pengajuan')
             ->get();
 

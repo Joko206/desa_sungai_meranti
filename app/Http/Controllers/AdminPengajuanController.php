@@ -2,6 +2,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\PengajuanSurat;
 use App\Models\SuratTerbit;
 use App\Services\SuratGeneratorService;
@@ -184,59 +187,38 @@ class AdminPengajuanController extends Controller
     public function approve($id)
     {
         try {
-            $p = PengajuanSurat::findOrFail($id);
+            $p = PengajuanSurat::with('jenis','pemohon')->findOrFail($id);
+            
+            // Set status to disetujui first
             $p->status = 'disetujui_verifikasi';
             $p->save();
-    
-            return response()->json([
-                'success' => true,
-                'message' => 'Pengajuan disetujui, siap digenerate',
-                'data' => $p->load('pemohon', 'jenis', 'suratTerbit')
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menyetujui pengajuan',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-    
-    public function generateSurat(Request $request, $id)
-    {
-        try {
+
+            // Immediately generate the letter
             $generator = app(SuratGeneratorService::class);
-            $p = PengajuanSurat::with('jenis','pemohon')->findOrFail($id);
-    
-            if ($p->status !== 'disetujui_verifikasi') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Pengajuan belum disetujui atau tidak dalam status yang benar'
-                ], 422);
-            }
-    
             $output = $generator->generateFromTemplate($p);
-            Log::info('Debug generate surat output:', $output);
-    
+            
+            // Create surat record
             $surat = SuratTerbit::create([
                 'pengajuan_id' => $p->id,
                 'file_surat' => $output['path'],
                 'tanggal_terbit' => now(),
                 'status_cetak' => 'menunggu_tanda_tangan'
             ]);
-    
+            
+            // Update status to waiting for signature
             $p->status = 'menunggu_tanda_tangan';
             $p->save();
     
             return response()->json([
                 'success' => true,
-                'message' => 'Dokumen berhasil dibuat',
-                'file' => $output['url']
+                'message' => 'Pengajuan disetujui dan surat berhasil digenerate',
+                'data' => $p->load('pemohon', 'jenis', 'suratTerbit'),
+                'file_url' => $output['url']
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal membuat dokumen',
+                'message' => 'Gagal menyetujui pengajuan atau generate surat',
                 'error' => $e->getMessage()
             ], 500);
         }
