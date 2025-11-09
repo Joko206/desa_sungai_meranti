@@ -577,8 +577,11 @@ function displayActionButtons(pengajuan) {
             break;
         case 'menunggu_tanda_tangan':
             if (pengajuan.surat_terbit) {
+                // Extract filename from the file_surat path
+                const filePath = pengajuan.surat_terbit.file_surat;
+                const filename = filePath.split('/').pop();
                 html = `
-                    <a href="/${pengajuan.surat_terbit.file_surat}" target="_blank"
+                    <a href="/admin/surat/${filename}" target="_blank"
                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
