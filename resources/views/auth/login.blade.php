@@ -92,13 +92,12 @@
                                     >
                                     <span>Ingat saya</span>
                                 </label>
-                                <button
-                                    type="button"
-                                    onclick="showInfo('Info', 'Fitur lupa password akan tersedia dalam waktu dekat.')"
-                                    class="text-sm font-medium text-blue-200 hover:text-blue-100 transition-colors"
+                                <a
+                                    href="{{ route('password.search-email') }}"
+                                    class="text-sm font-medium text-blue-200 hover:text-blue-100 transition-colors underline underline-offset-2"
                                 >
                                     Lupa password?
-                                </button>
+                                </a>
                             </div>
 
                             <div>
