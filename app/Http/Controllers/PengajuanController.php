@@ -259,8 +259,8 @@ class PengajuanController extends Controller
             // Format fields
             $mappedFields = array_map(function ($field) {
                 $name = $field['name'] ?? $field['field_name'] ?? '';
-
-                return [
+                
+                $mappedField = [
                     'key'         => $name,
                     'name'        => $name,
                     'label'       => $field['label'] ?? $name,
@@ -268,6 +268,13 @@ class PengajuanController extends Controller
                     'placeholder' => $field['placeholder'] ?? '',
                     'required'    => $field['required'] ?? true
                 ];
+                
+                // Add options for select fields
+                if (($field['type'] ?? 'text') === 'select' && isset($field['options'])) {
+                    $mappedField['options'] = $field['options'];
+                }
+                
+                return $mappedField;
             }, $formStructure ?? []);
 
             $hiddenFields = ['year', 'date_terbit', 'Date_Terbit']; // tambahkan variasi jika beda kapital

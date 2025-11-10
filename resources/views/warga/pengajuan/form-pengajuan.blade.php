@@ -49,10 +49,85 @@
             background: white;
         }
 
+        .optimized-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            transition: all var(--transition-fast);
+            font-size: 0.875rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .optimized-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
         .optimized-input:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        /* Number input specific styling */
+        .optimized-input[type="number"] {
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .optimized-input[type="number"]::-webkit-outer-spin-button,
+        .optimized-input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .optimized-input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Date input styling */
+        .optimized-input[type="date"] {
+            position: relative;
+            color-scheme: light;
+        }
+
+        .optimized-input[type="date"]::-webkit-calendar-picker-indicator {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .optimized-input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
+
+        /* Field validation states */
+        .field-error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        }
+
+        .field-success {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+        }
+
+        /* Help text styling */
+        .field-help {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .field-help-error {
+            color: #ef4444;
         }
 
         .optimized-btn {
@@ -413,51 +488,117 @@
 
                 // Create input based on type
                 let input;
-                const commonAttrs = `id="${key}" name="data_pemohon[${key}]" class="optimized-input" required`;
-
+                
                 switch (field.type) {
                     case 'date':
                         input = document.createElement('input');
                         input.type = 'date';
+                        input.className = 'optimized-input';
                         input.placeholder = field.placeholder || `Masukkan ${label}`;
+                        // Add date validation attributes
+                        if (field.name === 'tanggal_lahir') {
+                            const today = new Date();
+                            const maxDate = new Date(today.getFullYear() - 17, today.getMonth(), today.getDate()); // Minimum 17 years old
+                            input.setAttribute('max', maxDate.toISOString().split('T')[0]);
+                            input.setAttribute('min', '1950-01-01');
+                        }
                         break;
                     case 'number':
                         input = document.createElement('input');
                         input.type = 'number';
+                        input.className = 'optimized-input';
                         input.step = 'any';
                         input.placeholder = field.placeholder || `Masukkan ${label}`;
+                        
+                        // Add constraints for RT/RW fields
+                        if (key.toLowerCase().includes('rt') || key.toLowerCase().includes('rw')) {
+                            input.pattern = '[0-9]{3}';
+                            input.maxLength = 3;
+                            input.min = '1';
+                            input.max = '999';
+                            input.addEventListener('input', function() {
+                                // Auto-format to 3 digits with leading zeros
+                                let value = this.value.replace(/[^0-9]/g, '');
+                                if (value.length > 0) {
+                                    value = value.padStart(3, '0').slice(0, 3);
+                                    this.value = value;
+                                }
+                            });
+                            
+                            // Add help text
+                            const helpText = document.createElement('p');
+                            helpText.className = 'field-help';
+                            helpText.textContent = 'Masukkan 3 digit (001-999)';
+                            fieldDiv.appendChild(helpText);
+                        }
+                        
+                        // NIK validation
                         if (key.toLowerCase().includes('nik')) {
                             input.pattern = '[0-9]{16}';
                             input.maxLength = 16;
                             input.minLength = 16;
+                            input.placeholder = 'Masukkan 16 digit NIK';
+                            
+                            // Add help text
+                            const helpText = document.createElement('p');
+                            helpText.className = 'field-help';
+                            helpText.textContent = 'NIK harus 16 digit';
+                            fieldDiv.appendChild(helpText);
                         }
                         break;
                     case 'email':
                         input = document.createElement('input');
                         input.type = 'email';
+                        input.className = 'optimized-input';
                         input.pattern = '[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}$';
                         input.placeholder = field.placeholder || `Masukkan ${label}`;
                         break;
                     case 'tel':
                         input = document.createElement('input');
                         input.type = 'tel';
+                        input.className = 'optimized-input';
                         input.placeholder = field.placeholder || `Masukkan ${label}`;
                         break;
                     case 'textarea':
                         input = document.createElement('textarea');
+                        input.className = 'optimized-input';
                         input.rows = '3';
                         input.placeholder = field.placeholder || `Masukkan ${label}`;
                         break;
                     case 'select':
                         input = document.createElement('select');
+                        input.className = 'optimized-select';
+                        input.placeholder = field.placeholder || `Pilih ${label}...`;
+                        
+                        // Add default option
                         const defaultOption = document.createElement('option');
                         defaultOption.value = '';
-                        defaultOption.textContent = `Pilih ${label}...`;
+                        defaultOption.textContent = field.placeholder || `Pilih ${label}...`;
                         input.appendChild(defaultOption);
+                        
+                        // Add options for select fields
+                        if (field.options && Array.isArray(field.options)) {
+                            field.options.forEach(option => {
+                                const optionEl = document.createElement('option');
+                                optionEl.value = option.value;
+                                optionEl.textContent = option.label;
+                                input.appendChild(optionEl);
+                            });
+                        }
+                        
+                        // Add validation for select fields
+                        input.addEventListener('change', function() {
+                            if (this.value) {
+                                this.classList.add('field-success');
+                            } else {
+                                this.classList.remove('field-success');
+                            }
+                        });
                         break;
                     default:
                         input = document.createElement('input');
                         input.type = 'text';
+                        input.className = 'optimized-input';
                         input.placeholder = field.placeholder || `Masukkan ${label}`;
                         break;
                 }
@@ -756,10 +897,44 @@
                 });
 
                 elements.form?.addEventListener('submit', (e) => {
+                    // Handle keterangan field
                     const textarea = document.querySelector('textarea[name="keterangan"]');
                     const hidden = document.getElementById('keteranganField');
                     if (textarea && hidden) {
                         hidden.value = textarea.value;
+                    }
+
+                    // **TTL COMBINING FUNCTIONALITY**
+                    // Combine TTL fields: tempat_lahir + tanggal_lahir
+                    const tempatLahir = document.querySelector('[name="data_pemohon[tempat_lahir]"]');
+                    const tanggalLahir = document.querySelector('[name="data_pemohon[tanggal_lahir]"]');
+                    
+                    if (tempatLahir && tanggalLahir && tempatLahir.value && tanggalLahir.value) {
+                        // Convert date format from YYYY-MM-DD to Indonesian format
+                        const dateValue = tanggalLahir.value;
+                        const [year, month, day] = dateValue.split('-');
+                        
+                        const monthNames = [
+                            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                        ];
+                        
+                        const formattedDate = `${parseInt(day)} ${monthNames[parseInt(month) - 1]} ${year}`;
+                        const combinedTTL = `${tempatLahir.value}, ${formattedDate}`;
+                        
+                        // Create hidden TTL field for submission
+                        let ttlField = document.querySelector('input[name="data_pemohon[TTL]"]');
+                        if (!ttlField) {
+                            ttlField = document.createElement('input');
+                            ttlField.type = 'hidden';
+                            ttlField.name = 'data_pemohon[TTL]';
+                            elements.form.appendChild(ttlField);
+                        }
+                        ttlField.value = combinedTTL;
+                        
+                        // Remove the separate fields since we combined them
+                        tempatLahir.remove();
+                        tanggalLahir.remove();
                     }
 
                     elements.submitBtn.disabled = true;
