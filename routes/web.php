@@ -37,11 +37,21 @@ Route::post('login', [AuthController::class, 'login'])->name('login.post');
 Route::post('register', [AuthController::class, 'register'])->name('register.post');
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
-// Password Reset Routes
+// Password Reset Routes (Old Flow)
 Route::get('forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('forgot-password');
 Route::post('forgot-password', [AuthController::class, 'sendResetLink'])->name('forgot-password.post');
 Route::get('reset-password/{token}', [AuthController::class, 'showResetPasswordForm'])->name('reset-password');
 Route::post('reset-password', [AuthController::class, 'resetPassword'])->name('reset-password.post');
+
+// New Password Reset Flow with OTP
+Route::get('password/search-email', [AuthController::class, 'showForgotPasswordSearchEmail'])->name('password.search-email');
+Route::post('password/search-email', [AuthController::class, 'searchEmail'])->name('password.search-email.post');
+Route::get('password/confirmation', [AuthController::class, 'showForgotPasswordConfirmation'])->name('password.confirmation');
+Route::post('password/send-otp', [AuthController::class, 'sendOtp'])->name('password.send-otp');
+Route::get('password/verify-otp', [AuthController::class, 'showForgotPasswordOtp'])->name('password.verify-otp');
+Route::post('password/verify-otp', [AuthController::class, 'verifyOtp'])->name('password.verify-otp.post');
+Route::get('password/change', [AuthController::class, 'showForgotPasswordChange'])->name('password.change');
+Route::post('password/change', [AuthController::class, 'changePassword'])->name('password.change.post');
 
 // Public Routes
 Route::get('/administrasi', [PengajuanController::class, 'listjenis'])->name('administrasi');
@@ -94,6 +104,9 @@ Route::middleware('auth')->group(function () {
         // Secure file serving routes for private documents
         Route::get('/file/lihat/{pengajuanId}/{label}', [FileController::class, 'previewFile'])->name('admin.file.preview');
         Route::get('/file/download/{pengajuanId}/{label}', [FileController::class, 'downloadFile'])->name('admin.file.download');
+
+        // Route for viewing generated surat files
+        Route::get('/surat/{filename}', [FileController::class, 'viewSurat'])->name('admin.surat.view');
 
 
         // Admin Pengajuan Routes

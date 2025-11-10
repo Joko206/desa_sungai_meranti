@@ -1,28 +1,28 @@
 @extends('layout.app')
 
-@section('title', 'Forgot Password - Desa Sungai Meranti')
+@section('title', 'Cari Email - Desa Sungai Meranti')
 
 @section('content')
-<div class="min-h-screen bg-blue-900 flex items-center justify-center pt-20" style="background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('{{ asset('Desa-teluk-Meranti-1.jpg') }}'); background-size: cover; background-position: center; background-attachment: fixed;">
+<div class="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 flex items-center justify-center pt-20" style="background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('{{ asset('Desa-teluk-Meranti-1.jpg') }}'); background-size: cover; background-position: center; background-attachment: fixed;">
     <div class="container mx-auto px-8">
         <div class="max-w-md mx-auto">
             <!-- Header -->
             <div class="text-center mb-10">
-                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full mb-6">
-                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-full mb-6">
+                    <svg class="w-10 h-10 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                 </div>
-                <h2 class="text-5xl font-bold text-white mb-4">Lupa Password?</h2>
+                <h2 class="text-4xl font-bold text-white mb-4">Cari Akun Email</h2>
                 <p class="text-xl text-blue-100">
-                    Masukkan email Anda untuk mendapatkan link reset password
+                    Masukkan alamat email Anda untuk mencari akun
                 </p>
             </div>
 
             <!-- Form Card -->
             <div class="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border border-white/20">
                 @if(session('success'))
-                    <div class="mb-6 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-blue-700">
+                    <div class="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-700">
                         {{ session('success') }}
                     </div>
                 @endif
@@ -43,7 +43,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('password.email') }}" id="forgotForm">
+                <form method="POST" action="{{ route('password.search-email') }}" id="searchEmailForm">
                     @csrf
                     <div class="space-y-6">
                         <div>
@@ -68,12 +68,12 @@
                         </div>
 
                         <div class="pt-4">
-                            <button type="submit" id="submitBtn" class="w-full bg-yellow-400 hover:bg-yellow-300 text-blue-900 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
+                            <button type="submit" id="searchBtn" class="w-full bg-yellow-400 hover:bg-yellow-300 text-blue-900 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
                                 <svg class="w-6 h-6 inline-block mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                                 </svg>
-                                <span id="submitBtnText">Kirim Link Reset</span>
-                                <div id="submitSpinner" class="hidden inline-block ml-2 w-4 h-4 border-2 border-blue-900 border-t-transparent rounded-full animate-spin"></div>
+                                <span id="searchBtnText">Cari Akun</span>
+                                <div id="searchSpinner" class="hidden inline-block ml-2 w-4 h-4 border-2 border-blue-900 border-t-transparent rounded-full animate-spin"></div>
                             </button>
                         </div>
                     </div>
@@ -91,7 +91,7 @@
 
             <div class="text-center mt-10">
                 <p class="text-blue-200 text-sm">
-                    Tidak menerima email?
+                    Tidak menemukan akun?
                     <a href="#" class="text-yellow-300 hover:text-yellow-200 underline">Hubungi admin desa</a>
                 </p>
             </div>
@@ -100,14 +100,14 @@
 </div>
 
 <script>
-document.getElementById('forgotForm').addEventListener('submit', function(e) {
-    const submitBtn = document.getElementById('submitBtn');
-    const submitBtnText = document.getElementById('submitBtnText');
-    const submitSpinner = document.getElementById('submitSpinner');
+document.getElementById('searchEmailForm').addEventListener('submit', function(e) {
+    const searchBtn = document.getElementById('searchBtn');
+    const searchBtnText = document.getElementById('searchBtnText');
+    const searchSpinner = document.getElementById('searchSpinner');
     
-    submitBtn.disabled = true;
-    submitBtnText.textContent = 'Mengirim...';
-    submitSpinner.classList.remove('hidden');
+    searchBtn.disabled = true;
+    searchBtnText.textContent = 'Mencari...';
+    searchSpinner.classList.remove('hidden');
 });
 </script>
 @endsection

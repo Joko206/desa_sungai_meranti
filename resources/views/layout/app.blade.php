@@ -9,15 +9,15 @@
 </head>
 <body class="bg-gray-50 font-sans antialiased">
     <!-- Enhanced Navbar -->
-    <nav class="bg-green-700 text-white shadow-xl sticky top-0 z-50">
+    <nav class="bg-gradient-to-r from-blue-800 to-blue-600 text-white shadow-xl sticky top-0 z-50">
         <div class="w-full px-4 sm:px-8 lg:px-14 xl:px-20">
             <div class="flex justify-between items-center py-3">
                 <!-- Logo and Brand -->
-                <a href="{{ route('home') }}" class="flex items-center space-x-4 hover:bg-green-600 rounded-lg p-2 transition-all duration-300 cursor-pointer">
+                <a href="{{ route('home') }}" class="flex items-center space-x-4 hover:bg-blue-500 rounded-lg p-2 transition-all duration-300 cursor-pointer">
                     <img src="{{ asset('logo-desa.png') }}" alt="Logo Desa" class="w-12 h-12 rounded-full border-2 border-white/20">
                     <div>
                         <h1 class="text-xl font-bold tracking-wide">Pemerintah Desa Sungai Meranti</h1>
-                        <p class="text-green-100 text-sm">Kacamatan Pinggir Kabupaten Bengkalis</p>
+                        <p class="text-blue-100 text-sm">Kacamatan Pinggir Kabupaten Bengkalis</p>
                     </div>
                 </a>
                 
@@ -26,13 +26,13 @@
                     @auth
                         <!-- User Info Dropdown -->
                         <div class="relative group">
-                            <button class="flex items-center space-x-3 bg-green-600 hover:bg-green-500 rounded-lg px-4 py-2 transition-all duration-200">
+                            <button class="flex items-center space-x-3 bg-blue-500 hover:bg-blue-400 rounded-lg px-4 py-2 transition-all duration-200">
                                 <div class="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
-                                    <span class="text-green-900 font-bold text-sm">{{ strtoupper(substr(Auth::user()->nama, 0, 2)) }}</span>
+                                    <span class="text-blue-900 font-bold text-sm">{{ strtoupper(substr(Auth::user()->nama, 0, 2)) }}</span>
                                 </div>
                                 <div class="text-left">
                                     <p class="text-white font-medium text-sm">{{ Auth::user()->nama }}</p>
-                                    <p class="text-green-100 text-xs capitalize">{{ Auth::user()->role->nama_role ?? 'User' }}</p>
+                                    <p class="text-blue-100 text-xs capitalize">{{ Auth::user()->role->nama_role ?? 'User' }}</p>
                                 </div>
                                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -76,7 +76,7 @@
                         </div>
                     @else
                         <a href="{{ route('login') }}" class="text-white hover:text-yellow-300 px-4 py-2 rounded-lg font-medium transition-colors duration-200 border border-white/20 hover:border-yellow-300">Masuk</a>
-                        <a href="{{ route('register') }}" class="bg-yellow-400 hover:bg-yellow-300 text-green-900 px-4 py-2 rounded-lg font-bold transition-all duration-200">Daftar</a>
+                        <a href="{{ route('register') }}" class="bg-blue-400 hover:bg-blue-300 text-white px-4 py-2 rounded-lg font-bold transition-all duration-200">Daftar</a>
                     @endauth
                 </div>
 
@@ -90,25 +90,25 @@
             
             <!-- Mobile Menu -->
             <div class="lg:hidden hidden" id="mobile-menu">
-                <div class="px-4 pt-2 pb-3 space-y-1 border-t border-green-600">
+                <div class="px-4 pt-2 pb-3 space-y-1 border-t border-blue-600">
                     @auth
                         <!-- Mobile User Info -->
-                        <div class="px-2 py-3 border-b border-green-600">
+                        <div class="px-2 py-3 border-b border-blue-600">
                             <div class="flex items-center space-x-3">
                                 <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
-                                    <span class="text-green-900 font-bold">{{ strtoupper(substr(Auth::user()->nama, 0, 2)) }}</span>
+                                    <span class="text-blue-900 font-bold">{{ strtoupper(substr(Auth::user()->nama, 0, 2)) }}</span>
                                 </div>
                                 <div>
                                     <p class="text-white font-medium">{{ Auth::user()->nama }}</p>
-                                    <p class="text-green-200 text-sm capitalize">{{ Auth::user()->role->nama_role ?? 'User' }}</p>
+                                    <p class="text-blue-200 text-sm capitalize">{{ Auth::user()->role->nama_role ?? 'User' }}</p>
                                 </div>
                             </div>
                         </div>
                         <div class="space-y-2">
                             @if(Auth::user()->role && Auth::user()->role->nama_role === 'admin')
-                                <a href="{{ route('admin.dashboard') }}" class="block px-2 py-2 text-white hover:bg-green-600 rounded-lg">Dashboard Admin</a>
+                                <a href="{{ route('admin.dashboard') }}" class="block px-2 py-2 text-white hover:bg-blue-500 rounded-lg">Dashboard Admin</a>
                             @else
-                                <a href="{{ route('warga.dashboard') }}" class="block px-2 py-2 text-white hover:bg-green-600 rounded-lg">Dashboard Saya</a>
+                                <a href="{{ route('warga.dashboard') }}" class="block px-2 py-2 text-white hover:bg-blue-500 rounded-lg">Dashboard Saya</a>
                             @endif
                             <form action="{{ route('logout') }}" method="POST" class="m-0">
                                 @csrf
@@ -116,9 +116,9 @@
                             </form>
                         </div>
                     @else
-                        <div class="pt-4 mt-4 border-t border-green-600 space-y-2">
+                        <div class="pt-4 mt-4 border-t border-blue-600 space-y-2">
                             <a href="{{ route('login') }}" class="block w-full text-center text-white hover:text-yellow-300 px-4 py-2 rounded-lg font-medium transition-colors duration-200 border border-white/20 hover:border-yellow-300">Masuk</a>
-                            <a href="{{ route('register') }}" class="block w-full text-center bg-yellow-400 hover:bg-yellow-300 text-green-900 px-4 py-2 rounded-lg font-bold transition-all duration-200">Daftar</a>
+                            <a href="{{ route('register') }}" class="block w-full text-center bg-blue-400 hover:bg-blue-300 text-white px-4 py-2 rounded-lg font-bold transition-all duration-200">Daftar</a>
                         </div>
                     @endauth
                 </div>
@@ -175,7 +175,7 @@
                 
                 <!-- Quick Links -->
                 <div>
-                    <h4 class="text-lg font-semibold mb-4 text-emerald-400">Menu Utama</h4>
+                    <h4 class="text-lg font-semibold mb-4 text-blue-400">Menu Utama</h4>
                     <ul class="space-y-2">
                         <li><a href="{{ route('home') }}" class="text-gray-300 hover:text-white transition-colors">Beranda</a></li>
                         <li><a href="{{ route('pengajuan.create') }}" class="text-gray-300 hover:text-white transition-colors">Buat Surat</a></li>
@@ -187,7 +187,7 @@
                 
                 <!-- Contact Info -->
                 <div>
-                    <h4 class="text-lg font-semibold mb-4 text-emerald-400">Kontak</h4>
+                    <h4 class="text-lg font-semibold mb-4 text-blue-400">Kontak</h4>
                     <div class="space-y-3 text-gray-300">
                         <div class="flex items-center space-x-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -216,7 +216,7 @@
             <div class="border-t border-gray-700 mt-8 pt-6 text-center">
                 <p class="text-gray-400">
                     © 2025 Desa Sungai Meranti. Semua hak dilindungi undang-undang.
-                    <span class="text-emerald-400">Dikelola dengan ❤️ untuk masyarakat Indonesia</span>
+                    <span class="text-blue-400">Dikelola dengan ❤️ untuk masyarakat Indonesia</span>
                 </p>
             </div>
         </div>
