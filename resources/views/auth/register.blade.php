@@ -149,21 +149,22 @@
 
                         <div class="space-y-2">
                             <label for="email" class="block text-sm font-medium text-blue-50 tracking-wide">
-                                Email <span class="text-blue-200/80">(Opsional)</span>
+                                Email <span class="text-red-400 text-xs">*</span>
                             </label>
                             <input
                                 type="email"
                                 id="email"
                                 name="email"
+                                required
                                 value="{{ old('email') }}"
                                 class="w-full px-4 py-3 rounded-2xl bg-blue-950/60 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-150"
-                                placeholder="nama@email.com (boleh kosong)"
+                                placeholder="nama@email.com"
                             >
                             @error('email')
                                 <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
                             <p class="text-xs text-blue-100/70 mt-1">
-                                Email digunakan untuk menerima notifikasi status pengajuan surat.
+                                Email wajib diisi untuk menerima notifikasi status pengajuan surat.
                             </p>
                         </div>
 
