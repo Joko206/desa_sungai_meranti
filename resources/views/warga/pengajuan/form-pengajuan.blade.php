@@ -490,6 +490,64 @@
                 let input;
                 
                 switch (field.type) {
+                    case 'ttl_combined':
+                        // Create TTL combined field with two sub-fields
+                        const ttlWrapper = document.createElement('div');
+                        ttlWrapper.className = 'responsive-grid gap-4';
+                        
+                        // Tempat Lahir field
+                        const tempatLahirDiv = document.createElement('div');
+                        const tempatLahirLabel = document.createElement('label');
+                        tempatLahirLabel.className = 'block text-sm font-medium text-gray-700';
+                        tempatLahirLabel.textContent = 'Tempat Lahir';
+                        tempatLahirLabel.setAttribute('for', `${key}_tempat_lahir`);
+                        
+                        const tempatLahirInput = document.createElement('input');
+                        tempatLahirInput.type = 'text';
+                        tempatLahirInput.id = `${key}_tempat_lahir`;
+                        tempatLahirInput.name = `data_pemohon[tempat_lahir]`;
+                        tempatLahirInput.className = 'optimized-input';
+                        tempatLahirInput.placeholder = 'Masukkan tempat lahir';
+                        tempatLahirInput.required = true;
+                        
+                        tempatLahirDiv.appendChild(tempatLahirLabel);
+                        tempatLahirDiv.appendChild(tempatLahirInput);
+                        
+                        // Tanggal Lahir field
+                        const tanggalLahirDiv = document.createElement('div');
+                        const tanggalLahirLabel = document.createElement('label');
+                        tanggalLahirLabel.className = 'block text-sm font-medium text-gray-700';
+                        tanggalLahirLabel.textContent = 'Tanggal Lahir';
+                        tanggalLahirLabel.setAttribute('for', `${key}_tanggal_lahir`);
+                        
+                        const tanggalLahirInput = document.createElement('input');
+                        tanggalLahirInput.type = 'date';
+                        tanggalLahirInput.id = `${key}_tanggal_lahir`;
+                        tanggalLahirInput.name = `data_pemohon[tanggal_lahir]`;
+                        tanggalLahirInput.className = 'optimized-input';
+                        tanggalLahirInput.required = true;
+                        
+                        // Add date validation for birth date
+                        const today = new Date();
+                        const maxDate = new Date(today.getFullYear() - 17, today.getMonth(), today.getDate()); // Minimum 17 years old
+                        tanggalLahirInput.setAttribute('max', maxDate.toISOString().split('T')[0]);
+                        tanggalLahirInput.setAttribute('min', '1950-01-01');
+                        
+                        tanggalLahirDiv.appendChild(tanggalLahirLabel);
+                        tanggalLahirDiv.appendChild(tanggalLahirInput);
+                        
+                        // Add help text
+                        const helpText = document.createElement('p');
+                        helpText.className = 'field-help col-span-2';
+                        helpText.textContent = 'Data akan disimpan dalam format: Tempat, Tanggal (contoh: Bandung, 20 Februari 2005)';
+                        
+                        ttlWrapper.appendChild(tempatLahirDiv);
+                        ttlWrapper.appendChild(tanggalLahirDiv);
+                        ttlWrapper.appendChild(helpText);
+                        
+                        fieldDiv.appendChild(ttlWrapper);
+                        return fieldDiv;
+                        
                     case 'date':
                         input = document.createElement('input');
                         input.type = 'date';
