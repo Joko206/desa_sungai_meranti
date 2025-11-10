@@ -95,6 +95,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/file/lihat/{pengajuanId}/{label}', [FileController::class, 'previewFile'])->name('admin.file.preview');
         Route::get('/file/download/{pengajuanId}/{label}', [FileController::class, 'downloadFile'])->name('admin.file.download');
 
+        // Route for viewing generated surat files
+        Route::get('/surat/{filename}', [FileController::class, 'viewSurat'])->name('admin.surat.view');
+
 
         // Admin Pengajuan Routes
         Route::get('/pengajuan', [AdminPengajuanController::class, 'index'])->name('admin.pengajuan.index');

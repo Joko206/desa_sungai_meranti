@@ -53,7 +53,7 @@ async function fetchPengajuanDetail() {
 
         if (status === 'disetujui' && suratTerbit && suratTerbit.file_surat) {
             const fileUrl = `/storage/${suratTerbit.file_surat.replace(/^public\//, '')}`;
-            html += `<a href="${fileUrl}" download class="inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-300">Download Surat</a>`;
+            html += `<a href="${fileUrl}" download class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300">Download Surat</a>`;
         } else if (status === 'ditolak' && alasanPenolakan) {
             html += `<p class="text-red-600"><strong>Alasan Penolakan:</strong> ${alasanPenolakan}</p>`;
         }
