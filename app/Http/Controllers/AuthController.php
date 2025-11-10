@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OtpMail;
 
 class AuthController extends Controller
 {
@@ -34,7 +36,7 @@ class AuthController extends Controller
                 'nama' => 'required|string',
                 'alamat' => 'required|string|min:10',
                 'no_hp' => 'required|string|regex:/^[0-9]{10,15}$/',
-                'email' => 'nullable|email|unique:user_desa,email',
+                'email' => 'required|email|unique:user_desa,email',
                 'password' => 'required|min:6'
             ]);
 
@@ -282,4 +284,177 @@ class AuthController extends Controller
         // Placeholder implementation - replace with actual password reset logic
         return redirect()->route('login')->with('success', 'Password berhasil diupdate');
     }
+
+    // New OTP-based Password Reset Methods
+    public function showForgotPasswordSearchEmail()
+    {
+        return view('auth.forgot-password-search');
+    }
+
+    public function searchEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $user = UserDesa::where('email', $request->email)->first();
+
+        if (!$user) {
+            return back()->with('error', 'Email tidak ditemukan dalam sistem')->withInput();
+        }
+
+        // Redirect to confirmation page with user data
+        return redirect()->route('password.confirmation')
+            ->with('user', $user);
+    }
+
+    public function showForgotPasswordConfirmation(Request $request)
+    {
+        $user = $request->session()->get('user');
+        if (!$user) {
+            return redirect()->route('password.search-email')
+                ->with('error', 'Sesi telah berakhir, silakan cari email lagi');
+        }
+
+        return view('auth.forgot-password-confirmation', compact('user'));
+    }
+
+    public function sendOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $user = UserDesa::where('email', $request->email)->first();
+        if (!$user) {
+            return back()->with('error', 'Email tidak ditemukan')->withInput();
+        }
+
+        // Here you would generate and send OTP via email
+        // For now, we'll generate a 6-digit OTP
+        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        
+        // Store OTP in session for verification
+        $request->session()->put('otp', $otp);
+        $request->session()->put('otp_email', $request->email);
+        $request->session()->put('otp_expires', now()->addMinutes(5));
+
+        // Store email in session for OTP page
+        $request->session()->put('email', $request->email);
+
+        try {
+            // Send the email using Mailable class
+            Mail::to($request->email)->send(new \App\Mail\OtpMail($otp, $user->nama));
+            
+            return redirect()->route('password.verify-otp')
+                ->with('success', 'Kode OTP telah dikirim ke email Anda');
+        } catch (Exception $e) {
+            // If email sending fails, still allow user to proceed for development
+            return redirect()->route('password.verify-otp')
+                ->with('warning', 'Kode OTP: ' . $otp . ' (Mode Development - Email tidak terkirim)');
+        }
+    }
+
+    public function showForgotPasswordOtp(Request $request)
+    {
+        $email = $request->session()->get('email');
+        if (!$email) {
+            return redirect()->route('password.search-email')
+                ->with('error', 'Sesi telah berakhir, silakan cari email lagi');
+        }
+
+        return view('auth.forgot-password-otp', compact('email'));
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|string|size:6'
+        ]);
+
+        // Get stored OTP data from session
+        $storedOtp = $request->session()->get('otp');
+        $storedEmail = $request->session()->get('otp_email');
+        $otpExpires = $request->session()->get('otp_expires');
+
+        // Check if OTP exists and hasn't expired
+        if (!$storedOtp || !$storedEmail || !$otpExpires) {
+            return back()->with('error', 'Kode OTP telah expired. Silakan minta kode baru.')->withInput();
+        }
+
+        if (now()->isAfter($otpExpires)) {
+            return back()->with('error', 'Kode OTP telah expired. Silakan minta kode baru.')->withInput();
+        }
+
+        // Verify email and OTP match
+        if ($request->email !== $storedEmail || $request->otp !== $storedOtp) {
+            return back()->with('error', 'Kode OTP tidak valid')->withInput();
+        }
+
+        // ✅ OTP valid → izinkan pengguna lanjut reset password
+        $request->session()->put('otp_verified', true);
+
+
+        // Clear OTP from session and redirect to password change
+        $request->session()->forget(['otp', 'otp_expires']);
+
+        return redirect()->route('password.change')
+            ->with('success', 'OTP berhasil diverifikasi')
+            ->with('email', $request->email);
+    }
+
+    public function showForgotPasswordChange(Request $request)
+    {
+        // Cek apakah OTP sudah diverifikasi
+    if (!$request->session()->get('otp_verified')) {
+        return redirect()->route('password.search-email')
+            ->with('error', 'Sesi telah berakhir, silakan mulai dari awal');
+    }
+
+    // Ambil email yang sudah diverifikasi
+    $email = $request->session()->get('otp_email');
+    
+    return view('auth.forgot-password-change', compact('email'));
+    }
+
+    public function changePassword(Request $request)
+    {
+        // Pastikan OTP sudah diverifikasi
+        if (!$request->session()->get('otp_verified')) {
+            return redirect()->route('password.search-email')
+                ->with('error', 'Sesi telah berakhir, silakan mulai dari awal');
+        }
+
+        $request->validate([
+            'password' => 'required|min:6|confirmed'
+        ]);
+
+        // Ambil email dari session (bukan dari user input)
+        $email = $request->session()->get('otp_email');
+
+        try {
+            $user = UserDesa::where('email', $email)->first();
+            
+            if (!$user) {
+                return back()->with('error', 'Email tidak ditemukan')->withInput();
+            }
+
+            // Update password (let the model's mutator handle the hashing)
+            $user->update([
+                'password' => $request->password
+            ]);
+
+            // Hapus semua session terkait reset password
+            $request->session()->forget(['otp_verified', 'otp_email']);
+
+            return redirect()->route('login')
+                ->with('success', 'Password berhasil diubah. Silakan login dengan password baru.');
+
+        } catch (Exception $e) {
+            return back()->with('error', 'Gagal mengubah password. Silakan coba lagi.')
+                        ->withInput();
+        }
+    }
+
 }
