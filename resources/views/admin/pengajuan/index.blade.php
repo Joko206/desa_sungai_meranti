@@ -43,6 +43,7 @@
                         <option value="disetujui_verifikasi">Disetujui</option>
                         <option value="ditolak">Ditolak</option>
                         <option value="menunggu_tanda_tangan">Menunggu Tanda Tangan</option>
+                        <option value="selesai">Selesai</option>
                     </select>
                 </div>
                 <div>
@@ -298,6 +299,8 @@ function getStatusColor(status) {
             return 'bg-red-100 text-red-800';
         case 'menunggu_tanda_tangan':
             return 'bg-purple-100 text-purple-800';
+        case 'selesai':
+            return 'bg-green-100 text-green-800';
         default:
             return 'bg-gray-100 text-gray-800';
     }
@@ -313,6 +316,8 @@ function getStatusLabel(status) {
             return 'Ditolak';
         case 'menunggu_tanda_tangan':
             return 'Menunggu Tanda Tangan';
+        case 'selesai':
+            return 'Selesai';
         default:
             return status;
     }
@@ -352,6 +357,19 @@ function getActionButtons(pengajuan) {
                 `;
             }
             break;
+        case 'selesai':
+            if (pengajuan.surat_terbit) {
+                // Extract filename from the file_surat path
+                const filePath = pengajuan.surat_terbit.file_surat;
+                const filename = filePath.split('/').pop();
+                buttons += `
+                    <a href="/admin/surat/${filename}" target="_blank"
+                       class="text-green-600 hover:text-green-900 text-xs mr-2">
+                        Lihat Hasil
+                    </a>
+                `;
+            }
+            break;
     }
     
     return buttons;
@@ -364,6 +382,9 @@ function updateStatistics(data) {
     document.getElementById('pending-count').textContent = allPengajuan.filter(p => p.status === 'menunggu').length;
     document.getElementById('approved-count').textContent = allPengajuan.filter(p => p.status === 'disetujui_verifikasi').length;
     document.getElementById('rejected-count').textContent = allPengajuan.filter(p => p.status === 'ditolak').length;
+    // Add completed count display if needed
+    const completedCount = allPengajuan.filter(p => p.status === 'selesai').length;
+    console.log('Completed submissions:', completedCount);
 }
 
 function applyFilters() {

@@ -11,6 +11,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OtpMail;
+use App\Services\NotificationService;
 
 class AuthController extends Controller
 {
@@ -81,6 +82,10 @@ class AuthController extends Controller
             // For web registration, log the user in and redirect
             if (!$r->isJson()) {
                 Auth::login($user);
+
+                // Send welcome email
+                $notificationService = app(NotificationService::class);
+                $notificationService->sendWelcomeEmail($user);
 
                 $roleName = $role->nama_role ?? 'warga';
                 $dashboardRoute = $roleName === 'admin' ? 'admin.dashboard' : 'warga.dashboard';

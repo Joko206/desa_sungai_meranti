@@ -8,13 +8,14 @@ class PengajuanSurat extends Model
     protected $table = 'pengajuan_surat';
     protected $fillable = [
         'nik_pemohon','jenis_surat_id','tanggal_pengajuan','status',
-        'data_isian','file_syarat','alasan_penolakan'
+        'data_isian','file_syarat','alasan_penolakan','tanggal_selesai'
     ];
 
     protected $casts = [
         'data_isian' => 'array',
         'file_syarat' => 'array',
         'tanggal_pengajuan' => 'date',
+        'tanggal_selesai' => 'date',
     ];
 
     public function pemohon()

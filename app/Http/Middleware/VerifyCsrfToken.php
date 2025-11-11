@@ -12,8 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        '/pengajuan/create/debug',
-        '/csrf-test',
+        // CSRF exemptions removed for security - all routes now protected
     ];
 
     /**

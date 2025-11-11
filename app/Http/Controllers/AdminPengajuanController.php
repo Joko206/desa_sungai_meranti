@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\PengajuanSurat;
 use App\Models\SuratTerbit;
 use App\Services\SuratGeneratorService;
+use App\Services\NotificationService;
 
 class AdminPengajuanController extends Controller
 {
@@ -52,8 +53,11 @@ class AdminPengajuanController extends Controller
 
                         "data_isian" => $item->data_isian ?? null,
 
+                        "tanggal_selesai" => $item->tanggal_selesai,
+
                         "surat_terbit" => $item->suratTerbit ? [
                             "tanggal_terbit" => $item->suratTerbit->tanggal_terbit,
+                            "tanggal_selesai" => $item->suratTerbit->tanggal_selesai ?? null,
                             "status_cetak" => $item->suratTerbit->status_cetak,
                             "file_surat" => $item->suratTerbit->file_surat,
                         ] : null
@@ -121,10 +125,13 @@ class AdminPengajuanController extends Controller
 
                 "data_isian" => $pengajuan->data_isian ?? null,
 
+                "tanggal_selesai" => $pengajuan->tanggal_selesai,
+
                 "file_syarat" => $fileSyarat ?? null,
 
                 "surat_terbit" => $pengajuan->suratTerbit ? [
                     "tanggal_terbit" => $pengajuan->suratTerbit->tanggal_terbit,
+                    "tanggal_selesai" => $pengajuan->suratTerbit->tanggal_selesai ?? null,
                     "status_cetak"   => $pengajuan->suratTerbit->status_cetak,
                     "file_surat"     => $pengajuan->suratTerbit->file_surat,
                 ] : null
@@ -163,6 +170,10 @@ class AdminPengajuanController extends Controller
             $p->status = 'ditolak';
             $p->alasan_penolakan = $request->alasan;
             $p->save();
+    
+            // Send email notification to user
+            $notificationService = app(NotificationService::class);
+            $notificationService->sendPengajuanStatusNotification($p, 'rejected', $request->alasan);
     
             return response()->json([
                 'success' => true,
@@ -209,6 +220,10 @@ class AdminPengajuanController extends Controller
             $p->status = 'menunggu_tanda_tangan';
             $p->save();
     
+            // Send email notification to user
+            $notificationService = app(NotificationService::class);
+            $notificationService->sendPengajuanStatusNotification($p, 'approved');
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Pengajuan disetujui dan surat berhasil digenerate',
@@ -219,6 +234,50 @@ class AdminPengajuanController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menyetujui pengajuan atau generate surat',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function markAsCompleted(Request $request, $id)
+    {
+        try {
+            $p = PengajuanSurat::with('jenis', 'pemohon', 'suratTerbit')->findOrFail($id);
+            
+            // Check if pengajuan can be marked as completed
+            if (!in_array($p->status, ['menunggu_tanda_tangan', 'disetujui_verifikasi'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Status pengajuan tidak dapat ditandai sebagai selesai'
+                ], 400);
+            }
+            
+            // Update pengajuan status to completed
+            $p->status = 'selesai';
+            $p->tanggal_selesai = now();
+            $p->save();
+            
+            // Update suratterbit status if exists
+            if ($p->suratTerbit) {
+                $p->suratTerbit->update([
+                    'status_cetak' => 'selesai',
+                    'tanggal_selesai' => now()
+                ]);
+            }
+            
+            // Send completion notification to user
+            $notificationService = app(NotificationService::class);
+            $notificationService->sendPengajuanStatusNotification($p, 'completed');
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengajuan berhasil ditandai sebagai selesai',
+                'data' => $p->load('pemohon', 'jenis', 'suratTerbit')
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menandai pengajuan sebagai selesai',
                 'error' => $e->getMessage()
             ], 500);
         }
