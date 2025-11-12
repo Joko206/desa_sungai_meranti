@@ -119,9 +119,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/jenis-surat', [JenisSuratController::class, 'adminIndex'])->name('admin.jenis-surat.index');
         Route::post('/jenis-surat', [JenisSuratController::class, 'AddLetter'])->name('admin.jenis-surat.store');
         Route::get('/jenis-surat/{jenisSurat}', [JenisSuratController::class, 'adminShow'])->name('admin.jenis-surat.show');
-        Route::put('/jenis-surat/{jenisSurat}', [JenisSuratController::class, 'update'])->name('admin.jenis-surat.update');
-        Route::delete('/jenis-surat/{jenisSurat}', [JenisSuratController::class, 'adminDestroy'])->name('admin.jenis-surat.destroy');
-        Route::patch('/jenis-surat/{jenisSurat}/toggle-status', [JenisSuratController::class, 'adminToggleStatus'])->name('admin.jenis-surat.toggle-status');
+        Route::put('/jenis-surat/{jenisSuratId}', [JenisSuratController::class, 'updateJenisSurat'])->name('admin.jenis-surat.update');
+        Route::delete('/jenis-surat/{jenisSuratId}', [JenisSuratController::class, 'adminDestroy'])->name('admin.jenis-surat.destroy');
+        Route::patch('/jenis-surat/{jenisSuratId}/toggle-status', [JenisSuratController::class, 'adminToggleStatus'])->name('admin.jenis-surat.toggle-status');
         
         // Bulk Operations Routes
         Route::patch('/jenis-surat/bulk-toggle-status', [JenisSuratController::class, 'bulkToggleStatus'])->name('admin.jenis-surat.bulk-toggle-status');
