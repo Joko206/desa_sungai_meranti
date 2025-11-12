@@ -13,13 +13,15 @@ class JenisSurat extends Model
         'form_structure',
         'deskripsi',
         'syarat',
-        'is_active'
+        'is_active',
+        'butuh_tanda_tangan_pihak_lain'
     ];
     
     protected $casts = [
         'form_structure' => 'array',
         'syarat' => 'array',
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
+        'butuh_tanda_tangan_pihak_lain' => 'boolean'
     ];
 
     // Scope untuk jenis surat yang aktif

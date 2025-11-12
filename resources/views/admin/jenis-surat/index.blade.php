@@ -165,6 +165,12 @@
                                 </svg>
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onclick="sortTable('butuh_tanda_tangan_pihak_lain')">
+                                Kategori
+                                <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                </svg>
+                            </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onclick="sortTable('is_active')">
                                 Status
                                 <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -209,6 +215,11 @@
                                     <div class="text-sm text-gray-900 max-w-xs truncate">{{ $jenis->deskripsi ?? 'Tidak ada deskripsi' }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $jenis->butuh_tanda_tangan_pihak_lain ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800' }}">
+                                        {{ $jenis->butuh_tanda_tangan_pihak_lain ? 'Butuh Tanda Tangan' : 'Desa' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $jenis->is_active ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $jenis->is_active ? 'Aktif' : 'Nonaktif' }}
                                     </span>
@@ -242,7 +253,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                <td colspan="7" class="px-6 py-8 text-center text-gray-500">
                                     <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                     </svg>
@@ -301,6 +312,21 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">File Template</label>
                     <input type="file" name="file_template" required class="w-full text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100" accept=".doc,.docx,.pdf,.odt">
                     <p class="text-xs text-gray-500 mt-1">Upload file template untuk jenis surat ini</p>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Surat</label>
+                    <div class="space-y-2">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="butuh_tanda_tangan_pihak_lain" value="0" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Surat Dari Desa</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="butuh_tanda_tangan_pihak_lain" value="1" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Surat Butuh Tanda Tangan Pihak Lain</span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Pilih kategori surat untuk menentukan flow pengajuan</p>
                 </div>
                 
                 <!-- Requirements Section -->
@@ -371,6 +397,20 @@
                 </div>
                 
                 <!-- Requirements Section -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Surat</label>
+                    <div class="space-y-2 mb-3">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="butuh_tanda_tangan_pihak_lain" value="0" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Surat By Desa (langsung selesai setelah approve)</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="butuh_tanda_tangan_pihak_lain" value="1" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Surat By Pihak Lain (perlu tanda tangan pihak lain)</span>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-3">Syarat Pengajuan Surat</label>
                     <p class="text-xs text-gray-500 mb-3">Edit syarat-syarat yang diperlukan untuk pengajuan surat ini</p>
@@ -475,6 +515,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const checkboxes = document.querySelectorAll('.row-checkbox');
         const checked = Array.from(checkboxes).filter(cb => cb.checked);
         document.getElementById('selectAll').checked = checked.length === checkboxes.length && checkboxes.length > 0;
+    });
+
+    // Kategori radio button change handler
+    document.addEventListener('change', (event) => {
+        if (event.target.name === 'butuh_tanda_tangan_pihak_lain') {
+            const selectedValue = event.target.value;
+            console.log('Kategori changed to:', selectedValue);
+        }
     });
 
     // Modal click outside to close
@@ -729,10 +777,16 @@ function editJenisSurat(id) {
         document.querySelector('#editForm [name="nama_surat"]').value = item.nama_surat;
         document.querySelector('#editForm [name="deskripsi"]').value = item.deskripsi || '';
         
+        // Set kategori radio button
+        const kategoriRadios = document.querySelectorAll('#editModal input[name="butuh_tanda_tangan_pihak_lain"]');
+        kategoriRadios.forEach(radio => {
+            radio.checked = (radio.value == item.butuh_tanda_tangan_pihak_lain);
+        });
+
         // Populate requirements
         const container = document.getElementById('editSyaratContainer');
         container.innerHTML = ''; // Clear existing
-        
+
         // Check if there are existing requirements
         if (item.syarat && Array.isArray(item.syarat) && item.syarat.length > 0) {
             item.syarat.forEach(function(syarat) {
