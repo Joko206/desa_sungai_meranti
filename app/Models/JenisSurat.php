@@ -244,7 +244,7 @@ class JenisSurat extends Model
                 'label' => 'Dusun',
                 'options' => [
                     ['value' => 'Dusun Suka Maju', 'label' => 'Dusun Suka Maju'],
-                    ['value' => 'Dusun Kulin Jaya', 'label' => 'Dusun Kulin Jaya'],
+                    ['value' => 'Dusun Kulim Jaya', 'label' => 'Dusun Kulim Jaya'],
                     ['value' => 'Dusun Suka Sari', 'label' => 'Dusun Suka Sari']
                 ],
                 'placeholder' => 'Pilih dusun'

@@ -143,28 +143,63 @@
 </div>
 
 <!-- Rejection Modal -->
-<div id="rejection-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+<div id="rejection-modal" class="hidden fixed inset-0 overflow-y-auto h-full w-full z-50">
     <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div class="mt-3">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Tolak Pengajuan</h3>
-            <form id="rejection-form">
-                <div class="mb-4">
-                    <label for="alasan-penolakan" class="block text-sm font-medium text-gray-700 mb-2">Alasan Penolakan</label>
-                    <textarea id="alasan-penolakan" name="alasan" rows="4" required
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="Masukkan alasan penolakan..."></textarea>
+            <div class="bg-gradient-to-r from-red-50 to-rose-50 rounded-xl p-6 border border-red-100">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-red-800">Tolak Pengajuan</h3>
                 </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" onclick="closeRejectionModal()"
-                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
-                        Batal
-                    </button>
-                    <button type="submit"
-                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">
-                        Tolak Pengajuan
-                    </button>
-                </div>
-            </form>
+                <p class="text-sm text-red-700 mb-6">Berikan alasan penolakan yang jelas agar pemohon dapat memahami dan memperbaiki pengajuannya.</p>
+
+                <form id="rejection-form">
+                    <div class="mb-6">
+                        <label for="alasan-penolakan" class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Alasan Penolakan
+                            <span class="text-red-500 ml-1">*</span>
+                        </label>
+                        <div class="relative">
+                            <textarea id="alasan-penolakan" name="alasan" rows="5" required
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 resize-none bg-white shadow-sm"
+                                      placeholder="Contoh: Dokumen KTP tidak lengkap, alamat tidak sesuai dengan kartu keluarga, atau persyaratan lainnya belum terpenuhi..."></textarea>
+                            <div class="absolute bottom-3 right-3 text-xs text-gray-400">
+                                <span id="char-count">0</span>/500 karakter
+                            </div>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-600 flex items-center">
+                            <svg class="w-3 h-3 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Alasan yang jelas akan membantu pemohon memperbaiki pengajuannya
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                        <button type="button" onclick="closeRejectionModal()"
+                                class="px-6 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-[1.02]">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Batal
+                        </button>
+                        <button type="submit"
+                                class="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-red-500 to-red-600 rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-[1.02]">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Tolak Pengajuan
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
@@ -767,10 +802,40 @@ async function approvePengajuan(id) {
 
 async function rejectPengajuan(event) {
     event.preventDefault();
-    
+
     const form = event.target;
     const formData = new FormData(form);
-    const alasan = formData.get('alasan');
+    const alasan = formData.get('alasan').trim();
+
+    // Validation
+    if (!alasan) {
+        alert('Alasan penolakan tidak boleh kosong!');
+        document.getElementById('alasan-penolakan').focus();
+        return;
+    }
+
+    if (alasan.length < 10) {
+        alert('Alasan penolakan minimal 10 karakter agar pemohon dapat memahami dengan jelas!');
+        document.getElementById('alasan-penolakan').focus();
+        return;
+    }
+
+    if (alasan.length > 500) {
+        alert('Alasan penolakan maksimal 500 karakter!');
+        document.getElementById('alasan-penolakan').focus();
+        return;
+    }
+
+    // Show loading state
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+        <svg class="animate-spin w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Memproses...
+    `;
 
     try {
         const response = await fetch(`/admin/pengajuan/${currentPengajuanId}/reject`, {
@@ -784,17 +849,66 @@ async function rejectPengajuan(event) {
         });
 
         const result = await response.json();
-        
+
         if (result.success) {
-            alert('Pengajuan berhasil ditolak!');
+            // Show success message with better styling
+            showNotification('Pengajuan berhasil ditolak dengan alasan yang diberikan!', 'success');
             closeRejectionModal();
-            location.reload();
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
         } else {
-            alert('Error: ' + result.message);
+            showNotification('Error: ' + result.message, 'error');
         }
     } catch (error) {
-        alert('Terjadi kesalahan saat menolak pengajuan');
+        showNotification('Terjadi kesalahan saat menolak pengajuan', 'error');
+    } finally {
+        // Reset button state
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
     }
+}
+
+function showNotification(message, type = 'info') {
+    // Create notification element if it doesn't exist
+    let notification = document.getElementById('rejection-notification');
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'rejection-notification';
+        notification.className = 'fixed top-4 right-4 z-50 max-w-sm';
+        document.body.appendChild(notification);
+    }
+
+    const bgColor = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' :
+                   type === 'error' ? 'bg-red-100 border-red-400 text-red-700' :
+                   'bg-blue-100 border-blue-400 text-blue-700';
+
+    notification.innerHTML = `
+        <div class="${bgColor} border px-4 py-3 rounded-md shadow-lg">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    ${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium">${message}</p>
+                </div>
+                <div class="ml-auto pl-3">
+                    <button onclick="this.parentElement.parentElement.parentElement.remove()" class="text-current hover:opacity-75">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
 }
 
 async function generateSurat(id) {
@@ -855,6 +969,33 @@ async function markAsCompleted(id) {
 document.addEventListener('DOMContentLoaded', function() {
     loadPengajuanDetail();
     document.getElementById('rejection-form').addEventListener('submit', rejectPengajuan);
+
+    // Add character count functionality
+    const textarea = document.getElementById('alasan-penolakan');
+    const charCount = document.getElementById('char-count');
+
+    if (textarea && charCount) {
+        textarea.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = count;
+
+            // Color coding for character count
+            if (count > 450) {
+                charCount.className = 'text-red-500 font-semibold';
+            } else if (count > 400) {
+                charCount.className = 'text-yellow-500 font-semibold';
+            } else {
+                charCount.className = 'text-gray-400';
+            }
+
+            // Prevent typing beyond limit
+            if (count > 500) {
+                this.value = this.value.substring(0, 500);
+                charCount.textContent = '500';
+                charCount.className = 'text-red-500 font-bold';
+            }
+        });
+    }
 });
 </script>
 @endsection

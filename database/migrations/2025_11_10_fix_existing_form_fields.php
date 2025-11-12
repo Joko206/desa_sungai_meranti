@@ -30,7 +30,7 @@ return new class extends Migration
                         $field['type'] = 'select';
                         $field['options'] = [
                             ['value' => 'Dusun Suka Maju', 'label' => 'Dusun Suka Maju'],
-                            ['value' => 'Dusun Kulin Jaya', 'label' => 'Dusun Kulin Jaya'],
+                            ['value' => 'Dusun Kulim Jaya', 'label' => 'Dusun Kulim Jaya'],
                             ['value' => 'Dusun Suka Sari', 'label' => 'Dusun Suka Sari']
                         ];
                         $field['placeholder'] = 'Pilih dusun';

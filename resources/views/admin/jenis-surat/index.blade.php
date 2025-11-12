@@ -82,13 +82,11 @@
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="flex gap-2">
-                        <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Semua Status</option>
-                            <option value="1">Aktif</option>
-                            <option value="0">Nonaktif</option>
-                        </select>
-                        <button onclick="clearFilters()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                            Reset
+                        <button onclick="clearFilters()" class="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-all duration-200 shadow-sm hover:shadow-md">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            Reset Pencarian
                         </button>
                     </div>
                 </div>
@@ -96,7 +94,7 @@
         </div>
 
         <!-- Statistics -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                 <div class="flex items-center">
                     <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
@@ -105,7 +103,7 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Total Jenis</p>
+                        <p class="text-sm font-medium text-gray-500">Total Jenis Surat</p>
                         <p class="text-2xl font-semibold text-gray-900" id="total-count">{{ count($jenisSuratList) }}</p>
                     </div>
                 </div>
@@ -461,7 +459,6 @@ const previewTitle = document.getElementById('previewTitle');
 document.addEventListener('DOMContentLoaded', function() {
     // Search and Filter
     document.getElementById('searchInput')?.addEventListener('input', filterTable);
-    document.getElementById('statusFilter')?.addEventListener('change', filterTable);
 
     // Select all checkbox
     document.getElementById('selectAll')?.addEventListener('change', function() {
@@ -689,23 +686,19 @@ function setSubmitButtonState(loading) {
 
 function filterTable() {
     const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
-    const statusFilter = document.getElementById('statusFilter')?.value || '';
-    
+
     const rows = document.querySelectorAll('#jenisSuratTable tr');
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
-        const statusText = row.querySelector('.rounded-full')?.textContent.toLowerCase();
-        
+
         const matchesSearch = text.includes(searchTerm);
-        const matchesStatus = !statusFilter || (statusFilter === '1' ? statusText.includes('aktif') : statusText.includes('nonaktif'));
-        
-        row.style.display = matchesSearch && matchesStatus ? '' : 'none';
+
+        row.style.display = matchesSearch ? '' : 'none';
     });
 }
 
 function clearFilters() {
     document.getElementById('searchInput').value = '';
-    document.getElementById('statusFilter').value = '';
     filterTable();
 }
 
