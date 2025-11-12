@@ -53,7 +53,7 @@
         @endif
 
         <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white overflow-hidden shadow rounded-lg">
                 <div class="p-5">
                     <div class="flex items-center">
@@ -105,6 +105,23 @@
                     </div>
                 </div>
             </div>
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-6 w-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Selesai</dt>
+                                <dd class="text-lg font-medium text-gray-900">{{ $summary['selesai'] }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Recent Pengajuan -->
@@ -134,10 +151,15 @@
                                             <div class="ml-2 flex-shrink-0 flex">
                                                 @php
                                                     $statusClasses = [
-                                                        'menunggu' => 'bg-blue-100 text-blue-700',
-                                                        'menunggu_verifikasi' => 'bg-indigo-100 text-indigo-700',
-                                                        'disetujui' => 'bg-blue-100 text-blue-700',
-                                                        'ditolak' => 'bg-rose-100 text-rose-700',
+                                                        'menunggu' => 'bg-yellow-100 text-yellow-800',
+                                                        'menunggu_verifikasi' => 'bg-indigo-100 text-indigo-800',
+                                                        'menunggu_berkas' => 'bg-orange-100 text-orange-800',
+                                                        'disetujui' => 'bg-blue-100 text-blue-800',
+                                                        'disetujui_verifikasi' => 'bg-blue-100 text-blue-800',
+                                                        'menunggu_tanda_tangan' => 'bg-purple-100 text-purple-800',
+                                                        'selesai' => 'bg-green-100 text-green-800',
+                                                        'ditolak' => 'bg-red-100 text-red-800',
+                                                        'dibatalkan' => 'bg-gray-100 text-gray-800',
                                                     ];
                                                     $statusClass = $statusClasses[$pengajuan->status] ?? 'bg-gray-100 text-gray-700';
                                                 @endphp
@@ -149,11 +171,24 @@
                                                         @case('menunggu_verifikasi')
                                                             Menunggu Verifikasi
                                                             @break
+                                                        @case('menunggu_berkas')
+                                                            Menunggu Berkas
+                                                            @break
                                                         @case('disetujui')
+                                                        @case('disetujui_verifikasi')
                                                             Disetujui
+                                                            @break
+                                                        @case('menunggu_tanda_tangan')
+                                                            Menunggu Tanda Tangan
+                                                            @break
+                                                        @case('selesai')
+                                                            Selesai
                                                             @break
                                                         @case('ditolak')
                                                             Ditolak
+                                                            @break
+                                                        @case('dibatalkan')
+                                                            Dibatalkan
                                                             @break
                                                         @default
                                                             {{ $pengajuan->status }}

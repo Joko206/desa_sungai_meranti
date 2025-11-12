@@ -17,6 +17,10 @@ class AdminDashboardController extends Controller
                 'pending' => PengajuanSurat::where('status', 'menunggu')->count(),
                 'disetujui' => PengajuanSurat::where('status', 'disetujui_verifikasi')->count(),
                 'ditolak' => PengajuanSurat::where('status', 'ditolak')->count(),
+                'menunggu_berkas' => PengajuanSurat::where('status', 'menunggu_berkas')->count(),
+                'menunggu_tanda_tangan' => PengajuanSurat::where('status', 'menunggu_tanda_tangan')->count(),
+                'selesai' => PengajuanSurat::where('status', 'selesai')->count(),
+                'dibatalkan' => PengajuanSurat::where('status', 'dibatalkan')->count(),
             ];
 
             // Get recent pengajuan
@@ -33,6 +37,10 @@ class AdminDashboardController extends Controller
                 'pending' => 0,
                 'disetujui' => 0,
                 'ditolak' => 0,
+                'menunggu_berkas' => 0,
+                'menunggu_tanda_tangan' => 0,
+                'selesai' => 0,
+                'dibatalkan' => 0,
             ];
             $recentPengajuan = collect();
             return view('admin.dashboard', compact('stats', 'recentPengajuan'));
@@ -79,6 +87,10 @@ class AdminDashboardController extends Controller
                 'pending' => 0,
                 'disetujui' => 0,
                 'ditolak' => 0,
+                'menunggu_berkas' => 0,
+                'menunggu_tanda_tangan' => 0,
+                'selesai' => 0,
+                'dibatalkan' => 0,
                 'surat_terbit_hari_ini' => 0,
             ];
         }

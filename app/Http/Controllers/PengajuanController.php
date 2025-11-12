@@ -318,6 +318,15 @@ class PengajuanController extends Controller
                     $fieldType = $detectedType;
                 }
 
+                // Override field type based on specific field names (highest priority)
+                if (strtolower($name) === 'warganegara') {
+                    $fieldType = 'select';
+                }
+
+                if (strtolower($name) === 'pekerjaan') {
+                    $fieldType = 'text';
+                }
+
                 $mappedField = [
                     'key'         => $name,
                     'name'        => $name,
@@ -414,6 +423,16 @@ class PengajuanController extends Controller
             return 'marital_status';
         }
 
+        // Citizenship/Warganegara detection - handle all variations
+        if (preg_match('/^(warganegara|citizenship|wni_wna)/i', $nameLower)) {
+            return 'citizenship';
+        }
+
+        // Occupation/Pekerjaan detection - always text, not select
+        if (preg_match('/^(pekerjaan|occupation|job)/i', $nameLower)) {
+            return 'text'; // Explicitly return text for pekerjaan
+        }
+
         // Dusun detection
         if (preg_match('/^dusun/i', $nameLower)) {
             return 'dusun';
@@ -455,6 +474,16 @@ class PengajuanController extends Controller
             return 'marital_status';
         }
 
+        // Citizenship/Warganegara detection - handle numbered variants
+        if (preg_match('/\b(warganegara|citizenship|wni|wna)\b/i', $labelLower)) {
+            return 'citizenship';
+        }
+
+        // Occupation/Pekerjaan detection - always text, not select
+        if (preg_match('/\b(pekerjaan|occupation|job)\b/i', $labelLower)) {
+            return 'text'; // Explicitly return text for pekerjaan
+        }
+
         // Return text as default
         return 'text';
     }
@@ -482,6 +511,11 @@ class PengajuanController extends Controller
                     ['value' => 'Kawin', 'label' => 'Kawin'],
                     ['value' => 'Cerai Hidup', 'label' => 'Cerai Hidup'],
                     ['value' => 'Cerai Mati', 'label' => 'Cerai Mati']
+                ];
+            case 'citizenship':
+                return [
+                    ['value' => 'WNI', 'label' => 'WNI'],
+                    ['value' => 'WNA', 'label' => 'WNA']
                 ];
             case 'dusun':
                 return [

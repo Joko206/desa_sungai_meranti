@@ -88,7 +88,24 @@ return new class extends Migration
                         $field['min'] = '001';
                         $field['max'] = '999';
                         break;
-                        
+
+                    case 'pekerjaan':
+                        // Force pekerjaan to be text field, not select
+                        $field['type'] = 'text';
+                        $field['placeholder'] = 'Masukkan pekerjaan';
+                        unset($field['options']); // Remove any existing options
+                        break;
+
+                    case 'warganegara':
+                        // Force warganegara to be select with WNI/WNA options
+                        $field['type'] = 'select';
+                        $field['options'] = [
+                            ['value' => 'WNI', 'label' => 'WNI'],
+                            ['value' => 'WNA', 'label' => 'WNA']
+                        ];
+                        $field['placeholder'] = 'Pilih warganegara';
+                        break;
+
                     case 'ttl':
                         // Convert TTL to separate fields
                         $tempatTanggalLahir = [
@@ -112,7 +129,7 @@ return new class extends Migration
                         ];
                         $updatedFields[] = $tempatTanggalLahir;
                         continue 2; // Skip adding the original TTL field
-                        
+
                     // Legacy case for separate fields (remove this)
                     case 'tempat_lahir_old':
                         // Convert TTL to separate fields

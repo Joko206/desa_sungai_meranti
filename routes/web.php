@@ -58,8 +58,16 @@ Route::get('/administrasi', [PengajuanController::class, 'listjenis'])->name('ad
 Route::get('/tutorial-pengajuan', function() {
     return view('warga.tutorial-pengajuan');
 })->name('warga.tutorial-pengajuan');
+Route::get('/profil', function() {
+    return view('profil-desa');
+})->name('profil');
 Route::view('/penduduk', 'home')->name('penduduk');
-Route::view('/profil', 'home')->name('profil');
+Route::get('/bantuan', function() {
+    return view('bantuan');
+})->name('bantuan');
+Route::get('/kontak', function() {
+    return view('kontak');
+})->name('kontak');
 
 // Protected Routes
 Route::middleware('auth')->group(function () {
@@ -76,6 +84,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/warga/pengajuan/{pengajuanId}', [WargaDashboardController::class, 'show'])->name('warga.pengajuan.show');
         Route::post('/warga/pengajuan/{pengajuan}/batal', [WargaDashboardController::class, 'cancel'])->name('warga.pengajuan.cancel');
         Route::get('/warga/file/lihat/{pengajuanId}/{label}', [FileController::class, 'previewFile'])->name('warga.file.preview');
+        Route::get('/warga/profil/edit', [WargaDashboardController::class, 'editProfil'])->name('warga.profil.edit');
+        Route::post('/warga/profil/update', [WargaDashboardController::class, 'updateProfil'])->name('warga.profil.update');
         Route::get('/surat/{filename}', [FileController::class, 'viewSurat'])->name('warga.surat.view');
     });
 
