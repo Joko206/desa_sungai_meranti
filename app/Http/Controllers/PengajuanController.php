@@ -80,7 +80,7 @@ class PengajuanController extends Controller
             $this->validateNikNama($nik, $nama);
 
             $pengajuan = $this->createPengajuan(
-            $nik,
+            $request->user()->nik,
             $jenisSuratId,
             $dataPemohon,
             [], // kosong dulu
@@ -204,13 +204,13 @@ class PengajuanController extends Controller
         return $uploadedFiles;
     }
 
-    private function createPengajuan(string $nik, int $jenisId, array $data, array $files, string $ket)
+    private function createPengajuan(string $userNik, int $jenisId, array $data, array $files, string $ket)
     {
         $jenisSurat = JenisSurat::findOrFail($jenisId);
         $initialStatus = 'menunggu'; // Semua pengajuan mulai dari status menunggu
 
         $pengajuan = PengajuanSurat::create([
-            'nik_pemohon'      => $nik,
+            'nik_pemohon'      => $userNik,
             'jenis_surat_id'   => $jenisId,
             'tanggal_pengajuan'=> now(),
             'status'           => $initialStatus,

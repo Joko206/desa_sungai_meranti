@@ -115,9 +115,16 @@
             </div>
             <ul class="divide-y divide-gray-200">
                 @if(isset($pengajuanList) && $pengajuanList->count() > 0)
+                    {{--
+                    <div style="background: yellow; padding: 10px; margin: 10px 0; border: 1px solid orange;">
+                        Debug: Found {{ $pengajuanList->count() }} pengajuan<br>
+                        User NIK: {{ $user->nik }}<br>
+                        First pengajuan ID: {{ $pengajuanList->first()->id ?? 'none' }}
+                    </div>
+                    --}}
                     @foreach($pengajuanList as $pengajuan)
                         <li>
-                            <a href="{{ route('warga.pengajuan.show', $pengajuan) }}" class="block hover:bg-gray-50">
+                            <a href="{{ route('warga.pengajuan.show', $pengajuan->id) }}" class="block hover:bg-gray-50">
                                 <div class="px-4 py-4 sm:px-6">
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center">

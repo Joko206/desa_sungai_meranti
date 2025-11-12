@@ -191,18 +191,33 @@ class JenisSuratController extends Controller
 
         try {
             $template = new TemplateProcessor($filePath);
+            $variables = $template->getVariables(); // semua placeholder ${...}
 
-            // Ambil semua placeholder dari template
-            $variables = $template->getVariables(); // array string
+            // Daftar placeholder yang ingin dijadikan checkbox
+            $checkboxNames = [
+                "WNI", "WNA", "Islam", "Kristen_Protestan", "Hindu", "Buddha",
+                "Katolik", "Belum_Kawin", "Kawin", "Janda/Duda",
+                "Tamat_SD", "Tamat_SLP/SLTP", "Tamat_SLA/SLTA",
+                "Tamat_Akademi/Universitas", "Tidak_Sekolah", "Tidak_Tamat_SD"
+            ];
 
             $placeholders = [];
 
             foreach ($variables as $key) {
-                $placeholders[] = [
-                    'name'  => $key,
-                    'label' => ucwords(str_replace(['_', '-'], ' ', $key)),
-                    'type'  => 'text',
-                ];
+                if (in_array($key, $checkboxNames)) {
+                    $placeholders[] = [
+                        'name' => $key,
+                        'label' => ucwords(str_replace(['_', '-'], ' ', $key)),
+                        'type' => 'checkbox',
+                        'options' => [$key], // opsi checkbox hanya 1 sesuai nama
+                    ];
+                } else {
+                    $placeholders[] = [
+                        'name' => $key,
+                        'label' => ucwords(str_replace(['_', '-'], ' ', $key)),
+                        'type' => 'text',
+                    ];
+                }
             }
 
             return $placeholders;
