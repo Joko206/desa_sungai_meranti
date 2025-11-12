@@ -264,24 +264,6 @@
             </div>
         </div>
 
-        <!-- Bulk Actions -->
-        <div id="bulkActions" class="hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg border border-gray-200 p-4">
-            <div class="flex items-center space-x-4">
-                <span class="text-sm font-medium text-gray-700" id="selectedCount">0 dipilih</span>
-                <button onclick="bulkToggleStatus()" class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
-                    Toggle Status
-                </button>
-                <button onclick="bulkDelete()" class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700">
-                    Hapus
-                </button>
-                <button onclick="clearSelection()" class="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700">
-                    Batal
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Success Notification -->
 <div id="successNotification" class="hidden fixed top-4 right-4 z-50 bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-md shadow-lg">
     <div class="flex items-center">
@@ -485,7 +467,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('selectAll')?.addEventListener('change', function() {
         const checkboxes = document.querySelectorAll('.row-checkbox');
         checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-        updateBulkActions();
     });
 
     // Template file change event
@@ -497,7 +478,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const checkboxes = document.querySelectorAll('.row-checkbox');
         const checked = Array.from(checkboxes).filter(cb => cb.checked);
         document.getElementById('selectAll').checked = checked.length === checkboxes.length && checkboxes.length > 0;
-        updateBulkActions();
     });
 
     // Modal click outside to close
@@ -744,23 +724,9 @@ function toggleModal(modalId) {
     document.getElementById(modalId).classList.toggle('hidden');
 }
 
-function updateBulkActions() {
-    const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-    const bulkActions = document.getElementById('bulkActions');
-    const selectedCount = document.getElementById('selectedCount');
-    
-    if (checkedBoxes.length > 0) {
-        bulkActions.classList.remove('hidden');
-        selectedCount.textContent = `${checkedBoxes.length} dipilih`;
-    } else {
-        bulkActions.classList.add('hidden');
-    }
-}
-
 function clearSelection() {
     const checkboxes = document.querySelectorAll('.row-checkbox, #selectAll');
     checkboxes.forEach(checkbox => checkbox.checked = false);
-    updateBulkActions();
 }
 
 function editJenisSurat(id) {
@@ -851,14 +817,30 @@ function toggleStatus(id) {
     }
 }
 
-function deleteJenisSurat(id) {
-    if (confirm('Yakin ingin menghapus jenis surat ini? Tindakan ini tidak dapat dibatalkan.')) {
-        fetch(`/api/admin/jenis-surat/${id}`, {
+async function deleteJenisSurat(id) {
+    if (!confirm('Yakin ingin menghapus jenis surat ini? Tindakan ini tidak dapat dibatalkan.')) return;
+
+    try {
+        const response = await fetch(`/admin/jenis-surat/${id}`, {
             method: 'DELETE',
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
             }
-        }).then(() => location.reload());
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.success === false) {
+            alert(data.message || 'Gagal menghapus jenis surat.');
+            return;
+        }
+
+        alert(data.message || 'Jenis surat berhasil dihapus.');
+        location.reload();
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan pada server, silakan coba lagi.');
     }
 }
 
@@ -911,6 +893,7 @@ async function submitAddForm(event) {
 
 async function submitEditForm(event) {
     event.preventDefault();
+
     const form = event.target;
     const formData = new FormData(form);
     const id = formData.get('id');
@@ -926,60 +909,40 @@ async function submitEditForm(event) {
         return;
     }
 
+    // ✅ Laravel butuh ini biar route PUT dikenali
+    formData.append('_method', 'PUT');
+
     try {
         const response = await fetch(`{{ url('/admin/jenis-surat') }}/${id}`, {
-            method: 'POST',
+            method: 'POST', // tetap POST karena _method=PUT
             body: formData,
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json',
-                'X-HTTP-Method-Override': 'PUT'
+                'Accept': 'application/json'
             }
         });
 
         const responseData = await response.json();
 
-        if (!response.ok) {
+        if (!response.ok || !responseData.success) {
             throw new Error(responseData.message || 'Gagal memperbarui jenis surat');
         }
 
-        showSuccessNotification('Jenis surat berhasil diperbarui!');
+        // ✅ Notifikasi sukses (ganti sesuai sistem notifikasi kamu)
+        if (typeof showSuccessNotification === 'function') {
+            showSuccessNotification('Jenis surat berhasil diperbarui!');
+        } else {
+            alert('✅ Jenis surat berhasil diperbarui!');
+        }
+
         toggleModal('editModal');
         form.reset();
-        setTimeout(() => location.reload(), 1500);
-        
+
+        setTimeout(() => location.reload(), 1000);
+
     } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}
-
-function bulkToggleStatus() {
-    const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-    if (confirm(`Yakin ingin mengubah status ${checkedBoxes.length} item ini?`)) {
-        const ids = Array.from(checkedBoxes).map(cb => cb.value);
-        fetch('/api/admin/jenis-surat/bulk-toggle-status', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-            },
-            body: JSON.stringify({ ids })
-        }).then(() => location.reload());
-    }
-}
-
-function bulkDelete() {
-    const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-    if (confirm(`Yakin ingin menghapus ${checkedBoxes.length} item ini? Tindakan ini tidak dapat dibatalkan.`)) {
-        const ids = Array.from(checkedBoxes).map(cb => cb.value);
-        fetch('/api/admin/jenis-surat/bulk-delete', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-            },
-            body: JSON.stringify({ ids })
-        }).then(() => location.reload());
+        console.error('Error:', error);
+        alert('❌ ' + error.message);
     }
 }
 
