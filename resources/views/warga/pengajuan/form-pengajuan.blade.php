@@ -493,6 +493,40 @@
                 let input;
                 
                 switch (field.type) {
+                    case 'checkbox':
+                    input = document.createElement('div');
+                    input.className = 'grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3';
+
+                    // Pastikan selalu ada options, kalau kosong pakai field name sebagai default
+                    const options = field.options && field.options.length ? field.options : [field.name];
+
+                    options.forEach(option => {
+                        const optionDiv = document.createElement('div');
+                        optionDiv.className = 'flex items-center';
+
+                        // Cek apakah option adalah objek dengan value/label atau string biasa
+                        const value = option.value || option;
+                        const label = option.label || option;
+
+                        // Jika hanya satu option, name tidak perlu array "[]"
+                        const nameAttr = options.length === 1 ? `data_pemohon[${key}]` : `data_pemohon[${key}][]`;
+
+                        optionDiv.innerHTML = `
+                            <input type="checkbox"
+                                id="${key}_${value}"
+                                name="${nameAttr}"
+                                value="${value}"
+                                class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                        `;
+
+                        input.appendChild(optionDiv);
+                    });
+
+                    fieldDiv.appendChild(labelEl);
+                    fieldDiv.appendChild(input);
+                    return fieldDiv;
+
+
                     case 'ttl_combined':
                         // Create TTL combined field with two sub-fields
                         const ttlWrapper = document.createElement('div');
@@ -779,6 +813,8 @@
                         const fieldsContainer = document.createElement('div');
                         fieldsContainer.className = 'responsive-grid';
                         setFormStructureDefinition(fields);
+
+                        // Regular array of fields
                         fields.forEach((field) => {
                             const fieldElement = createField(field);
                             fieldsContainer.appendChild(fieldElement);

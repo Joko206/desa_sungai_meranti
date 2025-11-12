@@ -73,7 +73,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/warga/dashboard', [WargaDashboardController::class, 'index'])->name('warga.dashboard');
         Route::get('/warga/jenis-surat', [WargaDashboardController::class, 'jenisSurat'])->name('warga.jenis-surat');
         Route::get('/warga/syarat/{jenisSurat}', [WargaDashboardController::class, 'syarat'])->name('warga.syarat');
-        Route::get('/warga/pengajuan/{pengajuan}', [WargaDashboardController::class, 'show'])->name('warga.pengajuan.show');
+        Route::get('/warga/pengajuan/{pengajuanId}', [WargaDashboardController::class, 'show'])->name('warga.pengajuan.show');
         Route::post('/warga/pengajuan/{pengajuan}/batal', [WargaDashboardController::class, 'cancel'])->name('warga.pengajuan.cancel');
         Route::get('/warga/file/lihat/{pengajuanId}/{label}', [FileController::class, 'previewFile'])->name('warga.file.preview');
         Route::get('/surat/{filename}', [FileController::class, 'viewSurat'])->name('warga.surat.view');
