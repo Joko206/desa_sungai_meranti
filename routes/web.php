@@ -87,12 +87,17 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')->middleware('role:admin')->group(function () {
         // Template serving route with CORS headers for Office Online preview
         Route::get('/templates/{filename}', function($filename) {
+            // Security: Validate filename to prevent directory traversal
+            if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $filename) || str_contains($filename, '..')) {
+                abort(403, 'Invalid filename');
+            }
+
             $path = 'templates/' . $filename;
-            
+
             if (!Storage::disk('public')->exists($path)) {
                 abort(404);
             }
-            
+
             $filePath = Storage::disk('public')->path($path);
 
             return response()->file($filePath, [

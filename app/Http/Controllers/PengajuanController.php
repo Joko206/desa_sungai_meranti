@@ -65,9 +65,14 @@ class PengajuanController extends Controller
             $validated = $request->validate([
                 'jenis_surat_id' => 'required|exists:jenis_surat,id',
                 'data_pemohon'   => 'required|array',
-                'keterangan'     => 'required|string',
+                'keterangan'     => 'required|string|max:1000', // Security: Limit string length
                 'agree_terms'    => 'required|accepted',
             ]);
+
+            // Security: Rate limiting for pengajuan submissions
+            if ($request->user() && $request->user()->pengajuan()->whereDate('created_at', today())->count() >= 10) {
+                return redirect()->back()->withErrors(['general' => 'Anda telah mencapai batas maksimal pengajuan hari ini (10 pengajuan)']);
+            }
 
             $jenisSuratId = (int) $validated['jenis_surat_id'];
             $dataPemohon  = $validated['data_pemohon'];
@@ -188,6 +193,22 @@ class PengajuanController extends Controller
             }
 
             $file = $files[$safeLabel];
+
+            // Security: Validate file type and size
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            $maxSize = 1024 * 1024 * 10; // 10MB
+
+            if (!in_array($file->getClientMimeType(), $allowedMimes)) {
+                throw new \Exception("File '{$label}' memiliki tipe yang tidak diizinkan");
+            }
+
+            if ($file->getSize() > $maxSize) {
+                throw new \Exception("File '{$label}' terlalu besar (maksimal 10MB)");
+            }
+
+            // Security: Sanitize filename
+            $originalName = $file->getClientOriginalName();
+            $safeFilename = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $originalName);
             $filename = $safeLabel . '-' . Str::uuid() . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs("persyaratan/{$pengajuanId}", $filename);
 
@@ -197,7 +218,7 @@ class PengajuanController extends Controller
                 "mime" => $file->getClientMimeType(),
                 "size" => $file->getSize(),
                 "uploaded_at" => now(),
-                "original_name" => $file->getClientOriginalName()
+                "original_name" => $safeFilename
             ];
         }
 
@@ -282,21 +303,40 @@ class PengajuanController extends Controller
             // Format fields
             $mappedFields = array_map(function ($field) {
                 $name = $field['name'] ?? $field['field_name'] ?? '';
-                
+                $label = $field['label'] ?? $name;
+                $fieldType = $field['type'] ?? 'text';
+
+                // Detect field type based on both name and label keywords for auto-dropdown
+                $detectedTypeFromName = $this->detectFieldTypeFromName($name);
+                $detectedTypeFromLabel = $this->detectFieldTypeFromLabel($label);
+
+                // Priority: name detection > label detection > default text
+                $detectedType = $detectedTypeFromName !== 'text' ? $detectedTypeFromName : $detectedTypeFromLabel;
+
+                // Use detected type if it's not a standard text field and no explicit type is set
+                if ($detectedType !== 'text' && $fieldType === 'text') {
+                    $fieldType = $detectedType;
+                }
+
                 $mappedField = [
                     'key'         => $name,
                     'name'        => $name,
-                    'label'       => $field['label'] ?? $name,
-                    'type'        => $field['type'] ?? 'text',
+                    'label'       => $label,
+                    'type'        => $fieldType,
                     'placeholder' => $field['placeholder'] ?? '',
                     'required'    => $field['required'] ?? true
                 ];
-                
-                // Add options for select fields
-                if (($field['type'] ?? 'text') === 'select' && isset($field['options'])) {
-                    $mappedField['options'] = $field['options'];
+
+                // Add options for select fields (including auto-detected ones)
+                if ($fieldType === 'select' || $detectedType !== 'text') {
+                    // Priority: existing options > auto-detected options
+                    if (isset($field['options'])) {
+                        $mappedField['options'] = $field['options'];
+                    } else {
+                        $mappedField['options'] = $this->getFieldOptions($detectedType);
+                    }
                 }
-                
+
                 return $mappedField;
             }, $formStructure ?? []);
 
@@ -352,6 +392,126 @@ class PengajuanController extends Controller
 
         } catch (\Throwable $e) {
             return $this->fail('Jenis surat tidak ditemukan', 404, $e);
+        }
+    }
+
+    private function detectFieldTypeFromName(string $name): string
+    {
+        $nameLower = strtolower($name);
+
+        // Religion/Agama detection - handle all variations (agama, agama_pihak_1, agama2, etc.)
+        if (preg_match('/^agama/i', $nameLower) || str_contains($nameLower, 'religion')) {
+            return 'religion';
+        }
+
+        // Gender/Jenis Kelamin detection - handle all variations
+        if (preg_match('/^(jenis_kelamin|kelamin|gender|jk)/i', $nameLower)) {
+            return 'gender';
+        }
+
+        // Marital Status/Status Kawin detection - handle all variations
+        if (preg_match('/^(status_kawin|kawin|marital|status_perkawinan)/i', $nameLower)) {
+            return 'marital_status';
+        }
+
+        // Dusun detection
+        if (preg_match('/^dusun/i', $nameLower)) {
+            return 'dusun';
+        }
+
+        // RT/RW detection
+        if (preg_match('/^(no_rt|rt)/i', $nameLower)) {
+            return 'rt';
+        }
+        if (preg_match('/^(no_rw|rw)/i', $nameLower)) {
+            return 'rw';
+        }
+
+        // Date fields
+        if (preg_match('/^(tanggal_lahir|ttl|tempat_tanggal_lahir)/i', $nameLower)) {
+            return 'date';
+        }
+
+        // Return text as default
+        return 'text';
+    }
+
+    private function detectFieldTypeFromLabel(string $label): string
+    {
+        $labelLower = strtolower($label);
+
+        // Religion/Agama detection - handle numbered variants (agama, agama2, agama3, etc.)
+        if (preg_match('/\bagama\b/i', $labelLower) || str_contains($labelLower, 'religion')) {
+            return 'religion';
+        }
+
+        // Gender/Jenis Kelamin detection - handle numbered variants
+        if (preg_match('/\b(jenis kelamin|kelamin|gender|jk)\b/i', $labelLower)) {
+            return 'gender';
+        }
+
+        // Marital Status/Status Kawin detection - handle numbered variants
+        if (preg_match('/\b(status kawin|kawin|marital|status pernikahan)\b/i', $labelLower)) {
+            return 'marital_status';
+        }
+
+        // Return text as default
+        return 'text';
+    }
+
+    private function getFieldOptions(string $fieldType): array
+    {
+        switch ($fieldType) {
+            case 'religion':
+                return [
+                    ['value' => 'Islam', 'label' => 'Islam'],
+                    ['value' => 'Kristen', 'label' => 'Kristen'],
+                    ['value' => 'Katolik', 'label' => 'Katolik'],
+                    ['value' => 'Hindu', 'label' => 'Hindu'],
+                    ['value' => 'Buddha', 'label' => 'Buddha'],
+                    ['value' => 'Konghucu', 'label' => 'Konghucu']
+                ];
+            case 'gender':
+                return [
+                    ['value' => 'Laki-laki', 'label' => 'Laki-laki'],
+                    ['value' => 'Perempuan', 'label' => 'Perempuan']
+                ];
+            case 'marital_status':
+                return [
+                    ['value' => 'Belum Kawin', 'label' => 'Belum Kawin'],
+                    ['value' => 'Kawin', 'label' => 'Kawin'],
+                    ['value' => 'Cerai Hidup', 'label' => 'Cerai Hidup'],
+                    ['value' => 'Cerai Mati', 'label' => 'Cerai Mati']
+                ];
+            case 'dusun':
+                return [
+                    ['value' => 'Dusun Suka Maju', 'label' => 'Dusun Suka Maju'],
+                    ['value' => 'Dusun Kulim Jaya', 'label' => 'Dusun Kulim Jaya'],
+                    ['value' => 'Dusun Suka Sari', 'label' => 'Dusun Suka Sari']
+                ];
+            case 'rt':
+                return [
+                    ['value' => '001', 'label' => '001'],
+                    ['value' => '002', 'label' => '002'],
+                    ['value' => '003', 'label' => '003'],
+                    ['value' => '004', 'label' => '004'],
+                    ['value' => '005', 'label' => '005'],
+                    ['value' => '006', 'label' => '006'],
+                    ['value' => '007', 'label' => '007'],
+                    ['value' => '008', 'label' => '008'],
+                    ['value' => '009', 'label' => '009'],
+                    ['value' => '010', 'label' => '010']
+                ];
+            case 'rw':
+                return [
+                    ['value' => '001', 'label' => '001'],
+                    ['value' => '002', 'label' => '002'],
+                    ['value' => '003', 'label' => '003'],
+                    ['value' => '004', 'label' => '004'],
+                    ['value' => '005', 'label' => '005']
+                ];
+            default:
+                return [];
         }
     }
 

@@ -41,8 +41,15 @@ class WargaDashboardController extends Controller
         ]);
     }
 
-    public function show(Request $request, PengajuanSurat $pengajuan)
+    public function show(Request $request, $pengajuanId)
     {
+        // Security: Validate parameter
+        if (!is_numeric($pengajuanId) || $pengajuanId <= 0) {
+            abort(400, 'ID pengajuan tidak valid');
+        }
+
+        $pengajuan = PengajuanSurat::findOrFail($pengajuanId);
+
         if ($pengajuan->nik_pemohon !== $request->user()->nik) {
             abort(403, 'Anda tidak berhak melihat pengajuan ini.');
         }
@@ -55,8 +62,15 @@ class WargaDashboardController extends Controller
         ]);
     }
 
-    public function cancel(Request $request, PengajuanSurat $pengajuan)
+    public function cancel(Request $request, $pengajuanId)
     {
+        // Security: Validate parameter
+        if (!is_numeric($pengajuanId) || $pengajuanId <= 0) {
+            abort(400, 'ID pengajuan tidak valid');
+        }
+
+        $pengajuan = PengajuanSurat::findOrFail($pengajuanId);
+
         if ($pengajuan->nik_pemohon !== $request->user()->nik) {
             abort(403, 'Anda tidak berhak membatalkan pengajuan ini.');
         }

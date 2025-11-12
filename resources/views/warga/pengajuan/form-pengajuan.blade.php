@@ -666,16 +666,22 @@
                         input.placeholder = field.placeholder || `Masukkan ${label}`;
                         break;
                     case 'select':
+                    case 'gender':
+                    case 'religion':
+                    case 'marital_status':
+                    case 'dusun':
+                    case 'rt':
+                    case 'rw':
                         input = document.createElement('select');
                         input.className = 'optimized-select';
                         input.placeholder = field.placeholder || `Pilih ${label}...`;
-                        
+
                         // Add default option
                         const defaultOption = document.createElement('option');
                         defaultOption.value = '';
                         defaultOption.textContent = field.placeholder || `Pilih ${label}...`;
                         input.appendChild(defaultOption);
-                        
+
                         // Add options for select fields
                         if (field.options && Array.isArray(field.options)) {
                             field.options.forEach(option => {
@@ -685,7 +691,7 @@
                                 input.appendChild(optionEl);
                             });
                         }
-                        
+
                         // Add validation for select fields
                         input.addEventListener('change', function() {
                             if (this.value) {
