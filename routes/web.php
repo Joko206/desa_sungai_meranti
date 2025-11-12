@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/warga/pengajuan/{pengajuan}', [WargaDashboardController::class, 'show'])->name('warga.pengajuan.show');
         Route::post('/warga/pengajuan/{pengajuan}/batal', [WargaDashboardController::class, 'cancel'])->name('warga.pengajuan.cancel');
         Route::get('/warga/file/lihat/{pengajuanId}/{label}', [FileController::class, 'previewFile'])->name('warga.file.preview');
+        Route::get('/surat/{filename}', [FileController::class, 'viewSurat'])->name('warga.surat.view');
     });
 
     // Admin Routes
@@ -105,9 +106,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/file/lihat/{pengajuanId}/{label}', [FileController::class, 'previewFile'])->name('admin.file.preview');
         Route::get('/file/download/{pengajuanId}/{label}', [FileController::class, 'downloadFile'])->name('admin.file.download');
 
-        // Route for viewing generated surat files
-        Route::get('/surat/{filename}', [FileController::class, 'viewSurat'])->name('admin.surat.view');
-
 
         // Admin Pengajuan Routes
         Route::get('/pengajuan', [AdminPengajuanController::class, 'index'])->name('admin.pengajuan.index');
@@ -134,5 +132,6 @@ Route::prefix('api/admin')->middleware(['auth', 'role:admin'])->group(function (
     Route::get('/dashboard-stats', [AdminDashboardController::class, 'dashboardStats']);
     Route::get('/recent-pengajuan', [AdminDashboardController::class, 'recentPengajuan']);
 });
+
 
 

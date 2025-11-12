@@ -41,8 +41,8 @@ class PengajuanController extends Controller
                 return $this->fail('Tidak berhak membatalkan');
             }
 
-            if ($pengajuan->status !== 'menunggu') {
-                return $this->fail('Hanya bisa dibatalkan jika status menunggu', 400);
+            if (!in_array($pengajuan->status, ['menunggu', 'menunggu_berkas'])) {
+                return $this->fail('Hanya bisa dibatalkan jika status menunggu atau menunggu berkas', 400);
             }
 
             $pengajuan->update(['status' => 'dibatalkan']);
@@ -164,17 +164,11 @@ class PengajuanController extends Controller
     private function validateNikNama(?string $nik, ?string $nama)
     {
         if (!$nik || strlen($nik) !== 16 || !ctype_digit($nik)) {
-            abort(response()->json([
-                'success' => false,
-                'message' => 'NIK harus 16 digit angka',
-            ], 422));
+            throw new \Exception('NIK harus 16 digit angka');
         }
 
         if (!$nama || strlen($nama) < 2) {
-            abort(response()->json([
-                'success' => false,
-                'message' => 'Nama minimal 2 karakter',
-            ], 422));
+            throw new \Exception('Nama minimal 2 karakter');
         }
     }
 
@@ -212,17 +206,23 @@ class PengajuanController extends Controller
 
     private function createPengajuan(string $nik, int $jenisId, array $data, array $files, string $ket)
     {
-        return PengajuanSurat::create([
+        $jenisSurat = JenisSurat::findOrFail($jenisId);
+        $initialStatus = 'menunggu'; // Semua pengajuan mulai dari status menunggu
+
+        $pengajuan = PengajuanSurat::create([
             'nik_pemohon'      => $nik,
             'jenis_surat_id'   => $jenisId,
             'tanggal_pengajuan'=> now(),
-            'status'           => 'menunggu',
+            'status'           => $initialStatus,
             'data_isian'       => [
                 'form_structure_data'       => $data,
                 'keterangan'                => $ket
             ],
             'file_syarat'      => $files,
         ]);
+
+
+        return $pengajuan;
     }
 
 

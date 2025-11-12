@@ -48,7 +48,7 @@ class AdminPengajuanController extends Controller
                         ],
 
                         "jenis" => [
-                            "nama_surat" => $item->jenis->nama_urat ?? null
+                            "nama_surat" => $item->jenis->nama_surat ?? null
                         ],
 
                         "data_isian" => $item->data_isian ?? null,
@@ -199,15 +199,14 @@ class AdminPengajuanController extends Controller
     {
         try {
             $p = PengajuanSurat::with('jenis','pemohon')->findOrFail($id);
-            
-            // Set status to disetujui first
-            $p->status = 'disetujui_verifikasi';
-            $p->save();
 
-            // Immediately generate the letter
+            // Check if this is a letter requiring external signatures
+            $butuhTandaTangan = $p->jenis->butuh_tanda_tangan_pihak_lain ?? false;
+
+            // Generate surat for all approved pengajuan
             $generator = app(SuratGeneratorService::class);
             $output = $generator->generateFromTemplate($p);
-            
+
             // Create surat record
             $surat = SuratTerbit::create([
                 'pengajuan_id' => $p->id,
@@ -215,18 +214,26 @@ class AdminPengajuanController extends Controller
                 'tanggal_terbit' => now(),
                 'status_cetak' => 'menunggu_tanda_tangan'
             ]);
-            
-            // Update status to waiting for signature
-            $p->status = 'menunggu_tanda_tangan';
+
+            // Set status based on letter type
+            if ($butuhTandaTangan) {
+                // For letters requiring external signatures, set status to 'menunggu_berkas'
+                $p->status = 'menunggu_berkas';
+            } else {
+                // For regular letters from desa, set status to 'menunggu_tanda_tangan'
+                $p->status = 'menunggu_tanda_tangan';
+            }
             $p->save();
-    
+
             // Send email notification to user
             $notificationService = app(NotificationService::class);
             $notificationService->sendPengajuanStatusNotification($p, 'approved');
-    
+
+            $message = 'Pengajuan disetujui dan surat berhasil digenerate. Warga dapat mengunduh surat.';
+
             return response()->json([
                 'success' => true,
-                'message' => 'Pengajuan disetujui dan surat berhasil digenerate',
+                'message' => $message,
                 'data' => $p->load('pemohon', 'jenis', 'suratTerbit'),
                 'file_url' => $output['url']
             ]);
@@ -243,7 +250,7 @@ class AdminPengajuanController extends Controller
     {
         try {
             $p = PengajuanSurat::with('jenis', 'pemohon', 'suratTerbit')->findOrFail($id);
-            
+
             // Check if pengajuan can be marked as completed
             if (!in_array($p->status, ['menunggu_tanda_tangan', 'disetujui_verifikasi'])) {
                 return response()->json([
@@ -251,12 +258,18 @@ class AdminPengajuanController extends Controller
                     'message' => 'Status pengajuan tidak dapat ditandai sebagai selesai'
                 ], 400);
             }
-            
+
+            // For letters requiring external signatures, this means hardfile has been received and signed
+            $butuhTandaTangan = $p->jenis->butuh_tanda_tangan_pihak_lain ?? false;
+            $message = $butuhTandaTangan
+                ? 'Pengajuan berhasil ditandai sebagai selesai. Berkas fisik telah diterima dan ditandatangani.'
+                : 'Pengajuan berhasil ditandai sebagai selesai';
+
             // Update pengajuan status to completed
             $p->status = 'selesai';
             $p->tanggal_selesai = now();
             $p->save();
-            
+
             // Update suratterbit status if exists
             if ($p->suratTerbit) {
                 $p->suratTerbit->update([
@@ -264,14 +277,14 @@ class AdminPengajuanController extends Controller
                     'tanggal_selesai' => now()
                 ]);
             }
-            
+
             // Send completion notification to user
             $notificationService = app(NotificationService::class);
             $notificationService->sendPengajuanStatusNotification($p, 'completed');
-    
+
             return response()->json([
                 'success' => true,
-                'message' => 'Pengajuan berhasil ditandai sebagai selesai',
+                'message' => $message,
                 'data' => $p->load('pemohon', 'jenis', 'suratTerbit')
             ]);
         } catch (\Exception $e) {
@@ -286,7 +299,7 @@ class AdminPengajuanController extends Controller
     public function dashboardSummary()
     {
         try {
-            $jumlahPengajuanBaru = PengajuanSurat::where('status', 'menunggu')->count();
+            $jumlahPengajuanBaru = PengajuanSurat::whereIn('status', ['menunggu', 'menunggu_berkas'])->count();
             $jumlahSuratDisetujui = PengajuanSurat::where('status', 'disetujui_verifikasi')->count();
             $jumlahSuratDitolak = PengajuanSurat::where('status', 'ditolak')->count();
             $jumlahSuratTerbitHariIni = SuratTerbit::whereDate('tanggal_terbit', now()->toDateString())->count();
