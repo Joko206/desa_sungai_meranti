@@ -570,23 +570,28 @@
                         
                         // Add constraints for RT/RW fields
                         if (key.toLowerCase().includes('rt') || key.toLowerCase().includes('rw')) {
-                            input.pattern = '[0-9]{3}';
-                            input.maxLength = 3;
+                            // Allow any number of digits but validate range
                             input.min = '1';
                             input.max = '999';
+                            input.placeholder = 'contoh: 1, 2, 3, 10, 25, 007';
                             input.addEventListener('input', function() {
                                 // Auto-format to 3 digits with leading zeros
                                 let value = this.value.replace(/[^0-9]/g, '');
                                 if (value.length > 0) {
-                                    value = value.padStart(3, '0').slice(0, 3);
-                                    this.value = value;
+                                    value = value.slice(0, 3); // Max 3 digits
+                                    if (value > 0 && value <= 999) {
+                                        // Store formatted value for display
+                                        this.dataset.formattedValue = value.padStart(3, '0');
+                                        // Keep original user input for validation
+                                        this.dataset.originalValue = value;
+                                    }
                                 }
                             });
                             
                             // Add help text
                             const helpText = document.createElement('p');
                             helpText.className = 'field-help';
-                            helpText.textContent = 'Masukkan 3 digit (001-999)';
+                            helpText.textContent = 'Masukkan 1-3 digit (1-999), akan disimpan dengan 3 digit (contoh: 1→001)';
                             fieldDiv.appendChild(helpText);
                         }
                         
@@ -980,12 +985,12 @@
                         const formattedDate = `${parseInt(day)} ${monthNames[parseInt(month) - 1]} ${year}`;
                         const combinedTTL = `${tempatLahir.value}, ${formattedDate}`;
                         
-                        // Create hidden TTL field for submission
-                        let ttlField = document.querySelector('input[name="data_pemohon[TTL]"]');
+                        // Create hidden field for submission with new field name
+                        let ttlField = document.querySelector('input[name="data_pemohon[Tempat_Tanggal_Lahir]"]');
                         if (!ttlField) {
                             ttlField = document.createElement('input');
                             ttlField.type = 'hidden';
-                            ttlField.name = 'data_pemohon[TTL]';
+                            ttlField.name = 'data_pemohon[Tempat_Tanggal_Lahir]';
                             elements.form.appendChild(ttlField);
                         }
                         ttlField.value = combinedTTL;

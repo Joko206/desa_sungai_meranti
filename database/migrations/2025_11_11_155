@@ -1,0 +1,55 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        // Update existing pengajuan records to use new field name
+        $pengajuanRecords = \App\Models\PengajuanSurat::all();
+        
+        foreach ($pengajuanRecords as $record) {
+            $dataIsian = $record->data_isian ?? [];
+            $formStructureData = $dataIsian['form_structure_data'] ?? [];
+            
+            // Check if old TTL field exists and create new field
+            if (isset($formStructureData['TTL'])) {
+                // Convert TTL to the new format (tempat, tanggal format)
+                $ttlValue = $formStructureData['TTL'];
+                
+                // Store in both formats for compatibility
+                $formStructureData['Tempat_Tanggal_Lahir'] = $ttlValue;
+                
+                // Keep the old field for backward compatibility temporarily
+                // $formStructureData['TTL'] = $ttlValue; // Keep for now
+                
+                // Update the record
+                $dataIsian['form_structure_data'] = $formStructureData;
+                $record->update(['data_isian' => $dataIsian]);
+            }
+        }
+    }
+
+    public function down(): void
+    {
+        // Revert changes if needed
+        $pengajuanRecords = \App\Models\PengajuanSurat::all();
+        
+        foreach ($pengajuanRecords as $record) {
+            $dataIsian = $record->data_isian ?? [];
+            $formStructureData = $dataIsian['form_structure_data'] ?? [];
+            
+            // Revert back to TTL if Tempat_Tanggal_Lahir exists
+            if (isset($formStructureData['Tempat_Tanggal_Lahir'])) {
+                $formStructureData['TTL'] = $formStructureData['Tempat_Tanggal_Lahir'];
+                unset($formStructureData['Tempat_Tanggal_Lahir']);
+                
+                $dataIsian['form_structure_data'] = $formStructureData;
+                $record->update(['data_isian' => $dataIsian]);
+            }
+        }
+    }
+};

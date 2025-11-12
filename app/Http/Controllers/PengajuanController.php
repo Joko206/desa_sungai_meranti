@@ -72,6 +72,9 @@ class PengajuanController extends Controller
             $jenisSuratId = (int) $validated['jenis_surat_id'];
             $dataPemohon  = $validated['data_pemohon'];
 
+            // Format RT/RW fields to 3 digits with leading zeros
+            $dataPemohon = $this->formatRtRwFields($dataPemohon);
+
             [$nik, $nama] = $this->parseNikNama($dataPemohon, $request);
 
             $this->validateNikNama($nik, $nama);
@@ -136,6 +139,26 @@ class PengajuanController extends Controller
         }
 
         return [$nik, $nama];
+    }
+
+    private function formatRtRwFields(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            $keyLower = strtolower($key);
+            
+            // Check if this is an RT/RW related field
+            if (strpos($keyLower, 'rt') !== false || strpos($keyLower, 'rw') !== false) {
+                // Remove any non-digit characters and format to 3 digits
+                $digits = preg_replace('/[^0-9]/', '', $value);
+                
+                if (!empty($digits) && $digits > 0 && $digits <= 999) {
+                    // Format to 3 digits with leading zeros
+                    $data[$key] = str_pad($digits, 3, '0', STR_PAD_LEFT);
+                }
+            }
+        }
+        
+        return $data;
     }
 
     private function validateNikNama(?string $nik, ?string $nama)

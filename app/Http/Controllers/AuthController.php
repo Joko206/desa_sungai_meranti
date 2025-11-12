@@ -293,7 +293,7 @@ class AuthController extends Controller
     // New OTP-based Password Reset Methods
     public function showForgotPasswordSearchEmail()
     {
-        return view('auth.forgot-password-search');
+        return view('password.search-email');
     }
 
     public function searchEmail(Request $request)
@@ -321,7 +321,7 @@ class AuthController extends Controller
                 ->with('error', 'Sesi telah berakhir, silakan cari email lagi');
         }
 
-        return view('auth.forgot-password-confirmation', compact('user'));
+        return view('password.confirmation', compact('user'));
     }
 
     public function sendOtp(Request $request)
@@ -353,7 +353,7 @@ class AuthController extends Controller
             
             return redirect()->route('password.verify-otp')
                 ->with('success', 'Kode OTP telah dikirim ke email Anda');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             // If email sending fails, still allow user to proceed for development
             return redirect()->route('password.verify-otp')
                 ->with('warning', 'Kode OTP: ' . $otp . ' (Mode Development - Email tidak terkirim)');
@@ -368,7 +368,7 @@ class AuthController extends Controller
                 ->with('error', 'Sesi telah berakhir, silakan cari email lagi');
         }
 
-        return view('auth.forgot-password-otp', compact('email'));
+        return view('password.verify-otp', compact('email'));
     }
 
     public function verifyOtp(Request $request)
@@ -420,7 +420,7 @@ class AuthController extends Controller
     // Ambil email yang sudah diverifikasi
     $email = $request->session()->get('otp_email');
     
-    return view('auth.forgot-password-change', compact('email'));
+    return view('password.change', compact('email'));
     }
 
     public function changePassword(Request $request)
@@ -456,7 +456,7 @@ class AuthController extends Controller
             return redirect()->route('login')
                 ->with('success', 'Password berhasil diubah. Silakan login dengan password baru.');
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return back()->with('error', 'Gagal mengubah password. Silakan coba lagi.')
                         ->withInput();
         }

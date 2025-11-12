@@ -88,7 +88,7 @@ class JenisSurat extends Model
 
             // Date fields
             'tempat_tanggal_lahir' => [
-                'name' => 'TTL',
+                'name' => 'Tempat_Tanggal_Lahir',
                 'type' => 'ttl_combined',
                 'label' => 'Tempat Tanggal Lahir',
                 'subfields' => [
@@ -107,7 +107,7 @@ class JenisSurat extends Model
                 ]
             ],
             'ttl' => [
-                'name' => 'TTL',
+                'name' => 'Tempat_Tanggal_Lahir',
                 'type' => 'ttl_combined',
                 'label' => 'Tempat Tanggal Lahir',
                 'subfields' => [

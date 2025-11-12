@@ -20,7 +20,7 @@ return new class extends Migration
                 $fieldNameLower = strtolower($name);
                 
                 // Skip the common fields we added (lowercase ones)
-                if (in_array($name, ['agama', 'status_kawin', 'no_rt', 'no_rw', 'dusun', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin'])) {
+                if (in_array($name, ['agama', 'status_kawin', 'no_rt', 'no_rw', 'dusun', 'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin', 'Tempat_Tanggal_Lahir'])) {
                     continue;
                 }
                 
@@ -90,6 +90,31 @@ return new class extends Migration
                         break;
                         
                     case 'ttl':
+                        // Convert TTL to separate fields
+                        $tempatTanggalLahir = [
+                            'name' => 'Tempat_Tanggal_Lahir',
+                            'type' => 'ttl_combined',
+                            'label' => 'Tempat Tanggal Lahir',
+                            'subfields' => [
+                                'tempat_lahir' => [
+                                    'name' => 'tempat_lahir',
+                                    'label' => 'Tempat Lahir',
+                                    'type' => 'text',
+                                    'placeholder' => 'Masukkan tempat lahir'
+                                ],
+                                'tanggal_lahir' => [
+                                    'name' => 'tanggal_lahir',
+                                    'label' => 'Tanggal Lahir',
+                                    'type' => 'date',
+                                    'placeholder' => 'Pilih tanggal lahir'
+                                ]
+                            ]
+                        ];
+                        $updatedFields[] = $tempatTanggalLahir;
+                        continue 2; // Skip adding the original TTL field
+                        
+                    // Legacy case for separate fields (remove this)
+                    case 'tempat_lahir_old':
                         // Convert TTL to separate fields
                         $tempatLahir = [
                             'name' => 'tempat_lahir',
