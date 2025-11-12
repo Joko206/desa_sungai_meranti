@@ -40,6 +40,7 @@
                     <select id="statusFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="">Semua Status</option>
                         <option value="menunggu">Menunggu</option>
+                        <option value="menunggu_berkas">Menunggu Berkas</option>
                         <option value="disetujui_verifikasi">Disetujui</option>
                         <option value="ditolak">Ditolak</option>
                         <option value="menunggu_tanda_tangan">Menunggu Tanda Tangan</option>
@@ -266,7 +267,7 @@ function displayPengajuan(data) {
                 </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                ${pengajuan.jenis?.nama_surat || 'Unknown'}
+                ${pengajuan.jenis.nama_surat || 'Unknown'}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 ${new Date(pengajuan.tanggal_pengajuan).toLocaleDateString('id-ID')}
@@ -293,6 +294,8 @@ function getStatusColor(status) {
     switch(status) {
         case 'menunggu':
             return 'bg-yellow-100 text-yellow-800';
+        case 'menunggu_berkas':
+            return 'bg-orange-100 text-orange-800';
         case 'disetujui_verifikasi':
             return 'bg-blue-100 text-blue-800';
         case 'ditolak':
@@ -310,6 +313,8 @@ function getStatusLabel(status) {
     switch(status) {
         case 'menunggu':
             return 'Menunggu';
+        case 'menunggu_berkas':
+            return 'Menunggu Berkas';
         case 'disetujui_verifikasi':
             return 'Disetujui';
         case 'ditolak':
@@ -325,9 +330,10 @@ function getStatusLabel(status) {
 
 function getActionButtons(pengajuan) {
     let buttons = '';
-    
+
     switch(pengajuan.status) {
         case 'menunggu':
+        case 'menunggu_berkas':
             buttons += `
                 <button onclick="approvePengajuan(${pengajuan.id})"
                         class="text-blue-600 hover:text-blue-900 text-xs mr-2">
@@ -352,8 +358,12 @@ function getActionButtons(pengajuan) {
                 buttons += `
                     <a href="/${pengajuan.surat_terbit.file_surat}" target="_blank"
                        class="text-purple-600 hover:text-purple-900 text-xs mr-2">
-                        Lihat Surat
+                        Lihat/Download Surat
                     </a>
+                    <button onclick="markAsCompleted(${pengajuan.id})"
+                            class="text-green-600 hover:text-green-900 text-xs mr-2">
+                        Selesai (Berkas Diterima)
+                    </button>
                 `;
             }
             break;
@@ -371,15 +381,15 @@ function getActionButtons(pengajuan) {
             }
             break;
     }
-    
+
     return buttons;
 }
 
 function updateStatistics(data) {
     const allPengajuan = data.data;
-    
+
     document.getElementById('total-count').textContent = allPengajuan.length;
-    document.getElementById('pending-count').textContent = allPengajuan.filter(p => p.status === 'menunggu').length;
+    document.getElementById('pending-count').textContent = allPengajuan.filter(p => ['menunggu', 'menunggu_berkas'].includes(p.status)).length;
     document.getElementById('approved-count').textContent = allPengajuan.filter(p => p.status === 'disetujui_verifikasi').length;
     document.getElementById('rejected-count').textContent = allPengajuan.filter(p => p.status === 'ditolak').length;
     // Add completed count display if needed
@@ -478,7 +488,7 @@ async function generateSurat(id) {
         });
 
         const result = await response.json();
-        
+
         if (result.success) {
             alert('Surat berhasil di-generate!');
             loadPengajuan();
@@ -487,6 +497,33 @@ async function generateSurat(id) {
         }
     } catch (error) {
         alert('Terjadi kesalahan saat generate surat');
+    }
+}
+
+async function markAsCompleted(id) {
+    if (!confirm('Apakah Anda yakin ingin menandai pengajuan ini sebagai selesai? (Berkas fisik telah diterima dan ditandatangani)')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/admin/pengajuan/${id}/mark-completed`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Pengajuan berhasil ditandai sebagai selesai!');
+            loadPengajuan();
+        } else {
+            alert('Error: ' + result.message);
+        }
+    } catch (error) {
+        alert('Terjadi kesalahan saat menandai selesai');
     }
 }
 

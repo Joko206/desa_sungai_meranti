@@ -331,6 +331,9 @@
                                         <option value="{{ $jenis->id }}"
                                             {{ (string) $selectedJenisId === (string) $jenis->id ? 'selected' : '' }}>
                                             {{ $jenis->nama_surat }}
+                                            @if($jenis->butuh_tanda_tangan_pihak_lain)
+                                                (Perlu Tanda Tangan Pihak Lain)
+                                            @endif
                                         </option>
                                     @endforeach
                                 </select>

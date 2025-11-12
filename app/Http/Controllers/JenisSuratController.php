@@ -39,11 +39,12 @@ class JenisSuratController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'nama_surat' => 'required|string|max:150',
-                'file_template' => 'nullable|file|mimes:pdf,docx,doc,xlsx|max:10240',
+                'file_template' => 'nullable|file|mimes:pdf,docx|max:10240',
                 'deskripsi' => 'nullable|string',
                 'nama_syarat' => 'nullable|array',
                 'nama_syarat.*' => 'string|max:200',
                 'is_active' => 'nullable|boolean',
+                'butuh_tanda_tangan_pihak_lain' => 'nullable|boolean',
             ]);
 
             if ($validator->fails()) {
@@ -79,6 +80,7 @@ class JenisSuratController extends Controller
                 'deskripsi' => $request->input('deskripsi'),
                 'syarat' => $namaSyarat,
                 'is_active' => $request->boolean('is_active', true),
+                'butuh_tanda_tangan_pihak_lain' => $request->boolean('butuh_tanda_tangan_pihak_lain', false),
             ]);
 
             // Konversi ke URL publik sebelum dikirim ke frontend
@@ -102,12 +104,13 @@ class JenisSuratController extends Controller
     public function updateJenisSurat(Request $request, JenisSurat $jenisSuratId)
     {
         try {
-            // ✅ Validasi hanya 3 field yang dibolehkan
+            // ✅ Validasi field yang diperbolehkan
             $validator = Validator::make($request->all(), [
                 'nama_surat' => 'required|string|max:150',
                 'deskripsi' => 'nullable|string',
                 'nama_syarat' => 'nullable|array',
                 'nama_syarat.*' => 'string|max:200',
+                'butuh_tanda_tangan_pihak_lain' => 'nullable|boolean',
             ]);
 
             if ($validator->fails()) {
@@ -124,6 +127,7 @@ class JenisSuratController extends Controller
             // Update field dasar
             if (isset($payload['nama_surat'])) $updates['nama_surat'] = $payload['nama_surat'];
             if (isset($payload['deskripsi'])) $updates['deskripsi'] = $payload['deskripsi'];
+            if (isset($payload['butuh_tanda_tangan_pihak_lain'])) $updates['butuh_tanda_tangan_pihak_lain'] = $payload['butuh_tanda_tangan_pihak_lain'];
 
             // ✅ Proses syarat surat
             if (array_key_exists('nama_syarat', $payload)) {
