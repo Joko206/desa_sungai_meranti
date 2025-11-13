@@ -29,8 +29,9 @@ class WargaDashboardController extends Controller
 
         $summary = [
             'total' => $pengajuanList->count(),
-            'menunggu' => $pengajuanList->where('status', 'menunggu')->count(),
-            'disetujui' => $pengajuanList->where('status', 'disetujui')->count(),
+            'menunggu' => $pengajuanList->whereIn('status', ['menunggu', 'menunggu_verifikasi', 'menunggu_berkas'])->count(),
+            'disetujui' => $pengajuanList->whereIn('status', ['disetujui', 'disetujui_verifikasi', 'menunggu_tanda_tangan'])->count(),
+            'selesai' => $pengajuanList->where('status', 'selesai')->count(),
             'ditolak' => $pengajuanList->where('status', 'ditolak')->count(),
         ];
 
@@ -41,8 +42,15 @@ class WargaDashboardController extends Controller
         ]);
     }
 
-    public function show(Request $request, PengajuanSurat $pengajuan)
+    public function show(Request $request, $pengajuanId)
     {
+        // Security: Validate parameter
+        if (!is_numeric($pengajuanId) || $pengajuanId <= 0) {
+            abort(400, 'ID pengajuan tidak valid');
+        }
+
+        $pengajuan = PengajuanSurat::findOrFail($pengajuanId);
+
         if ($pengajuan->nik_pemohon !== $request->user()->nik) {
             abort(403, 'Anda tidak berhak melihat pengajuan ini.');
         }
@@ -55,8 +63,15 @@ class WargaDashboardController extends Controller
         ]);
     }
 
-    public function cancel(Request $request, PengajuanSurat $pengajuan)
+    public function cancel(Request $request, $pengajuanId)
     {
+        // Security: Validate parameter
+        if (!is_numeric($pengajuanId) || $pengajuanId <= 0) {
+            abort(400, 'ID pengajuan tidak valid');
+        }
+
+        $pengajuan = PengajuanSurat::findOrFail($pengajuanId);
+
         if ($pengajuan->nik_pemohon !== $request->user()->nik) {
             abort(403, 'Anda tidak berhak membatalkan pengajuan ini.');
         }
@@ -100,5 +115,44 @@ class WargaDashboardController extends Controller
         return view('warga.syarat', [
             'jenisSurat' => $jenisSurat
         ]);
+    }
+    // Method untuk menampilkan form edit profil
+    public function editProfil()
+    {
+        $user = Auth::user();
+        return view('warga.edit-profil', compact('user'));
+    }
+
+    // Method untuk update profil
+    public function updateProfil(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:user_desa,email,' . $user->id,
+            'nik' => 'required|string|size:16|unique:user_desa,nik,' . $user->id,
+            'no_hp' => 'nullable|string|max:20',
+            'alamat' => 'required|string|max:500',
+            'dusun' => 'nullable|string|max:100',
+            'rt' => 'nullable|string|max:3',
+            'rw' => 'nullable|string|max:3',
+        ]);
+
+        try {
+            $user->update($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Profil berhasil diperbarui',
+                'data' => $user
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui profil',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

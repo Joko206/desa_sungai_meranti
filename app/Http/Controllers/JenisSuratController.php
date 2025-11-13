@@ -39,11 +39,12 @@ class JenisSuratController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'nama_surat' => 'required|string|max:150',
-                'file_template' => 'nullable|file|mimes:pdf,docx,doc,xlsx|max:10240',
+                'file_template' => 'nullable|file|mimes:pdf,docx|max:10240',
                 'deskripsi' => 'nullable|string',
                 'nama_syarat' => 'nullable|array',
                 'nama_syarat.*' => 'string|max:200',
                 'is_active' => 'nullable|boolean',
+                'butuh_tanda_tangan_pihak_lain' => 'nullable|boolean',
             ]);
 
             if ($validator->fails()) {
@@ -79,6 +80,7 @@ class JenisSuratController extends Controller
                 'deskripsi' => $request->input('deskripsi'),
                 'syarat' => $namaSyarat,
                 'is_active' => $request->boolean('is_active', true),
+                'butuh_tanda_tangan_pihak_lain' => $request->boolean('butuh_tanda_tangan_pihak_lain', false),
             ]);
 
             // Konversi ke URL publik sebelum dikirim ke frontend
@@ -99,22 +101,22 @@ class JenisSuratController extends Controller
     }
 
     // Update jenis surat
-    public function update(Request $request, JenisSurat $jenisSurat)
+    public function updateJenisSurat(Request $request, JenisSurat $jenisSuratId)
     {
         try {
+            // ✅ Validasi field yang diperbolehkan
             $validator = Validator::make($request->all(), [
-                'nama_surat' => 'sometimes|string|max:150',
-                'deskripsi' => 'sometimes|nullable|string',
-                'nama_syarat' => 'sometimes|nullable|array',
+                'nama_surat' => 'required|string|max:150',
+                'deskripsi' => 'nullable|string',
+                'nama_syarat' => 'nullable|array',
                 'nama_syarat.*' => 'string|max:200',
-                'is_active' => 'sometimes|boolean',
-                'file_template' => 'nullable|file|mimes:pdf,docx,doc,xlsx|max:10240',
+                'butuh_tanda_tangan_pihak_lain' => 'nullable|boolean',
             ]);
 
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Data validation error',
+                    'message' => 'Validasi gagal.',
                     'errors' => $validator->errors(),
                 ], 422);
             }
@@ -122,56 +124,40 @@ class JenisSuratController extends Controller
             $payload = $validator->validated();
             $updates = [];
 
+            // Update field dasar
             if (isset($payload['nama_surat'])) $updates['nama_surat'] = $payload['nama_surat'];
             if (isset($payload['deskripsi'])) $updates['deskripsi'] = $payload['deskripsi'];
-            
-            // Process nama syarat array
+            if (isset($payload['butuh_tanda_tangan_pihak_lain'])) $updates['butuh_tanda_tangan_pihak_lain'] = $payload['butuh_tanda_tangan_pihak_lain'];
+
+            // ✅ Proses syarat surat
             if (array_key_exists('nama_syarat', $payload)) {
                 $namaSyarat = $payload['nama_syarat'] ?? [];
-                // Filter yang kosong dan bersihkan
-                $namaSyarat = array_filter(array_map('trim', $namaSyarat), function($value) {
-                    return !empty($value);
-                });
+                // Bersihkan elemen kosong & trim
+                $namaSyarat = array_filter(array_map('trim', $namaSyarat), fn($v) => !empty($v));
                 $updates['syarat'] = $namaSyarat;
             }
-            
-            if (isset($payload['is_active'])) $updates['is_active'] = $payload['is_active'];
 
-            if ($request->hasFile('file_template')) {
-                $file = $request->file('file_template');
-                $filePath = $file->store('templates', 'public');
-                $ext = strtolower($file->getClientOriginalExtension());
-                $absolutePath = Storage::disk('public')->path($filePath);
-                $formStructure = $this->extractFormStructure($absolutePath, $ext);
-
-                if ($jenisSurat->file_template) {
-                    Storage::disk('public')->delete($jenisSurat->file_template);
-                }
-
-                $updates['file_template'] = $filePath;
-                $updates['form_structure'] = $formStructure;
+            // Jalankan update jika ada data
+            if (!empty($updates)) {
+                $jenisSuratId->update($updates);
             }
 
-            if (!empty($updates)) $jenisSurat->update($updates);
-
-            $jenisSurat->refresh();
-
-            // Konversi path ke URL publik
-            $jenisSurat->file_template = $jenisSurat->file_template ? Storage::url($jenisSurat->file_template) : null;
+            $jenisSuratId->refresh();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Jenis Surat berhasil diperbarui!',
-                'data' => $jenisSurat,
+                'message' => 'Jenis surat berhasil diperbarui!',
+                'data' => $jenisSuratId,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memperbarui jenis surat',
+                'message' => 'Terjadi kesalahan saat memperbarui jenis surat.',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
+
     // Ambil placeholder dari database
     public function getPlaceholders(Request $request, $id)
     {
@@ -205,18 +191,33 @@ class JenisSuratController extends Controller
 
         try {
             $template = new TemplateProcessor($filePath);
+            $variables = $template->getVariables(); // semua placeholder ${...}
 
-            // Ambil semua placeholder dari template
-            $variables = $template->getVariables(); // array string
+            // Daftar placeholder yang ingin dijadikan checkbox
+            $checkboxNames = [
+                "WNI", "WNA", "Islam", "Kristen_Protestan", "Hindu", "Buddha",
+                "Katolik", "Belum_Kawin", "Kawin", "Janda/Duda",
+                "Tamat_SD", "Tamat_SLP/SLTP", "Tamat_SLA/SLTA",
+                "Tamat_Akademi/Universitas", "Tidak_Sekolah", "Tidak_Tamat_SD"
+            ];
 
             $placeholders = [];
 
             foreach ($variables as $key) {
-                $placeholders[] = [
-                    'name'  => $key,
-                    'label' => ucwords(str_replace(['_', '-'], ' ', $key)),
-                    'type'  => 'text',
-                ];
+                if (in_array($key, $checkboxNames)) {
+                    $placeholders[] = [
+                        'name' => $key,
+                        'label' => ucwords(str_replace(['_', '-'], ' ', $key)),
+                        'type' => 'checkbox',
+                        'options' => [$key], // opsi checkbox hanya 1 sesuai nama
+                    ];
+                } else {
+                    $placeholders[] = [
+                        'name' => $key,
+                        'label' => ucwords(str_replace(['_', '-'], ' ', $key)),
+                        'type' => 'text',
+                    ];
+                }
             }
 
             return $placeholders;
@@ -318,36 +319,38 @@ class JenisSuratController extends Controller
         }
     }
 
-    public function adminDestroy(JenisSurat $jenisSurat)
+    public function adminDestroy($jenisSuratId)
     {
-        try {
-            // Check if jenis surat has pengajuan
-            if ($jenisSurat->pengajuanSurat()->count() > 0) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Jenis surat tidak dapat dihapus karena masih memiliki pengajuan'
-                ], 400);
-            }
+        $jenisSurat = JenisSurat::find($jenisSuratId);
 
-            // Delete file template if exists
-            if ($jenisSurat->file_template) {
-                Storage::disk('public')->delete($jenisSurat->file_template);
-            }
-
-            $jenisSurat->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Jenis surat berhasil dihapus'
-            ]);
-        } catch (\Exception $e) {
+        if (!$jenisSurat) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus jenis surat',
-                'error' => $e->getMessage()
-            ], 500);
+                'message' => 'Jenis surat tidak ditemukan'
+            ], 404);
         }
+
+        // Cek relasi pengajuan
+        if ($jenisSurat->pengajuanSurat()->count() > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jenis surat tidak dapat dihapus karena masih memiliki pengajuan'
+            ], 400);
+        }
+
+        // Hapus file template jika ada
+        if ($jenisSurat->file_template) {
+            Storage::disk('public')->delete($jenisSurat->file_template);
+        }
+
+        $jenisSurat->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Jenis surat berhasil dihapus'
+        ]);
     }
+
 
     public function adminToggleStatus(JenisSurat $jenisSurat)
     {

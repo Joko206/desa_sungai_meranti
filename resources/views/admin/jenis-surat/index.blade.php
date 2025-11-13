@@ -82,13 +82,11 @@
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="flex gap-2">
-                        <select id="statusFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Semua Status</option>
-                            <option value="1">Aktif</option>
-                            <option value="0">Nonaktif</option>
-                        </select>
-                        <button onclick="clearFilters()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                            Reset
+                        <button onclick="clearFilters()" class="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-all duration-200 shadow-sm hover:shadow-md">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            Reset Pencarian
                         </button>
                     </div>
                 </div>
@@ -96,7 +94,7 @@
         </div>
 
         <!-- Statistics -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                 <div class="flex items-center">
                     <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
@@ -105,7 +103,7 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Total Jenis</p>
+                        <p class="text-sm font-medium text-gray-500">Total Jenis Surat</p>
                         <p class="text-2xl font-semibold text-gray-900" id="total-count">{{ count($jenisSuratList) }}</p>
                     </div>
                 </div>
@@ -167,6 +165,12 @@
                                 </svg>
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deskripsi</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onclick="sortTable('butuh_tanda_tangan_pihak_lain')">
+                                Kategori
+                                <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                                </svg>
+                            </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onclick="sortTable('is_active')">
                                 Status
                                 <svg class="w-4 h-4 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -211,6 +215,11 @@
                                     <div class="text-sm text-gray-900 max-w-xs truncate">{{ $jenis->deskripsi ?? 'Tidak ada deskripsi' }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $jenis->butuh_tanda_tangan_pihak_lain ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800' }}">
+                                        {{ $jenis->butuh_tanda_tangan_pihak_lain ? 'Butuh Tanda Tangan' : 'Desa' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $jenis->is_active ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800' }}">
                                         {{ $jenis->is_active ? 'Aktif' : 'Nonaktif' }}
                                     </span>
@@ -244,7 +253,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                <td colspan="7" class="px-6 py-8 text-center text-gray-500">
                                     <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                     </svg>
@@ -263,24 +272,6 @@
                 </table>
             </div>
         </div>
-
-        <!-- Bulk Actions -->
-        <div id="bulkActions" class="hidden fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white rounded-lg shadow-lg border border-gray-200 p-4">
-            <div class="flex items-center space-x-4">
-                <span class="text-sm font-medium text-gray-700" id="selectedCount">0 dipilih</span>
-                <button onclick="bulkToggleStatus()" class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
-                    Toggle Status
-                </button>
-                <button onclick="bulkDelete()" class="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700">
-                    Hapus
-                </button>
-                <button onclick="clearSelection()" class="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700">
-                    Batal
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Success Notification -->
 <div id="successNotification" class="hidden fixed top-4 right-4 z-50 bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-md shadow-lg">
@@ -321,6 +312,21 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">File Template</label>
                     <input type="file" name="file_template" required class="w-full text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100" accept=".doc,.docx,.pdf,.odt">
                     <p class="text-xs text-gray-500 mt-1">Upload file template untuk jenis surat ini</p>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Surat</label>
+                    <div class="space-y-2">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="butuh_tanda_tangan_pihak_lain" value="0" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Surat Dari Desa</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="butuh_tanda_tangan_pihak_lain" value="1" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Surat Butuh Tanda Tangan Pihak Lain</span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">Pilih kategori surat untuk menentukan flow pengajuan</p>
                 </div>
                 
                 <!-- Requirements Section -->
@@ -391,6 +397,20 @@
                 </div>
                 
                 <!-- Requirements Section -->
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Surat</label>
+                    <div class="space-y-2 mb-3">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="butuh_tanda_tangan_pihak_lain" value="0" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Surat By Desa (langsung selesai setelah approve)</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="butuh_tanda_tangan_pihak_lain" value="1" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Surat By Pihak Lain (perlu tanda tangan pihak lain)</span>
+                        </label>
+                    </div>
+                </div>
+
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-3">Syarat Pengajuan Surat</label>
                     <p class="text-xs text-gray-500 mb-3">Edit syarat-syarat yang diperlukan untuk pengajuan surat ini</p>
@@ -479,13 +499,11 @@ const previewTitle = document.getElementById('previewTitle');
 document.addEventListener('DOMContentLoaded', function() {
     // Search and Filter
     document.getElementById('searchInput')?.addEventListener('input', filterTable);
-    document.getElementById('statusFilter')?.addEventListener('change', filterTable);
 
     // Select all checkbox
     document.getElementById('selectAll')?.addEventListener('change', function() {
         const checkboxes = document.querySelectorAll('.row-checkbox');
         checkboxes.forEach(checkbox => checkbox.checked = this.checked);
-        updateBulkActions();
     });
 
     // Template file change event
@@ -497,7 +515,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const checkboxes = document.querySelectorAll('.row-checkbox');
         const checked = Array.from(checkboxes).filter(cb => cb.checked);
         document.getElementById('selectAll').checked = checked.length === checkboxes.length && checkboxes.length > 0;
-        updateBulkActions();
+    });
+
+    // Kategori radio button change handler
+    document.addEventListener('change', (event) => {
+        if (event.target.name === 'butuh_tanda_tangan_pihak_lain') {
+            const selectedValue = event.target.value;
+            console.log('Kategori changed to:', selectedValue);
+        }
     });
 
     // Modal click outside to close
@@ -709,23 +734,19 @@ function setSubmitButtonState(loading) {
 
 function filterTable() {
     const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
-    const statusFilter = document.getElementById('statusFilter')?.value || '';
-    
+
     const rows = document.querySelectorAll('#jenisSuratTable tr');
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
-        const statusText = row.querySelector('.rounded-full')?.textContent.toLowerCase();
-        
+
         const matchesSearch = text.includes(searchTerm);
-        const matchesStatus = !statusFilter || (statusFilter === '1' ? statusText.includes('aktif') : statusText.includes('nonaktif'));
-        
-        row.style.display = matchesSearch && matchesStatus ? '' : 'none';
+
+        row.style.display = matchesSearch ? '' : 'none';
     });
 }
 
 function clearFilters() {
     document.getElementById('searchInput').value = '';
-    document.getElementById('statusFilter').value = '';
     filterTable();
 }
 
@@ -744,23 +765,9 @@ function toggleModal(modalId) {
     document.getElementById(modalId).classList.toggle('hidden');
 }
 
-function updateBulkActions() {
-    const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-    const bulkActions = document.getElementById('bulkActions');
-    const selectedCount = document.getElementById('selectedCount');
-    
-    if (checkedBoxes.length > 0) {
-        bulkActions.classList.remove('hidden');
-        selectedCount.textContent = `${checkedBoxes.length} dipilih`;
-    } else {
-        bulkActions.classList.add('hidden');
-    }
-}
-
 function clearSelection() {
     const checkboxes = document.querySelectorAll('.row-checkbox, #selectAll');
     checkboxes.forEach(checkbox => checkbox.checked = false);
-    updateBulkActions();
 }
 
 function editJenisSurat(id) {
@@ -770,10 +777,16 @@ function editJenisSurat(id) {
         document.querySelector('#editForm [name="nama_surat"]').value = item.nama_surat;
         document.querySelector('#editForm [name="deskripsi"]').value = item.deskripsi || '';
         
+        // Set kategori radio button
+        const kategoriRadios = document.querySelectorAll('#editModal input[name="butuh_tanda_tangan_pihak_lain"]');
+        kategoriRadios.forEach(radio => {
+            radio.checked = (radio.value == item.butuh_tanda_tangan_pihak_lain);
+        });
+
         // Populate requirements
         const container = document.getElementById('editSyaratContainer');
         container.innerHTML = ''; // Clear existing
-        
+
         // Check if there are existing requirements
         if (item.syarat && Array.isArray(item.syarat) && item.syarat.length > 0) {
             item.syarat.forEach(function(syarat) {
@@ -851,14 +864,30 @@ function toggleStatus(id) {
     }
 }
 
-function deleteJenisSurat(id) {
-    if (confirm('Yakin ingin menghapus jenis surat ini? Tindakan ini tidak dapat dibatalkan.')) {
-        fetch(`/api/admin/jenis-surat/${id}`, {
+async function deleteJenisSurat(id) {
+    if (!confirm('Yakin ingin menghapus jenis surat ini? Tindakan ini tidak dapat dibatalkan.')) return;
+
+    try {
+        const response = await fetch(`/admin/jenis-surat/${id}`, {
             method: 'DELETE',
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
             }
-        }).then(() => location.reload());
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.success === false) {
+            alert(data.message || 'Gagal menghapus jenis surat.');
+            return;
+        }
+
+        alert(data.message || 'Jenis surat berhasil dihapus.');
+        location.reload();
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan pada server, silakan coba lagi.');
     }
 }
 
@@ -911,6 +940,7 @@ async function submitAddForm(event) {
 
 async function submitEditForm(event) {
     event.preventDefault();
+
     const form = event.target;
     const formData = new FormData(form);
     const id = formData.get('id');
@@ -926,60 +956,40 @@ async function submitEditForm(event) {
         return;
     }
 
+    // ✅ Laravel butuh ini biar route PUT dikenali
+    formData.append('_method', 'PUT');
+
     try {
         const response = await fetch(`{{ url('/admin/jenis-surat') }}/${id}`, {
-            method: 'POST',
+            method: 'POST', // tetap POST karena _method=PUT
             body: formData,
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json',
-                'X-HTTP-Method-Override': 'PUT'
+                'Accept': 'application/json'
             }
         });
 
         const responseData = await response.json();
 
-        if (!response.ok) {
+        if (!response.ok || !responseData.success) {
             throw new Error(responseData.message || 'Gagal memperbarui jenis surat');
         }
 
-        showSuccessNotification('Jenis surat berhasil diperbarui!');
+        // ✅ Notifikasi sukses (ganti sesuai sistem notifikasi kamu)
+        if (typeof showSuccessNotification === 'function') {
+            showSuccessNotification('Jenis surat berhasil diperbarui!');
+        } else {
+            alert('✅ Jenis surat berhasil diperbarui!');
+        }
+
         toggleModal('editModal');
         form.reset();
-        setTimeout(() => location.reload(), 1500);
-        
+
+        setTimeout(() => location.reload(), 1000);
+
     } catch (error) {
-        alert('Error: ' + error.message);
-    }
-}
-
-function bulkToggleStatus() {
-    const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-    if (confirm(`Yakin ingin mengubah status ${checkedBoxes.length} item ini?`)) {
-        const ids = Array.from(checkedBoxes).map(cb => cb.value);
-        fetch('/api/admin/jenis-surat/bulk-toggle-status', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-            },
-            body: JSON.stringify({ ids })
-        }).then(() => location.reload());
-    }
-}
-
-function bulkDelete() {
-    const checkedBoxes = document.querySelectorAll('.row-checkbox:checked');
-    if (confirm(`Yakin ingin menghapus ${checkedBoxes.length} item ini? Tindakan ini tidak dapat dibatalkan.`)) {
-        const ids = Array.from(checkedBoxes).map(cb => cb.value);
-        fetch('/api/admin/jenis-surat/bulk-delete', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-            },
-            body: JSON.stringify({ ids })
-        }).then(() => location.reload());
+        console.error('Error:', error);
+        alert('❌ ' + error.message);
     }
 }
 

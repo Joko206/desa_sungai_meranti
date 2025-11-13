@@ -331,6 +331,9 @@
                                         <option value="{{ $jenis->id }}"
                                             {{ (string) $selectedJenisId === (string) $jenis->id ? 'selected' : '' }}>
                                             {{ $jenis->nama_surat }}
+                                            @if($jenis->butuh_tanda_tangan_pihak_lain)
+                                                (Perlu Tanda Tangan Pihak Lain)
+                                            @endif
                                         </option>
                                     @endforeach
                                 </select>
@@ -490,6 +493,98 @@
                 let input;
                 
                 switch (field.type) {
+                    case 'checkbox':
+                    input = document.createElement('div');
+                    input.className = 'grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3';
+
+                    // Pastikan selalu ada options, kalau kosong pakai field name sebagai default
+                    const options = field.options && field.options.length ? field.options : [field.name];
+
+                    options.forEach(option => {
+                        const optionDiv = document.createElement('div');
+                        optionDiv.className = 'flex items-center';
+
+                        // Cek apakah option adalah objek dengan value/label atau string biasa
+                        const value = option.value || option;
+                        const label = option.label || option;
+
+                        // Jika hanya satu option, name tidak perlu array "[]"
+                        const nameAttr = options.length === 1 ? `data_pemohon[${key}]` : `data_pemohon[${key}][]`;
+
+                        optionDiv.innerHTML = `
+                            <input type="checkbox"
+                                id="${key}_${value}"
+                                name="${nameAttr}"
+                                value="${value}"
+                                class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500">
+                        `;
+
+                        input.appendChild(optionDiv);
+                    });
+
+                    fieldDiv.appendChild(labelEl);
+                    fieldDiv.appendChild(input);
+                    return fieldDiv;
+
+
+                    case 'ttl_combined':
+                        // Create TTL combined field with two sub-fields
+                        const ttlWrapper = document.createElement('div');
+                        ttlWrapper.className = 'responsive-grid gap-4';
+                        
+                        // Tempat Lahir field
+                        const tempatLahirDiv = document.createElement('div');
+                        const tempatLahirLabel = document.createElement('label');
+                        tempatLahirLabel.className = 'block text-sm font-medium text-gray-700';
+                        tempatLahirLabel.textContent = 'Tempat Lahir';
+                        tempatLahirLabel.setAttribute('for', `${key}_tempat_lahir`);
+                        
+                        const tempatLahirInput = document.createElement('input');
+                        tempatLahirInput.type = 'text';
+                        tempatLahirInput.id = `${key}_tempat_lahir`;
+                        tempatLahirInput.name = `data_pemohon[tempat_lahir]`;
+                        tempatLahirInput.className = 'optimized-input';
+                        tempatLahirInput.placeholder = 'Masukkan tempat lahir';
+                        tempatLahirInput.required = true;
+                        
+                        tempatLahirDiv.appendChild(tempatLahirLabel);
+                        tempatLahirDiv.appendChild(tempatLahirInput);
+                        
+                        // Tanggal Lahir field
+                        const tanggalLahirDiv = document.createElement('div');
+                        const tanggalLahirLabel = document.createElement('label');
+                        tanggalLahirLabel.className = 'block text-sm font-medium text-gray-700';
+                        tanggalLahirLabel.textContent = 'Tanggal Lahir';
+                        tanggalLahirLabel.setAttribute('for', `${key}_tanggal_lahir`);
+                        
+                        const tanggalLahirInput = document.createElement('input');
+                        tanggalLahirInput.type = 'date';
+                        tanggalLahirInput.id = `${key}_tanggal_lahir`;
+                        tanggalLahirInput.name = `data_pemohon[tanggal_lahir]`;
+                        tanggalLahirInput.className = 'optimized-input';
+                        tanggalLahirInput.required = true;
+                        
+                        // Add date validation for birth date
+                        const today = new Date();
+                        const maxDate = new Date(today.getFullYear() - 17, today.getMonth(), today.getDate()); // Minimum 17 years old
+                        tanggalLahirInput.setAttribute('max', maxDate.toISOString().split('T')[0]);
+                        tanggalLahirInput.setAttribute('min', '1950-01-01');
+                        
+                        tanggalLahirDiv.appendChild(tanggalLahirLabel);
+                        tanggalLahirDiv.appendChild(tanggalLahirInput);
+                        
+                        // Add help text
+                        const helpText = document.createElement('p');
+                        helpText.className = 'field-help col-span-2';
+                        helpText.textContent = 'Data akan disimpan dalam format: Tempat, Tanggal (contoh: Bandung, 20 Februari 2005)';
+                        
+                        ttlWrapper.appendChild(tempatLahirDiv);
+                        ttlWrapper.appendChild(tanggalLahirDiv);
+                        ttlWrapper.appendChild(helpText);
+                        
+                        fieldDiv.appendChild(ttlWrapper);
+                        return fieldDiv;
+                        
                     case 'date':
                         input = document.createElement('input');
                         input.type = 'date';
@@ -512,23 +607,28 @@
                         
                         // Add constraints for RT/RW fields
                         if (key.toLowerCase().includes('rt') || key.toLowerCase().includes('rw')) {
-                            input.pattern = '[0-9]{3}';
-                            input.maxLength = 3;
+                            // Allow any number of digits but validate range
                             input.min = '1';
                             input.max = '999';
+                            input.placeholder = 'contoh: 1, 2, 3, 10, 25, 007';
                             input.addEventListener('input', function() {
                                 // Auto-format to 3 digits with leading zeros
                                 let value = this.value.replace(/[^0-9]/g, '');
                                 if (value.length > 0) {
-                                    value = value.padStart(3, '0').slice(0, 3);
-                                    this.value = value;
+                                    value = value.slice(0, 3); // Max 3 digits
+                                    if (value > 0 && value <= 999) {
+                                        // Store formatted value for display
+                                        this.dataset.formattedValue = value.padStart(3, '0');
+                                        // Keep original user input for validation
+                                        this.dataset.originalValue = value;
+                                    }
                                 }
                             });
                             
                             // Add help text
                             const helpText = document.createElement('p');
                             helpText.className = 'field-help';
-                            helpText.textContent = 'Masukkan 3 digit (001-999)';
+                            helpText.textContent = 'Masukkan 1-3 digit (1-999), akan disimpan dengan 3 digit (contoh: 1→001)';
                             fieldDiv.appendChild(helpText);
                         }
                         
@@ -566,16 +666,22 @@
                         input.placeholder = field.placeholder || `Masukkan ${label}`;
                         break;
                     case 'select':
+                    case 'gender':
+                    case 'religion':
+                    case 'marital_status':
+                    case 'dusun':
+                    case 'rt':
+                    case 'rw':
                         input = document.createElement('select');
                         input.className = 'optimized-select';
                         input.placeholder = field.placeholder || `Pilih ${label}...`;
-                        
+
                         // Add default option
                         const defaultOption = document.createElement('option');
                         defaultOption.value = '';
                         defaultOption.textContent = field.placeholder || `Pilih ${label}...`;
                         input.appendChild(defaultOption);
-                        
+
                         // Add options for select fields
                         if (field.options && Array.isArray(field.options)) {
                             field.options.forEach(option => {
@@ -585,7 +691,7 @@
                                 input.appendChild(optionEl);
                             });
                         }
-                        
+
                         // Add validation for select fields
                         input.addEventListener('change', function() {
                             if (this.value) {
@@ -713,6 +819,8 @@
                         const fieldsContainer = document.createElement('div');
                         fieldsContainer.className = 'responsive-grid';
                         setFormStructureDefinition(fields);
+
+                        // Regular array of fields
                         fields.forEach((field) => {
                             const fieldElement = createField(field);
                             fieldsContainer.appendChild(fieldElement);
@@ -922,12 +1030,12 @@
                         const formattedDate = `${parseInt(day)} ${monthNames[parseInt(month) - 1]} ${year}`;
                         const combinedTTL = `${tempatLahir.value}, ${formattedDate}`;
                         
-                        // Create hidden TTL field for submission
-                        let ttlField = document.querySelector('input[name="data_pemohon[TTL]"]');
+                        // Create hidden field for submission with new field name
+                        let ttlField = document.querySelector('input[name="data_pemohon[Tempat_Tanggal_Lahir]"]');
                         if (!ttlField) {
                             ttlField = document.createElement('input');
                             ttlField.type = 'hidden';
-                            ttlField.name = 'data_pemohon[TTL]';
+                            ttlField.name = 'data_pemohon[Tempat_Tanggal_Lahir]';
                             elements.form.appendChild(ttlField);
                         }
                         ttlField.value = combinedTTL;

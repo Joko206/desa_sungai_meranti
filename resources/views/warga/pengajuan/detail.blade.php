@@ -32,16 +32,22 @@
             $statusLabels = [
                 'menunggu' => 'Menunggu',
                 'menunggu_verifikasi' => 'Menunggu Verifikasi',
+                'menunggu_berkas' => 'Menunggu Berkas',
                 'disetujui' => 'Disetujui',
+                'menunggu_tanda_tangan' => 'Menunggu Tanda Tangan',
                 'ditolak' => 'Ditolak',
                 'dibatalkan' => 'Dibatalkan',
+                'selesai' => 'Selesai',
             ];
             $statusClasses = [
                 'menunggu' => 'bg-gradient-to-r from-yellow-400 to-orange-400 text-white',
                 'menunggu_verifikasi' => 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white',
+                'menunggu_berkas' => 'bg-gradient-to-r from-orange-400 to-red-400 text-white',
                 'disetujui' => 'bg-gradient-to-r from-blue-400 to-blue-500 text-white',
+                'menunggu_tanda_tangan' => 'bg-gradient-to-r from-purple-400 to-pink-400 text-white',
                 'ditolak' => 'bg-gradient-to-r from-red-400 to-rose-500 text-white',
                 'dibatalkan' => 'bg-gradient-to-r from-gray-400 to-gray-500 text-white',
+                'selesai' => 'bg-gradient-to-r from-green-400 to-emerald-500 text-white',
             ];
             $statusKey = $pengajuan->status ?? '';
             $statusLabel = $statusLabels[$statusKey] ?? ucwords(str_replace('_', ' ', $statusKey));
@@ -99,6 +105,19 @@
                         <span class="inline-flex rounded-full px-4 py-2 text-sm font-semibold shadow-sm {{ $statusClass }}">
                             {{ $statusLabel }}
                         </span>
+                        @if(in_array($pengajuan->status, ['menunggu_berkas', 'menunggu_tanda_tangan']) && $pengajuan->suratTerbit && $pengajuan->suratTerbit->file_surat)
+                            @php
+                                $filename = basename($pengajuan->suratTerbit->file_surat);
+                                $suratUrl = route('warga.surat.view', ['filename' => $filename]);
+                            @endphp
+                            <a href="{{ $suratUrl }}" target="_blank" download
+                               class="inline-flex items-center px-4 py-2 ml-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-all duration-200 shadow-sm">
+                               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                               </svg>
+                               Download File
+                            </a>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -434,7 +453,7 @@
             </div>
         </div>
 
-        @if($pengajuan->status === 'disetujui' && $pengajuan->suratTerbit && $pengajuan->suratTerbit->file_surat)
+        @if(($pengajuan->status === 'disetujui' || $pengajuan->status === 'menunggu_tanda_tangan') && $pengajuan->suratTerbit && $pengajuan->suratTerbit->file_surat)
             @php
                 $suratUrl = \Illuminate\Support\Facades\Storage::url(str_replace('public/', '', $pengajuan->suratTerbit->file_surat));
             @endphp
@@ -450,7 +469,11 @@
                             </div>
                             <div>
                                 <p class="text-lg font-semibold text-white">Surat Terbit Tersedia</p>
-                                <p class="text-sm text-emerald-100">Surat resmi telah diterbitkan dan siap untuk diunduh</p>
+                                @if($pengajuan->jenis->butuh_tanda_tangan_pihak_lain ?? false)
+                                    <p class="text-sm text-emerald-100">Surat telah digenerate. Silakan unduh, cetak, dan tanda tangani kemudian antar hardfile ke kantor desa untuk ditandatangani kepala desa/sekretaris.</p>
+                                @else
+                                    <p class="text-sm text-emerald-100">Surat resmi telah diterbitkan dan siap untuk diunduh</p>
+                                @endif
                             </div>
                         </div>
                         <a href="{{ $suratUrl }}"

@@ -58,8 +58,16 @@ Route::get('/administrasi', [PengajuanController::class, 'listjenis'])->name('ad
 Route::get('/tutorial-pengajuan', function() {
     return view('warga.tutorial-pengajuan');
 })->name('warga.tutorial-pengajuan');
+Route::get('/profil', function() {
+    return view('profil-desa');
+})->name('profil');
 Route::view('/penduduk', 'home')->name('penduduk');
-Route::view('/profil', 'home')->name('profil');
+Route::get('/bantuan', function() {
+    return view('bantuan');
+})->name('bantuan');
+Route::get('/kontak', function() {
+    return view('kontak');
+})->name('kontak');
 
 // Protected Routes
 Route::middleware('auth')->group(function () {
@@ -73,9 +81,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/warga/dashboard', [WargaDashboardController::class, 'index'])->name('warga.dashboard');
         Route::get('/warga/jenis-surat', [WargaDashboardController::class, 'jenisSurat'])->name('warga.jenis-surat');
         Route::get('/warga/syarat/{jenisSurat}', [WargaDashboardController::class, 'syarat'])->name('warga.syarat');
-        Route::get('/warga/pengajuan/{pengajuan}', [WargaDashboardController::class, 'show'])->name('warga.pengajuan.show');
+        Route::get('/warga/pengajuan/{pengajuanId}', [WargaDashboardController::class, 'show'])->name('warga.pengajuan.show');
         Route::post('/warga/pengajuan/{pengajuan}/batal', [WargaDashboardController::class, 'cancel'])->name('warga.pengajuan.cancel');
         Route::get('/warga/file/lihat/{pengajuanId}/{label}', [FileController::class, 'previewFile'])->name('warga.file.preview');
+        Route::get('/warga/profil/edit', [WargaDashboardController::class, 'editProfil'])->name('warga.profil.edit');
+        Route::post('/warga/profil/update', [WargaDashboardController::class, 'updateProfil'])->name('warga.profil.update');
+        Route::get('/surat/{filename}', [FileController::class, 'viewSurat'])->name('warga.surat.view');
     });
 
     // Admin Routes
@@ -86,12 +97,17 @@ Route::middleware('auth')->group(function () {
     Route::prefix('admin')->middleware('role:admin')->group(function () {
         // Template serving route with CORS headers for Office Online preview
         Route::get('/templates/{filename}', function($filename) {
+            // Security: Validate filename to prevent directory traversal
+            if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $filename) || str_contains($filename, '..')) {
+                abort(403, 'Invalid filename');
+            }
+
             $path = 'templates/' . $filename;
-            
+
             if (!Storage::disk('public')->exists($path)) {
                 abort(404);
             }
-            
+
             $filePath = Storage::disk('public')->path($path);
 
             return response()->file($filePath, [
@@ -105,22 +121,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/file/lihat/{pengajuanId}/{label}', [FileController::class, 'previewFile'])->name('admin.file.preview');
         Route::get('/file/download/{pengajuanId}/{label}', [FileController::class, 'downloadFile'])->name('admin.file.download');
 
-        // Route for viewing generated surat files
-        Route::get('/surat/{filename}', [FileController::class, 'viewSurat'])->name('admin.surat.view');
-
 
         // Admin Pengajuan Routes
         Route::get('/pengajuan', [AdminPengajuanController::class, 'index'])->name('admin.pengajuan.index');
         Route::get('/pengajuan/{id}', [AdminPengajuanController::class, 'show'])->name('admin.pengajuan.show');
         Route::post('/pengajuan/{id}/approve', [AdminPengajuanController::class, 'approve'])->name('admin.pengajuan.approve');
-        Route::post('/pengajuan/{id}/reject', [AdminPengajuanController::class, 'reject'])->name('admin.pengajuan.reject');        
+        Route::post('/pengajuan/{id}/reject', [AdminPengajuanController::class, 'reject'])->name('admin.pengajuan.reject');
+        Route::post('/pengajuan/{id}/completed', [AdminPengajuanController::class, 'markAsCompleted'])->name('admin.pengajuan.completed');
         // Admin Jenis Surat Routes
         Route::get('/jenis-surat', [JenisSuratController::class, 'adminIndex'])->name('admin.jenis-surat.index');
         Route::post('/jenis-surat', [JenisSuratController::class, 'AddLetter'])->name('admin.jenis-surat.store');
         Route::get('/jenis-surat/{jenisSurat}', [JenisSuratController::class, 'adminShow'])->name('admin.jenis-surat.show');
-        Route::put('/jenis-surat/{jenisSurat}', [JenisSuratController::class, 'update'])->name('admin.jenis-surat.update');
-        Route::delete('/jenis-surat/{jenisSurat}', [JenisSuratController::class, 'adminDestroy'])->name('admin.jenis-surat.destroy');
-        Route::patch('/jenis-surat/{jenisSurat}/toggle-status', [JenisSuratController::class, 'adminToggleStatus'])->name('admin.jenis-surat.toggle-status');
+        Route::put('/jenis-surat/{jenisSuratId}', [JenisSuratController::class, 'updateJenisSurat'])->name('admin.jenis-surat.update');
+        Route::delete('/jenis-surat/{jenisSuratId}', [JenisSuratController::class, 'adminDestroy'])->name('admin.jenis-surat.destroy');
+        Route::patch('/jenis-surat/{jenisSuratId}/toggle-status', [JenisSuratController::class, 'adminToggleStatus'])->name('admin.jenis-surat.toggle-status');
         
         // Bulk Operations Routes
         Route::patch('/jenis-surat/bulk-toggle-status', [JenisSuratController::class, 'bulkToggleStatus'])->name('admin.jenis-surat.bulk-toggle-status');
@@ -133,5 +147,6 @@ Route::prefix('api/admin')->middleware(['auth', 'role:admin'])->group(function (
     Route::get('/dashboard-stats', [AdminDashboardController::class, 'dashboardStats']);
     Route::get('/recent-pengajuan', [AdminDashboardController::class, 'recentPengajuan']);
 });
+
 
 

@@ -12,7 +12,36 @@ class TrustProxies extends Middleware
      *
      * @var array<int, string>|string|null
      */
+    /**
+     * The trusted proxies for this application.
+     *
+     * Configure this based on your infrastructure. For most Laravel applications
+     * running behind a single proxy (like Load Balancer), use '*' to trust all.
+     * For production, specify exact proxy IP addresses for better security.
+     */
+    /**
+     * The trusted proxies for this application.
+     *
+     * Configure this based on your infrastructure. For most Laravel applications
+     * running behind a single proxy (like Load Balancer), use '*' to trust all.
+     * For production, specify exact proxy IP addresses for better security.
+     *
+     * @var array<int, string>|string|null
+     */
     protected $proxies;
+    
+    /**
+     * Initialize trusted proxies from environment
+     */
+    public function __construct()
+    {
+        $trustedProxies = env('TRUSTED_PROXIES');
+        if ($trustedProxies) {
+            $this->proxies = explode(',', $trustedProxies);
+        } else {
+            $this->proxies = null;
+        }
+    }
 
     /**
      * The headers that should be used to detect proxies.

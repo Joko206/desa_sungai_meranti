@@ -4,7 +4,7 @@
 
 @section('admin-content')
 <!-- Statistics Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4 lg:gap-6 mb-8">
     <!-- Total Pengajuan -->
     <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
         <div class="p-6">
@@ -18,7 +18,7 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Total Pengajuan</dt>
+                        <dt class="text-sm font-medium text-gray-500 leading-tight">Total Pengajuan</dt>
                         <dd class="text-lg font-semibold text-gray-900" id="total-pengajuan">{{ $stats['total_pengajuan'] ?? 0 }}</dd>
                     </dl>
                 </div>
@@ -39,7 +39,7 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Menunggu Verifikasi</dt>
+                        <dt class="text-sm font-medium text-gray-500 whitespace-nowrap">Menunggu Verifikasi</dt>
                         <dd class="text-lg font-semibold text-yellow-700" id="pengajuan-pending">{{ $stats['pending'] ?? 0 }}</dd>
                     </dl>
                 </div>
@@ -60,7 +60,7 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Disetujui</dt>
+                        <dt class="text-sm font-medium text-gray-500 whitespace-nowrap">Disetujui</dt>
                         <dd class="text-lg font-semibold text-blue-700" id="pengajuan-disetujui">{{ $stats['disetujui'] ?? 0 }}</dd>
                     </dl>
                 </div>
@@ -81,8 +81,92 @@
                 </div>
                 <div class="ml-5 w-0 flex-1">
                     <dl>
-                        <dt class="text-sm font-medium text-gray-500 truncate">Ditolak</dt>
+                        <dt class="text-sm font-medium text-gray-500 whitespace-nowrap">Ditolak</dt>
                         <dd class="text-lg font-semibold text-red-700" id="pengajuan-ditolak">{{ $stats['ditolak'] ?? 0 }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menunggu Berkas -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
+        <div class="p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-orange-100 rounded-md flex items-center justify-center">
+                        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-xs lg:text-sm font-medium text-gray-500 leading-tight break-words">Menunggu Berkas</dt>
+                        <dd class="text-lg font-semibold text-orange-700" id="pengajuan-menunggu-berkas">{{ $stats['menunggu_berkas'] ?? 0 }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menunggu Tanda Tangan -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
+        <div class="p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
+                        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-xs lg:text-sm font-medium text-gray-500 leading-tight break-words">Menunggu Tanda Tangan</dt>
+                        <dd class="text-lg font-semibold text-purple-700" id="pengajuan-menunggu-tanda-tangan">{{ $stats['menunggu_tanda_tangan'] ?? 0 }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Selesai -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
+        <div class="p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 leading-tight">Selesai</dt>
+                        <dd class="text-lg font-semibold text-green-700" id="pengajuan-selesai">{{ $stats['selesai'] ?? 0 }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dibatalkan -->
+    <div class="bg-white overflow-hidden shadow-sm rounded-lg border border-gray-200">
+        <div class="p-6">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-8 h-8 bg-gray-100 rounded-md flex items-center justify-center">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="ml-5 w-0 flex-1">
+                    <dl>
+                        <dt class="text-sm font-medium text-gray-500 leading-tight">Dibatalkan</dt>
+                        <dd class="text-lg font-semibold text-gray-700" id="pengajuan-dibatalkan">{{ $stats['dibatalkan'] ?? 0 }}</dd>
                     </dl>
                 </div>
             </div>

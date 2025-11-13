@@ -46,19 +46,25 @@
                 </p>
 
                 <!-- Action Buttons -->
-                <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-6 pt-4">
-                    <a href="{{ route('administrasi') }}" class="w-full sm:w-auto bg-blue-500 hover:bg-blue-400 text-white px-8 py-4 rounded-2xl font-semibold text-base md:text-lg transition-all transform hover:scale-[1.02] shadow-blue-500/40 shadow-lg flex items-center justify-center gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-4">
+                    <a href="{{ route('administrasi') }}" class="w-full bg-blue-500 hover:bg-blue-400 text-white px-6 py-4 rounded-2xl font-semibold text-base md:text-lg transition-all transform hover:scale-[1.02] shadow-blue-500/40 shadow-lg flex items-center justify-center gap-3">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                         </svg>
                         Administrasi Online
                     </a>
-                    <a href="https://desasungaimeranti.id/" target="_blank" class="w-full sm:w-auto bg-white/15 hover:bg-white/25 text-white px-8 py-4 rounded-2xl font-semibold text-base md:text-lg transition-all transform hover:scale-[1.02] shadow-black/30 shadow-lg flex items-center justify-center gap-3 border border-white/30">
+                    <a href="https://desasungaimeranti.id/" target="_blank" class="w-full bg-white/15 hover:bg-white/25 text-white px-6 py-4 rounded-2xl font-semibold text-base md:text-lg transition-all transform hover:scale-[1.02] shadow-black/30 shadow-lg flex items-center justify-center gap-3 border border-white/30">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                         </svg>
                         Web Profil
                     </a>
+                    <button onclick="showComingSoon()" class="w-full bg-purple-500 hover:bg-purple-400 text-white px-6 py-4 rounded-2xl font-semibold text-base md:text-lg transition-all transform hover:scale-[1.02] shadow-purple-500/40 shadow-lg flex items-center justify-center gap-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                        </svg>
+                        GIS Desa
+                    </button>
                 </div>
             </div>
             
@@ -68,20 +74,20 @@
                     <h3 class="text-3xl font-semibold text-white text-center mb-10 tracking-tight">Statistik Desa</h3>
                     <div class="grid grid-cols-2 gap-10">
                         <div class="text-center space-y-3">
-                            <div class="text-5xl md:text-6xl font-black text-blue-200" data-count="6243">0</div>
+                            <div class="text-5xl md:text-6xl font-black text-blue-200" data-count="5780">0</div>
                             <div class="text-blue-50 text-base uppercase tracking-[0.3em]">Total Penduduk</div>
                         </div>
                         <div class="text-center space-y-3">
-                            <div class="text-5xl md:text-6xl font-black text-blue-200" data-count="756">0</div>
-                            <div class="text-blue-50 text-base uppercase tracking-[0.3em]">Kepala Keluarga</div>
+                            <div class="text-5xl md:text-6xl font-black text-blue-200" data-count="2981">0</div>
+                            <div class="text-blue-50 text-base uppercase tracking-[0.3em]">Penduduk Laki-laki</div>
                         </div>
                         <div class="text-center space-y-3">
-                            <div class="text-5xl md:text-6xl font-black text-blue-200" data-count="23">0</div>
+                            <div class="text-5xl md:text-6xl font-black text-blue-200" data-count="2799">0</div>
+                            <div class="text-blue-50 text-base uppercase tracking-[0.3em]">Penduduk Perempuan</div>
+                        </div>
+                        <div class="text-center space-y-3">
+                            <div class="text-5xl md:text-6xl font-black text-blue-200" data-count="3">0</div>
                             <div class="text-blue-50 text-base uppercase tracking-[0.3em]">Dusun</div>
-                        </div>
-                        <div class="text-center space-y-3">
-                            <div class="text-5xl md:text-6xl font-black text-blue-200" data-count="1">0</div>
-                            <div class="text-blue-50 text-base uppercase tracking-[0.3em]">Desa</div>
                         </div>
                     </div>
                 </div>
@@ -111,6 +117,40 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCount();
     });
 });
+
+// Coming Soon Modal Function
+function showComingSoon() {
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('coming-soon-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'coming-soon-modal';
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        modal.innerHTML = `
+            <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center transform transition-all">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Fitur GIS Desa</h3>
+                <p class="text-gray-600 mb-6">Fitur ini sedang dalam tahap pengembangan dan akan segera hadir untuk memberikan informasi geografis desa yang lebih lengkap.</p>
+                <button onclick="closeComingSoon()" class="w-full bg-purple-600 text-white py-3 px-6 rounded-xl hover:bg-purple-700 transition-colors font-medium">
+                    Mengerti
+                </button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    }
+    modal.classList.remove('hidden');
+}
+
+function closeComingSoon() {
+    const modal = document.getElementById('coming-soon-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
 </script>
 
 <style>

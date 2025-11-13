@@ -30,6 +30,8 @@ class ApiWorkflowTest extends TestCase
             'nama' => 'Registrasi Warga',
             'email' => 'register@example.com',
             'password' => 'password123',
+            'alamat' => 'Jl. Registrasi No. 1',
+            'no_hp' => '081234567890',
         ];
 
         $response = $this->postJson('/api/register', $payload);
@@ -142,6 +144,7 @@ class ApiWorkflowTest extends TestCase
                 'alamat' => 'Jl. Pengujian No. 1',
             ],
             'keterangan' => 'Permohonan surat keterangan domisili',
+            'agree_terms' => true,
         ]);
 
         $submitResponse
