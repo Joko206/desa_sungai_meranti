@@ -1,4 +1,3 @@
-esources/views/emails/layout.blade.php</path>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -72,7 +71,7 @@ esources/views/emails/layout.blade.php</path>
     <div class="email-container">
         <!-- Header -->
         <div class="email-header">
-            <img src="{{ asset('logo-desa.png') }}" alt="Logo Desa Sungai Meranti" class="logo" onerror="this.style.display='none'">
+            <img src="{{ asset('storage/logo-desa.png') }}" alt="Logo Desa Sungai Meranti" class="logo" onerror="this.style.display='none'">
             <h1>Sistem Digital Desa Sungai Meranti</h1>
         </div>
         
