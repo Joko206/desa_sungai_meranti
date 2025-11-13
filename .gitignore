@@ -13,3 +13,4 @@
 /storage/logs/*
 /bootstrap/cache/*
 .phpunit.result.cache
+.env
