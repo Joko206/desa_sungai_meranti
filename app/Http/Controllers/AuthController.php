@@ -6,6 +6,7 @@ use App\Models\UserDesa;
 use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Str;
@@ -354,9 +355,10 @@ class AuthController extends Controller
             return redirect()->route('password.verify-otp')
                 ->with('success', 'Kode OTP telah dikirim ke email Anda');
         } catch (\Exception $e) {
-            // If email sending fails, still allow user to proceed for development
+            // Don't log in production to avoid exposing sensitive info
+            // Show generic error without exposing OTP
             return redirect()->route('password.verify-otp')
-                ->with('warning', 'Kode OTP: ' . $otp . ' (Mode Development - Email tidak terkirim)');
+                ->with('warning', 'Terjadi kesalahan saat mengirim email. Silakan coba lagi atau hubungi admin.');
         }
     }
 

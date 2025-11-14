@@ -192,9 +192,9 @@
 
         <div class="footer">
             <p><strong>Email Otomatis Sistem</strong></p>
-            <p>Desa Sungai Meranti, Kabupaten Pelalawan, Provinsi Riau</p>
-            <p>Email: <a href="mailto:admin@desasungaimeranti.com" style="color: #2563eb;">admin@desasungaimeranti.com</a></p>
-            <p>Website: www.desasungaimeranti.com</p>
+            <p>Desa Sungai Meranti, Kecamatan Pinggir, Kabupaten Bengkalis</p>
+            <p>Email: <a href="mailto:sungaimeranti@simadesa.id" style="color: #2563eb;">sungaimeranti@simadesa.id</a></p>
+            <p>Website: www.desasungaimeranti.id</p>
         </div>
     </div>
 </body>

@@ -83,8 +83,8 @@
         <!-- Footer -->
         <div class="email-footer">
             <p><strong>Sistem Digital Desa Sungai Meranti</strong></p>
-            <p>Desa Sungai Meranti, Kabupaten Pelalawan, Provinsi Riau</p>
-            <p>Telepon: (0761) 123-456 | Email: info@desasungaimeranti.com</p>
+            <p>Desa Sungai Meranti, Kecamatan Pinggir, Kabupaten Bengkalis</p>
+            <p>Telepon: +62 822-8523-3869 | Email: sungaimeranti.pinggir@gmail.com</p>
             <p style="margin-top: 16px; font-size: 12px; color: #9ca3af;">
                 © 2025 Desa Sungai Meranti. Semua hak dilindungi.
             </p>
