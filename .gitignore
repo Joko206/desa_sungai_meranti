@@ -13,4 +13,3 @@
 /bootstrap/cache/*
 .phpunit.result.cache
 .env
-
