@@ -120,6 +120,7 @@ Route::middleware('auth')->group(function () {
         // Secure file serving routes for private documents
         Route::get('/file/lihat/{pengajuanId}/{label}', [FileController::class, 'previewFile'])->name('admin.file.preview');
         Route::get('/file/download/{pengajuanId}/{label}', [FileController::class, 'downloadFile'])->name('admin.file.download');
+        ROute::get('/surat/{filename}', [FileController::class, 'viewSurat'])->name('admin.surat.view');
 
 
         // Admin Pengajuan Routes

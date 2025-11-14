@@ -45,7 +45,7 @@
                 <p style="margin: 8px 0;"><strong>NIK:</strong> {{ $user->nik }}</p>
                 <p style="margin: 8px 0;"><strong>Nama:</strong> {{ $user->nama }}</p>
                 <p style="margin: 8px 0;"><strong>Email:</strong> {{ $user->email }}</p>
-                <p style="margin: 8px 0;"><strong>Waktu Permintaan:</strong> {{ now()->format('d/m/Y H:i') }} WIB</p>
+                <p style="margin: 8px 0;"><strong>Waktu Permintaan:</strong> {{ \Carbon\Carbon::now()->format('d/m/Y H:i') }} WIB</p>
             </div>
         </div>
 
@@ -64,8 +64,8 @@
         <div style="background: #f8fafc; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
             <h3 style="color: #1f2937; font-size: 16px; margin: 0 0 16px 0;">Butuh Bantuan?</h3>
             <div style="color: #6b7280; font-size: 14px; line-height: 1.8;">
-                <p style="margin: 8px 0;">📞 <strong>Telepon:</strong> (0761) 123-456</p>
-                <p style="margin: 8px 0;">📧 <strong>Email:</strong> info@desasungaimeranti.com</p>
+                <p style="margin: 8px 0;">📞 <strong>Telepon:</strong> +62 822-8523-3869</p>
+                <p style="margin: 8px 0;">📧 <strong>Email:</strong> sungaimeranti.pinggir@gmail.com</p>
                 <p style="margin: 8px 0;">🕒 <strong>Jam Kerja:</strong> Senin - Jumat, 08:00 - 16:00 WIB</p>
             </div>
         </div>

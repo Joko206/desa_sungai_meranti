@@ -187,43 +187,48 @@ class PengajuanController extends Controller
         foreach ($syaratList as $label) {
             $safeLabel = str_replace(' ', '_', $label);
 
-            // Kalau file tidak di-upload, langsung throw exception
-            if (!isset($files[$safeLabel])) {
-                throw new \Exception("File persyaratan '{$label}' belum di-upload");
+            // Cek apakah file ada atau tidak
+            if (isset($files[$safeLabel])) {
+                $file = $files[$safeLabel];
+
+                // Security: Validate file type and size
+                $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                $maxSize = 1024 * 1024 * 10; // 10MB
+
+                if (!in_array($file->getClientMimeType(), $allowedMimes)) {
+                    throw new \Exception("File '{$label}' memiliki tipe yang tidak diizinkan");
+                }
+
+                if ($file->getSize() > $maxSize) {
+                    throw new \Exception("File '{$label}' terlalu besar (maksimal 10MB)");
+                }
+
+                // Security: Sanitize filename
+                $originalName = $file->getClientOriginalName();
+                $safeFilename = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $originalName);
+                $filename = $safeLabel . '-' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs("persyaratan/{$pengajuanId}", $filename);
+
+                $uploadedFiles[] = [
+                    "label" => $label,
+                    "path" => $path,
+                    "mime" => $file->getClientMimeType(),
+                    "size" => $file->getSize(),
+                    "uploaded_at" => now(),
+                    "original_name" => $safeFilename
+                ];
+            } else {
+                // Jika tidak ada file untuk persyaratan ini, lewati dan lanjutkan ke file berikutnya
+                $uploadedFiles[] = [
+                    "label" => $label,
+                    "path" => null,  // Tidak ada file yang di-upload
+                ];
             }
-
-            $file = $files[$safeLabel];
-
-            // Security: Validate file type and size
-            $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-            $maxSize = 1024 * 1024 * 10; // 10MB
-
-            if (!in_array($file->getClientMimeType(), $allowedMimes)) {
-                throw new \Exception("File '{$label}' memiliki tipe yang tidak diizinkan");
-            }
-
-            if ($file->getSize() > $maxSize) {
-                throw new \Exception("File '{$label}' terlalu besar (maksimal 10MB)");
-            }
-
-            // Security: Sanitize filename
-            $originalName = $file->getClientOriginalName();
-            $safeFilename = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $originalName);
-            $filename = $safeLabel . '-' . Str::uuid() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs("persyaratan/{$pengajuanId}", $filename);
-
-            $uploadedFiles[] = [
-                "label" => $label,
-                "path" => $path,
-                "mime" => $file->getClientMimeType(),
-                "size" => $file->getSize(),
-                "uploaded_at" => now(),
-                "original_name" => $safeFilename
-            ];
         }
 
         return $uploadedFiles;
     }
+
 
     private function createPengajuan(string $userNik, int $jenisId, array $data, array $files, string $ket)
     {

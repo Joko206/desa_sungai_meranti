@@ -5,7 +5,6 @@ use App\Models\JenisSurat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use PhpOffice\PhpSpreadsheet\IOFactory as SpreadsheetIOFactory;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\TemplateProcessor;
 class JenisSuratController extends Controller
@@ -181,7 +180,6 @@ class JenisSuratController extends Controller
     {
         if (!file_exists($filePath)) return [];
         if (in_array($extension, ['doc', 'docx'])) return $this->extractDocxPlaceholders($filePath);
-        if ($extension === 'xlsx') return $this->extractXlsxPlaceholders($filePath);
         return [];
     }
 
@@ -380,126 +378,5 @@ class JenisSuratController extends Controller
     {
         return $this->jenisSuratList();
     }
-
-    // Bulk toggle status for multiple jenis surat
-    public function bulkToggleStatus(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'ids' => 'required|array',
-                'ids.*' => 'exists:jenis_surat,id'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Data validation error',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            $ids = $request->input('ids');
-            $jenisSuratList = JenisSurat::whereIn('id', $ids)->get();
-
-            if ($jenisSuratList->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Tidak ada data jenis surat yang ditemukan'
-                ], 404);
-            }
-
-            // Toggle status for all selected items
-            foreach ($jenisSuratList as $jenisSurat) {
-                $jenisSurat->update([
-                    'is_active' => !$jenisSurat->is_active
-                ]);
-            }
-
-            $activeCount = $jenisSuratList->where('is_active', true)->count();
-            $inactiveCount = $jenisSuratList->where('is_active', false)->count();
-
-            return response()->json([
-                'success' => true,
-                'message' => "Berhasil mengubah status {$jenisSuratList->count()} jenis surat ({$activeCount} aktif, {$inactiveCount} nonaktif)",
-                'data' => [
-                    'updated_count' => $jenisSuratList->count(),
-                    'active_count' => $activeCount,
-                    'inactive_count' => $inactiveCount
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengubah status jenis surat',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    // Bulk delete multiple jenis surat
-    public function bulkDelete(Request $request)
-    {
-        try {
-            $validator = Validator::make($request->all(), [
-                'ids' => 'required|array',
-                'ids.*' => 'exists:jenis_surat,id'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Data validation error',
-                    'errors' => $validator->errors()
-                ], 422);
-            }
-
-            $ids = $request->input('ids');
-            $jenisSuratList = JenisSurat::whereIn('id', $ids)->get();
-
-            if ($jenisSuratList->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Tidak ada data jenis surat yang ditemukan'
-                ], 404);
-            }
-
-            // Check if any jenis surat has pengajuan
-            $withPengajuan = $jenisSuratList->filter(function($item) {
-                return $item->pengajuanSurat()->count() > 0;
-            });
-
-            if ($withPengajuan->isNotEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Beberapa jenis surat tidak dapat dihapus karena masih memiliki pengajuan'
-                ], 400);
-            }
-
-            // Delete file templates and records
-            foreach ($jenisSuratList as $jenisSurat) {
-                if ($jenisSurat->file_template) {
-                    Storage::disk('public')->delete($jenisSurat->file_template);
-                }
-            }
-
-            $deletedCount = $jenisSuratList->count();
-            JenisSurat::whereIn('id', $ids)->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => "Berhasil menghapus {$deletedCount} jenis surat",
-                'data' => [
-                    'deleted_count' => $deletedCount
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus jenis surat',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
+    
 }

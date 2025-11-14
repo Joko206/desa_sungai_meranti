@@ -1,4 +1,3 @@
-esources/views/emails/layout.blade.php</path>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -72,7 +71,7 @@ esources/views/emails/layout.blade.php</path>
     <div class="email-container">
         <!-- Header -->
         <div class="email-header">
-            <img src="{{ asset('logo-desa.png') }}" alt="Logo Desa Sungai Meranti" class="logo" onerror="this.style.display='none'">
+            <img src="{{ asset('storage/logo-desa.png') }}" alt="Logo Desa Sungai Meranti" class="logo" onerror="this.style.display='none'">
             <h1>Sistem Digital Desa Sungai Meranti</h1>
         </div>
         
@@ -84,8 +83,8 @@ esources/views/emails/layout.blade.php</path>
         <!-- Footer -->
         <div class="email-footer">
             <p><strong>Sistem Digital Desa Sungai Meranti</strong></p>
-            <p>Desa Sungai Meranti, Kabupaten Pelalawan, Provinsi Riau</p>
-            <p>Telepon: (0761) 123-456 | Email: info@desasungaimeranti.com</p>
+            <p>Desa Sungai Meranti, Kecamatan Pinggir, Kabupaten Bengkalis</p>
+            <p>Telepon: +62 822-8523-3869 | Email: sungaimeranti.pinggir@gmail.com</p>
             <p style="margin-top: 16px; font-size: 12px; color: #9ca3af;">
                 © 2025 Desa Sungai Meranti. Semua hak dilindungi.
             </p>

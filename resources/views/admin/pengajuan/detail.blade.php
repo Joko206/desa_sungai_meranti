@@ -2,6 +2,12 @@
 
 @section('title', 'Detail Pengajuan - Desa Sungai Meranti')
 
+{{-- Include custom components --}}
+@include('components.confirmation-modal')
+@include('components.loading-modal')
+@include('components.notification-container')
+@include('components.rejection-modal')
+
 @section('content')
 <div class="container mx-auto px-4 py-8">
     <!-- Header -->
@@ -137,68 +143,6 @@
                 <div class="flex space-x-4" id="action-buttons">
                     <!-- Action buttons will be loaded here -->
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Rejection Modal -->
-<div id="rejection-modal" class="hidden fixed inset-0 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <div class="bg-gradient-to-r from-red-50 to-rose-50 rounded-xl p-6 border border-red-100">
-                <div class="flex items-center mb-4">
-                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
-                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-red-800">Tolak Pengajuan</h3>
-                </div>
-                <p class="text-sm text-red-700 mb-6">Berikan alasan penolakan yang jelas agar pemohon dapat memahami dan memperbaiki pengajuannya.</p>
-
-                <form id="rejection-form">
-                    <div class="mb-6">
-                        <label for="alasan-penolakan" class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                            <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            Alasan Penolakan
-                            <span class="text-red-500 ml-1">*</span>
-                        </label>
-                        <div class="relative">
-                            <textarea id="alasan-penolakan" name="alasan" rows="5" required
-                                      class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 resize-none bg-white shadow-sm"
-                                      placeholder="Contoh: Dokumen KTP tidak lengkap, alamat tidak sesuai dengan kartu keluarga, atau persyaratan lainnya belum terpenuhi..."></textarea>
-                            <div class="absolute bottom-3 right-3 text-xs text-gray-400">
-                                <span id="char-count">0</span>/500 karakter
-                            </div>
-                        </div>
-                        <div class="mt-2 text-xs text-gray-600 flex items-center">
-                            <svg class="w-3 h-3 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            Alasan yang jelas akan membantu pemohon memperbaiki pengajuannya
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                        <button type="button" onclick="closeRejectionModal()"
-                                class="px-6 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-[1.02]">
-                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                            Batal
-                        </button>
-                        <button type="submit"
-                                class="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-red-500 to-red-600 rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-sm hover:shadow-md transform hover:scale-[1.02]">
-                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                            Tolak Pengajuan
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
@@ -624,7 +568,7 @@ function displayActionButtons(pengajuan) {
                     </svg>
                     Setujui
                 </button>
-                <button onclick="openRejectionModal()"
+                <button onclick="showRejectionModal(${pengajuan.id})"
                         class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -760,242 +704,196 @@ function getStatusLabel(status) {
     }
 }
 
-function openRejectionModal() {
-    document.getElementById('rejection-modal').classList.remove('hidden');
-}
-
-function closeRejectionModal() {
-    document.getElementById('rejection-modal').classList.add('hidden');
-    document.getElementById('rejection-form').reset();
-}
-
 async function approvePengajuan(id) {
-    if (!confirm('Apakah Anda yakin ingin menyetujui pengajuan ini?')) {
-        return;
-    }
+    showConfirmationModal({
+        title: 'Setujui Pengajuan',
+        message: 'Apakah Anda yakin ingin menyetujui pengajuan ini? Proses ini akan otomatis membuat surat dan mengirim notifikasi ke pemohon.',
+        details: 'Setelah disetujui, status pengajuan akan berubah dan dokumen akan otomatis digenerate.',
+        type: 'success',
+        confirmText: 'Setujui',
+        onConfirm: async function() {
+            // Show loading modal
+            showLoadingModal({
+                title: 'Memproses Persetujuan',
+                message: 'Sedang menyetujui pengajuan dan membuat dokumen...',
+                type: 'success',
+                showSteps: true
+            });
 
-    try {
-        const response = await fetch(`/admin/pengajuan/${id}/approve`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        });
+            // Update progress
+            updateLoadingStep(1, 'Memvalidasi data pengajuan');
+            updateLoadingProgress(25);
 
-        const result = await response.json();
-        
-        if (result.success) {
-            if (result.file_url) {
-                alert('Pengajuan berhasil disetujui dan surat telah digenerate otomatis! Mengalihkan ke halaman detail...');
-            } else {
-                alert('Pengajuan berhasil disetujui!');
+            try {
+                const response = await fetch(`/admin/pengajuan/${id}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateLoadingStep(2, 'Membuat dokumen');
+                    updateLoadingProgress(60);
+                    
+                    updateLoadingStep(3, 'Menyimpan berkas');
+                    updateLoadingProgress(80);
+                    
+                    updateLoadingStep(4, 'Mengirim notifikasi');
+                    updateLoadingProgress(100);
+                    
+                    // Show success and redirect
+                    setTimeout(() => {
+                        showSuccessAndHideLoading('Pengajuan berhasil disetujui dan surat telah digenerate otomatis!', function() {
+                            location.reload();
+                        });
+                    }, 1000);
+                } else {
+                    hideLoadingModal();
+                    showNotification('Error: ' + result.message, 'error');
+                }
+            } catch (error) {
+                hideLoadingModal();
+                showNotification('Terjadi kesalahan saat menyetujui pengajuan', 'error');
             }
-            location.reload();
-        } else {
-            alert('Error: ' + result.message);
         }
-    } catch (error) {
-        alert('Terjadi kesalahan saat menyetujui pengajuan');
-    }
+    });
 }
 
-async function rejectPengajuan(event) {
-    event.preventDefault();
-
-    const form = event.target;
-    const formData = new FormData(form);
-    const alasan = formData.get('alasan').trim();
-
-    // Validation
-    if (!alasan) {
-        alert('Alasan penolakan tidak boleh kosong!');
-        document.getElementById('alasan-penolakan').focus();
-        return;
-    }
-
-    if (alasan.length < 10) {
-        alert('Alasan penolakan minimal 10 karakter agar pemohon dapat memahami dengan jelas!');
-        document.getElementById('alasan-penolakan').focus();
-        return;
-    }
-
-    if (alasan.length > 500) {
-        alert('Alasan penolakan maksimal 500 karakter!');
-        document.getElementById('alasan-penolakan').focus();
-        return;
-    }
-
-    // Show loading state
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = `
-        <svg class="animate-spin w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-        Memproses...
-    `;
-
-    try {
-        const response = await fetch(`/admin/pengajuan/${currentPengajuanId}/reject`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ alasan })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            // Show success message with better styling
-            showNotification('Pengajuan berhasil ditolak dengan alasan yang diberikan!', 'success');
-            closeRejectionModal();
-            setTimeout(() => {
-                location.reload();
-            }, 2000);
-        } else {
-            showNotification('Error: ' + result.message, 'error');
-        }
-    } catch (error) {
-        showNotification('Terjadi kesalahan saat menolak pengajuan', 'error');
-    } finally {
-        // Reset button state
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
-    }
-}
-
+// Notification function using custom component
 function showNotification(message, type = 'info') {
-    // Create notification element if it doesn't exist
-    let notification = document.getElementById('rejection-notification');
-    if (!notification) {
-        notification = document.createElement('div');
-        notification.id = 'rejection-notification';
-        notification.className = 'fixed top-4 right-4 z-50 max-w-sm';
-        document.body.appendChild(notification);
-    }
-
-    const bgColor = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' :
-                   type === 'error' ? 'bg-red-100 border-red-400 text-red-700' :
-                   'bg-blue-100 border-blue-400 text-blue-700';
-
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification fixed top-4 right-4 z-50 max-w-sm transform transition-all duration-300 translate-x-full opacity-0`;
+    
+    const iconClasses = {
+        'info': 'text-blue-400',
+        'success': 'text-green-400',
+        'warning': 'text-yellow-400',
+        'error': 'text-red-400'
+    };
+    
+    const bgClasses = {
+        'info': 'bg-blue-50 border-blue-200 text-blue-800',
+        'success': 'bg-green-50 border-green-200 text-green-800',
+        'warning': 'bg-yellow-50 border-yellow-200 text-yellow-800',
+        'error': 'bg-red-50 border-red-200 text-red-800'
+    };
+    
+    const icons = {
+        'info': 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+        'success': 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+        'warning': 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z',
+        'error': 'M6 18L18 6M6 6l12 12'
+    };
+    
+    const iconClass = iconClasses[type] || iconClasses.info;
+    const bgClass = bgClasses[type] || bgClasses.info;
+    const iconPath = icons[type] || icons.info;
+    
     notification.innerHTML = `
-        <div class="${bgColor} border px-4 py-3 rounded-md shadow-lg">
-            <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    ${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium">${message}</p>
-                </div>
-                <div class="ml-auto pl-3">
-                    <button onclick="this.parentElement.parentElement.parentElement.remove()" class="text-current hover:opacity-75">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        <div class="bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden border-l-4 ${bgClass}">
+            <div class="p-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 ${iconClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"/>
                         </svg>
-                    </button>
+                    </div>
+                    <div class="ml-3 w-0 flex-1 pt-0.5">
+                        <p class="text-sm font-medium text-gray-900">${message}</p>
+                    </div>
+                    <div class="ml-4 flex-shrink-0 flex">
+                        <button onclick="this.parentElement.parentElement.parentElement.parentElement.remove()" class="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <span class="sr-only">Close</span>
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     `;
-
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full', 'opacity-0');
+        notification.classList.add('translate-x-0', 'opacity-100');
+    }, 100);
+    
     // Auto remove after 5 seconds
     setTimeout(() => {
-        if (notification.parentElement) {
-            notification.remove();
-        }
+        notification.classList.add('translate-x-full', 'opacity-0');
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 300);
     }, 5000);
 }
 
-async function generateSurat(id) {
-    if (!confirm('Apakah Anda yakin ingin generate surat untuk pengajuan ini?')) {
-        return;
-    }
-
-    try {
-        const response = await fetch(`/admin/pengajuan/${id}/generate`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-            alert('Surat berhasil di-generate!');
-            location.reload();
-        } else {
-            alert('Error: ' + result.message);
-        }
-    } catch (error) {
-        alert('Terjadi kesalahan saat generate surat');
-    }
-}
-
 async function markAsCompleted(id) {
-    if (!confirm('Apakah Anda yakin ingin menandai pengajuan ini sebagai selesai? User akan mendapat notifikasi email.')) {
-        return;
-    }
+    showConfirmationModal({
+        title: 'Tandai Selesai',
+        message: 'Apakah Anda yakin ingin menandai pengajuan ini sebagai selesai?',
+        details: 'User akan mendapat notifikasi email bahwa pengajuan telah selesai dan dapat mengambil surat di kantor desa.',
+        type: 'success',
+        confirmText: 'Tandai Selesai',
+        onConfirm: async function() {
+            // Show loading modal
+            showLoadingModal({
+                title: 'Menandai Selesai',
+                message: 'Sedang menandai pengajuan sebagai selesai...',
+                type: 'success',
+                showSteps: true
+            });
 
-    try {
-        const response = await fetch(`/admin/pengajuan/${id}/completed`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            // Update progress
+            updateLoadingStep(1, 'Memperbarui status pengajuan');
+            updateLoadingProgress(50);
+
+            try {
+                const response = await fetch(`/admin/pengajuan/${id}/completed`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateLoadingStep(2, 'Mengirim notifikasi email');
+                    updateLoadingProgress(100);
+                    
+                    // Show success and redirect
+                    setTimeout(() => {
+                        showSuccessAndHideLoading('Pengajuan berhasil ditandai sebagai selesai! User akan mendapat notifikasi email.', function() {
+                            location.reload();
+                        });
+                    }, 1000);
+                } else {
+                    hideLoadingModal();
+                    showNotification('Error: ' + result.message, 'error');
+                }
+            } catch (error) {
+                hideLoadingModal();
+                showNotification('Terjadi kesalahan saat menandai pengajuan sebagai selesai', 'error');
             }
-        });
-
-        const result = await response.json();
-        
-        if (result.success) {
-            alert('Pengajuan berhasil ditandai sebagai selesai! User akan mendapat notifikasi email.');
-            location.reload();
-        } else {
-            alert('Error: ' + result.message);
         }
-    } catch (error) {
-        alert('Terjadi kesalahan saat menandai pengajuan sebagai selesai');
-    }
+    });
 }
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     loadPengajuanDetail();
-    document.getElementById('rejection-form').addEventListener('submit', rejectPengajuan);
-
-    // Add character count functionality
-    const textarea = document.getElementById('alasan-penolakan');
-    const charCount = document.getElementById('char-count');
-
-    if (textarea && charCount) {
-        textarea.addEventListener('input', function() {
-            const count = this.value.length;
-            charCount.textContent = count;
-
-            // Color coding for character count
-            if (count > 450) {
-                charCount.className = 'text-red-500 font-semibold';
-            } else if (count > 400) {
-                charCount.className = 'text-yellow-500 font-semibold';
-            } else {
-                charCount.className = 'text-gray-400';
-            }
-
-            // Prevent typing beyond limit
-            if (count > 500) {
-                this.value = this.value.substring(0, 500);
-                charCount.textContent = '500';
-                charCount.className = 'text-red-500 font-bold';
-            }
-        });
-    }
 });
 </script>
 @endsection
