@@ -12,8 +12,5 @@
 /storage/logs/*
 /bootstrap/cache/*
 .phpunit.result.cache
-<<<<<<< HEAD
 .env
-=======
-.env
->>>>>>> aa15217f73ae37c5dae4688df4e34fdb7e88ad0e
+
