@@ -55,6 +55,7 @@ Route::post('password/change', [AuthController::class, 'changePassword'])->name(
 
 // Public Routes
 Route::get('/administrasi', [PengajuanController::class, 'listjenis'])->name('administrasi');
+Route::get('/download-surat-pernyataan/{filename}', [PengajuanController::class, 'downloadSuratPernyataan'])->name('download.surat.pernyataan');
 Route::get('/tutorial-pengajuan', function() {
     return view('warga.tutorial-pengajuan');
 })->name('warga.tutorial-pengajuan');

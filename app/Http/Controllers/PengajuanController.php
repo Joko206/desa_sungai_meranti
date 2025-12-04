@@ -282,6 +282,26 @@ class PengajuanController extends Controller
         return view('warga.jenis-surat', compact('jenisSuratList'));
     }
 
+    public function downloadSuratPernyataan($filename)
+    {
+        try {
+            // Security: Validate filename to prevent directory traversal
+            if (!preg_match('/^[a-zA-Z0-9_\-\.\s]+\.docx$/', $filename) || str_contains($filename, '..')) {
+                abort(403, 'Invalid filename');
+            }
+
+            $path = 'surat_pernyataan/' . $filename;
+
+            if (!Storage::exists($path)) {
+                abort(404, 'File tidak ditemukan');
+            }
+
+            return Storage::download($path, $filename);
+        } catch (\Exception $e) {
+            abort(500, 'Terjadi kesalahan saat mengunduh file');
+        }
+    }
+
     public function showcreate(Request $request)
     {
         $jenisSuratList = JenisSurat::where('is_active', true)->get();
