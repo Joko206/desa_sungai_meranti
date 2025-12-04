@@ -285,20 +285,46 @@ class PengajuanController extends Controller
     public function downloadSuratPernyataan($filename)
     {
         try {
+            // Decode URL encoding (e.g., %20 to space)
+            $filename = urldecode($filename);
+            
             // Security: Validate filename to prevent directory traversal
-            if (!preg_match('/^[a-zA-Z0-9_\-\.\s]+\.docx$/', $filename) || str_contains($filename, '..')) {
-                abort(403, 'Invalid filename');
+            if (!preg_match('/^[a-zA-Z0-9_\-\.\s]+\.docx$/i', $filename) || str_contains($filename, '..')) {
+                return response()->json(['error' => 'Invalid filename'], 403);
             }
 
-            $path = 'surat_pernyataan/' . $filename;
+            // Build the direct file path
+            $filePath = storage_path('app/surat_pernyataan/' . $filename);
 
-            if (!Storage::exists($path)) {
-                abort(404, 'File tidak ditemukan');
+            // Check if file exists
+            if (!file_exists($filePath)) {
+                \Log::error('File not found', [
+                    'filename' => $filename,
+                    'path' => $filePath,
+                    'storage_path' => storage_path('app/surat_pernyataan/')
+                ]);
+                
+                return response()->json([
+                    'error' => 'File tidak ditemukan',
+                    'filename' => $filename
+                ], 404);
             }
 
-            return Storage::download($path, $filename);
+            // Return file download response
+            return response()->download($filePath, $filename, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            ]);
+            
         } catch (\Exception $e) {
-            abort(500, 'Terjadi kesalahan saat mengunduh file');
+            \Log::error('Download error', [
+                'message' => $e->getMessage(),
+                'filename' => $filename ?? 'unknown'
+            ]);
+            
+            return response()->json([
+                'error' => 'Terjadi kesalahan saat mengunduh file',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
