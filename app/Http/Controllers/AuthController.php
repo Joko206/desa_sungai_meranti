@@ -13,6 +13,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OtpMail;
 use App\Services\NotificationService;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Cache;
 
 class AuthController extends Controller
 {
@@ -135,21 +137,58 @@ class AuthController extends Controller
                 'password' => 'required'
             ]);
 
-            $user = UserDesa::with('role')->where('nik', $validated['nik'])->first();
+            // Rate limiting key based on NIK and IP
+            $key = 'login-attempts:' . $validated['nik'] . ':' . $r->ip();
+            $maxAttempts = 3;
+            $decaySeconds = 120; // 2 minutes
 
-            if (!$user || !Hash::check($validated['password'], $user->password)) {
+            // Check if too many attempts
+            if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
+                $seconds = RateLimiter::availableIn($key);
+                $minutes = ceil($seconds / 60);
+                
                 // Handle web form submission
                 if (!$r->isJson()) {
                     return back()->withErrors([
-                        'nik' => 'NIK atau password salah'
+                        'nik' => "Terlalu banyak percobaan login. Silakan coba lagi dalam {$minutes} menit."
+                    ])->withInput($r->only('nik'));
+                }
+                
+                return response()->json([
+                    'message' => "Terlalu banyak percobaan login. Silakan coba lagi dalam {$minutes} menit.",
+                    'errors' => ['nik' => ['Too many login attempts']],
+                    'retry_after' => $seconds
+                ], 429);
+            }
+
+            $user = UserDesa::with('role')->where('nik', $validated['nik'])->first();
+
+            if (!$user || !Hash::check($validated['password'], $user->password)) {
+                // Increment failed attempts
+                RateLimiter::hit($key, $decaySeconds);
+                $attemptsLeft = $maxAttempts - RateLimiter::attempts($key);
+                
+                // Handle web form submission
+                if (!$r->isJson()) {
+                    $errorMessage = 'NIK atau password salah';
+                    if ($attemptsLeft > 0) {
+                        $errorMessage .= " (Sisa percobaan: {$attemptsLeft})";
+                    }
+                    
+                    return back()->withErrors([
+                        'nik' => $errorMessage
                     ])->withInput($r->only('nik'));
                 }
                 
                 return response()->json([
                     'message' => 'NIK atau password salah',
-                    'errors' => ['nik' => ['Credentials incorrect']]
+                    'errors' => ['nik' => ['Credentials incorrect']],
+                    'attempts_left' => $attemptsLeft
                 ], 422);
             }
+
+            // Clear rate limit on successful login
+            RateLimiter::clear($key);
 
             // Handle web form submission
             if (!$r->isJson()) {

@@ -27,6 +27,40 @@
                         </p>
                     </div>
 
+                    <!-- Rate Limit Alert -->
+                    @error('nik')
+                        @if(str_contains($message, 'Terlalu banyak percobaan'))
+                            <div id="rateLimitAlert" class="bg-rose-500/20 border-2 border-rose-400/50 rounded-2xl p-5 backdrop-blur-sm">
+                                <div class="flex items-start gap-4">
+                                    <div class="flex-shrink-0">
+                                        <svg class="w-7 h-7 text-rose-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 space-y-3">
+                                        <h3 class="text-lg font-bold text-rose-100">Akun Diblokir Sementara</h3>
+                                        <p class="text-rose-200 text-sm leading-relaxed">{{ $message }}</p>
+                                        <div class="bg-rose-900/40 rounded-xl p-4 border border-rose-400/30">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span class="text-rose-100 text-sm font-medium">Waktu tersisa:</span>
+                                                <span id="countdown" class="text-2xl font-bold text-rose-100 tabular-nums"></span>
+                                            </div>
+                                            <div class="w-full bg-rose-950/50 rounded-full h-2 overflow-hidden">
+                                                <div id="progressBar" class="bg-gradient-to-r from-rose-400 to-rose-500 h-full transition-all duration-1000 ease-linear" style="width: 100%"></div>
+                                            </div>
+                                        </div>
+                                        <p class="text-rose-300/80 text-xs">
+                                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            </svg>
+                                            Halaman akan dimuat ulang otomatis setelah waktu habis.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    @enderror
+
                     <form method="POST" action="{{ route('login') }}" class="space-y-5" id="loginForm">
                         @csrf
 
@@ -47,7 +81,16 @@
                                     onblur="sanitizeInput(this)"
                                 >
                                 @error('nik')
-                                    <p class="text-rose-200 text-sm">{{ $message }}</p>
+                                    @if(!str_contains($message, 'Terlalu banyak percobaan'))
+                                        <p class="text-rose-200 text-sm flex items-center gap-2">
+                                            @if(str_contains($message, 'Sisa percobaan'))
+                                                <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                                </svg>
+                                            @endif
+                                            {{ $message }}
+                                        </p>
+                                    @endif
                                 @enderror
                             </div>
 
@@ -143,10 +186,60 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginBtn = document.getElementById('loginBtn');
     const loginBtnText = document.getElementById('loginBtnText');
     const loginSpinner = document.getElementById('loginSpinner');
+    const loginForm = document.getElementById('loginForm');
+
+    // Rate Limit Countdown Timer
+    const rateLimitAlert = document.getElementById('rateLimitAlert');
+    if (rateLimitAlert) {
+        const errorMessage = rateLimitAlert.querySelector('p').textContent;
+        const minutesMatch = errorMessage.match(/(\d+)\s*menit/);
+        
+        if (minutesMatch) {
+            const totalMinutes = parseInt(minutesMatch[1]);
+            let remainingSeconds = totalMinutes * 60;
+            const countdownElement = document.getElementById('countdown');
+            const progressBar = document.getElementById('progressBar');
+            const totalSeconds = remainingSeconds;
+
+            // Disable form inputs
+            nikInput.disabled = true;
+            passwordInput.disabled = true;
+            loginBtn.disabled = true;
+
+            const countdownTimer = setInterval(function() {
+                remainingSeconds--;
+
+                const minutes = Math.floor(remainingSeconds / 60);
+                const seconds = remainingSeconds % 60;
+                countdownElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                // Update progress bar
+                const progress = (remainingSeconds / totalSeconds) * 100;
+                progressBar.style.width = progress + '%';
+
+                if (remainingSeconds <= 0) {
+                    clearInterval(countdownTimer);
+                    // Show reload message
+                    rateLimitAlert.innerHTML = `
+                        <div class="flex items-center gap-4 justify-center">
+                            <svg class="w-6 h-6 text-green-300 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            </svg>
+                            <span class="text-green-100 font-semibold">Memuat ulang halaman...</span>
+                        </div>
+                    `;
+                    // Reload page after 1 second
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1000);
+                }
+            }, 1000);
+        }
+    }
 
     function updateSubmitButton() {
         const isValid = nikInput.value.length === 16 && passwordInput.value.length >= 6;
-        loginBtn.disabled = !isValid;
+        loginBtn.disabled = !isValid || nikInput.disabled;
     }
 
     nikInput.addEventListener('input', function(e) {
@@ -160,13 +253,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     passwordInput.addEventListener('input', updateSubmitButton);
 
-    document.getElementById('loginForm').addEventListener('submit', function() {
+    loginForm.addEventListener('submit', function() {
         loginBtn.disabled = true;
         loginBtnText.textContent = 'Memproses...';
         loginSpinner.classList.remove('hidden');
     });
 
-    nikInput.focus();
+    if (!nikInput.disabled) {
+        nikInput.focus();
+    }
 });
 
 function sanitizeInput(input) {
