@@ -1,371 +1,727 @@
-# 🏛️ Desa Sungai Meranti - Sistem Informasi Administrasi Desa
+<div align="center">
 
-[![Laravel](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com)
-[![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.x-38B2AC.svg)](https://tailwindcss.com)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+# 🏛️ SIMADESA - Sistem Informasi Administrasi Desa Sungai Meranti
 
-Sistem informasi administrasi desa modern yang dirancang untuk Gemeinde Sungai Meranti, Kabupaten Bengkalis, Provinsi Riau. Platform digital terdepan untuk melayani kebutuhan administrasi surat dan dokumen masyarakat dengan sistem yang transparan, efisien, dan mudah diakses.
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-## 🌟 Fitur Utama
+**Platform Digital Terpadu untuk Pelayanan Administrasi Desa Sungai Meranti**
 
-### 👥 Untuk Masyarakat
-- **🔐 Sistem Autentikasi Aman**
-  - Pendaftaran dan login dengan validasi email
-  - Manajemen profil pengguna
-  - Dashboard personal yang informatif
+*Kabupaten Bengkalis, Provinsi Riau*
 
-- **📄 Administrasi Surat Online**
-  - Pengajuan berbagai jenis surat (SKCK, Surat Keterangan, dll)
-  - Upload dokumen persyaratan
-  - Tracking status pengajuan real-time
-  - Riwayat lengkap pengajuan
+[Fitur](#-fitur-utama) • [Demo](#-demo) • [Instalasi](#-instalasi) • [Dokumentasi](#-dokumentasi) • [Kontribusi](#-kontribusi)
 
-- **📊 Dashboard Interaktif**
-  - Statistik personal pengajuan
-  - Status tracking surat
-  - Notifikasi dan update terbaru
+</div>
 
-### 👨‍💼 Untuk Admin Desa
-- **📈 Panel Kontrol Komprehensif**
-  - Dashboard dengan statistik real-time
-  - Manajemen pengajuan surat
-  - Konfirmasi dan persetujuan dokumen
+---
 
-- **📋 Manajemen Data**
-  - CRUD jenis surat
-  - Manajemen pengguna dan权限
-  - Laporan dan analitik
+## 📋 Daftar Isi
 
-- **🔧 Sistem Konfigurasi**
-  - Template surat otomatis
-  - Pengaturan workflow approval
-  - Parameter sistem yang fleksibel
+- [Tentang Proyek](#-tentang-proyek)
+- [Fitur Utama](#-fitur-utama)
+- [Teknologi](#-teknologi-yang-digunakan)
+- [Prasyarat](#-prasyarat)
+- [Instalasi](#-instalasi)
+- [Konfigurasi](#-konfigurasi)
+- [Struktur Database](#-struktur-database)
+- [Penggunaan](#-penggunaan)
+- [Security Features](#-security-features)
+- [API Documentation](#-api-documentation)
+- [Screenshots](#-screenshots)
+- [Roadmap](#-roadmap)
+- [Kontribusi](#-kontribusi)
+- [Lisensi](#-lisensi)
+- [Tim Pengembang](#-tim-pengembang)
 
-### 🔍 Fitur Teknis
-- **🎨 Interface Modern**
-  - Responsive design untuk semua device
-  - UI/UX yang intuitif dan user-friendly
-  - Animasi dan transisi yang smooth
+---
 
-- **🔌 API RESTful**
-  - Endpoint lengkap untuk integrasi
-  - Dokumentasi API yang komprehensif
-  - Authentication dengan Laravel Sanctum
+## 🎯 Tentang Proyek
 
-- **📱 Progressive Web App**
-  - Akses offline dengan service worker
-  - Push notifications
-  - Installable di device mobile
+**SIMADESA** (Sistem Informasi Administrasi Desa) adalah platform digital modern yang dirancang khusus untuk meningkatkan efisiensi dan transparansi pelayanan administrasi di Desa Sungai Meranti. Sistem ini memungkinkan masyarakat untuk mengajukan berbagai jenis surat dan dokumen secara online tanpa harus datang langsung ke kantor desa.
+
+### 🎨 Visi
+Mewujudkan pelayanan administrasi desa yang digital, transparan, efisien, dan mudah diakses oleh seluruh masyarakat.
+
+### 🎯 Misi
+- Digitalisasi proses administrasi desa
+- Meningkatkan kualitas pelayanan publik
+- Memberikan kemudahan akses layanan 24/7
+- Menciptakan tata kelola yang transparan dan akuntabel
+
+---
+
+## ✨ Fitur Utama
+
+### 👥 **Portal Warga**
+
+#### 🔐 Sistem Autentikasi & Keamanan
+- ✅ Registrasi akun dengan validasi NIK
+- ✅ Login dengan rate limiting (max 3 percobaan)
+- ✅ Countdown timer 2 menit setelah login gagal
+- ✅ Reset password dengan OTP email
+- ✅ Manajemen profil personal
+- ✅ Session management yang aman
+
+#### 📝 Pengajuan Surat Online
+- ✅ Formulir pengajuan multi-step yang intuitif
+- ✅ Upload dokumen persyaratan (KTP, KK, dll)
+- ✅ Template surat otomatis (DOCX format)
+- ✅ Real-time status tracking
+- ✅ Notifikasi email untuk setiap update
+- ✅ Download surat yang sudah disetujui
+
+#### 📊 Dashboard Personal
+- ✅ Statistik pengajuan (Pending, Diproses, Selesai, Ditolak)
+- ✅ Riwayat lengkap pengajuan
+- ✅ Quick action untuk pengajuan baru
+- ✅ Notifikasi dan update terbaru
+
+### 👨‍💼 **Panel Admin**
+
+#### 📈 Dashboard Administrator
+- ✅ Overview statistik real-time
+- ✅ Grafik dan chart interaktif
+- ✅ Quick stats (Total Pengajuan, User, Jenis Surat)
+- ✅ Activity logs dan monitoring
+
+#### 🗂️ Manajemen Pengajuan
+- ✅ Daftar pengajuan dengan filter dan search
+- ✅ Update status (Pending → Diproses → Selesai/Ditolak)
+- ✅ Verifikasi dokumen
+- ✅ Generate nomor surat otomatis
+- ✅ Cetak/Download surat dalam format DOCX/PDF
+
+#### ⚙️ Manajemen Master Data
+- ✅ CRUD Jenis Surat
+- ✅ Pengaturan template surat
+- ✅ Konfigurasi form fields dinamis
+- ✅ Manajemen syarat dokumen
+- ✅ User management dan role assignment
+
+### 🔍 **Fitur Tambahan**
+
+#### 🎨 User Interface/Experience
+- ✅ Responsive design (Mobile, Tablet, Desktop)
+- ✅ Modern & clean interface dengan Tailwind CSS
+- ✅ Smooth animations dan transitions
+- ✅ Dark mode compatible components
+- ✅ Accessibility (WCAG 2.1 compliant)
+
+#### 📧 Sistem Notifikasi
+- ✅ Email notifications untuk status updates
+- ✅ Welcome email setelah registrasi
+- ✅ OTP untuk reset password
+- ✅ Reminder untuk pengajuan pending
+
+#### 📤 Export & Import
+- ✅ Export data ke Excel (PHPSpreadsheet)
+- ✅ Generate dokumen Word (PHPWord)
+- ✅ Bulk import dari template
+
+---
 
 ## 🛠️ Teknologi yang Digunakan
 
-### Backend
-- **Laravel 12.x** - Framework PHP modern
-- **PHP 8.2+** - Bahasa pemrograman
-- **MySQL/MariaDB** - Database relasional
-- **Laravel Sanctum** - Authentication API
-- **DomPDF & PhpWord** - Generator PDF & Word
+### **Backend**
+- **Framework:** Laravel 12.x
+- **Language:** PHP 8.2+
+- **Database:** MySQL 8.0+ / MariaDB
+- **Authentication:** Laravel Sanctum
+- **Cache:** File/Redis (configurable)
+- **Queue:** Database/Redis (configurable)
 
-### Frontend
-- **Tailwind CSS 4.x** - Framework CSS utility-first
-- **Alpine.js** - JavaScript framework ringan
-- **Vite** - Build tool modern
-- **Blade** - Template engine Laravel
+### **Frontend**
+- **CSS Framework:** Tailwind CSS 4.x
+- **JavaScript:** Vanilla JS + Alpine.js
+- **Build Tool:** Vite
+- **Icons:** Heroicons
 
-### Development Tools
-- **Laravel Pint** - Code style fixer
-- **PHPUnit** - Testing framework
-- **Laravel Sail** - Docker development environment
-- **Faker** - Data seeding
+### **Libraries & Tools**
+- **Document Processing:**
+  - PHPWord - Generate DOCX documents
+  - PHPSpreadsheet - Excel export/import
+- **Email:** Laravel Mail with SMTP/Mailpit
+- **Testing:** PHPUnit, Laravel Pint
+- **Dev Tools:** Laravel Pail, Tinker, Sail
 
-## 📋 Persyaratan Sistem
+---
 
-### Minimum Requirements
-- **PHP**: 8.2 atau lebih tinggi
-- **Composer**: 2.x
-- **Node.js**: 18.x atau lebih tinggi
-- **NPM**: 9.x atau lebih tinggi
-- **MySQL**: 8.0 atau MariaDB 10.6
-- **Web Server**: Apache/Nginx
+## 📦 Prasyarat
 
-### Ekstensi PHP yang Diperlukan
+Sebelum memulai instalasi, pastikan sistem Anda memiliki:
+
+### **Software Requirements**
 ```bash
-php-cli
-php-fpm
-php-mysql
-php-xml
-php-curl
-php-zip
-php-mbstring
-php-bcmath
-php-gd
-php-fileinfo
+✓ PHP >= 8.2
+✓ Composer >= 2.5
+✓ Node.js >= 18.x
+✓ NPM >= 9.x
+✓ MySQL >= 8.0 atau MariaDB >= 10.6
+✓ Web Server (Apache/Nginx)
 ```
 
-## 🚀 Instalasi dan Setup
-
-### 1. Clone Repository
+### **PHP Extensions**
 ```bash
+✓ BCMath
+✓ Ctype
+✓ Fileinfo
+✓ JSON
+✓ Mbstring
+✓ OpenSSL
+✓ PDO
+✓ Tokenizer
+✓ XML
+✓ GD (untuk image processing)
+✓ Iconv (untuk character encoding)
+```
+
+### **Optional (Recommended)**
+```bash
+✓ Redis (untuk cache & queue)
+✓ Supervisor (untuk queue workers)
+✓ Git (untuk version control)
+```
+
+---
+
+## 🚀 Instalasi
+
+### **Metode 1: Clone Repository**
+
+```bash
+# 1. Clone repository
 git clone https://github.com/Joko206/desa_sungai_meranti.git
 cd desa_sungai_meranti
-```
 
-### 2. Install Dependencies
-```bash
-# Install PHP dependencies
+# 2. Install PHP dependencies
 composer install
 
-# Install Node.js dependencies
+# 3. Install Node.js dependencies
 npm install
-```
 
-### 3. Environment Configuration
-```bash
-# Copy environment file
+# 4. Setup environment file
 cp .env.example .env
 
-# Generate application key
+# 5. Generate application key
 php artisan key:generate
-```
 
-### 4. Database Setup
-```bash
-# Run migrations
+# 6. Konfigurasi database di file .env
+# Edit DB_DATABASE, DB_USERNAME, DB_PASSWORD
+
+# 7. Jalankan migrasi database
 php artisan migrate
 
-# Seed database with initial data
+# 8. (Optional) Seed data contoh
 php artisan db:seed
-```
 
-### 5. Build Assets
-```bash
-# Development
-npm run dev
-
-# Production
+# 9. Build assets frontend
 npm run build
-```
 
-### 6. Start Development Server
-```bash
-# Using Laravel Artisan
+# 10. Setup storage link
+php artisan storage:link
+
+# 11. Jalankan aplikasi
 php artisan serve
-
-# Or using Laravel Sail (recommended)
-./vendor/bin/sail up -d
 ```
 
-Aplikasi akan berjalan di `http://localhost:8000`
+### **Metode 2: Quick Setup dengan Composer Script**
 
-## 🔧 Konfigurasi Environment
+```bash
+# Clone dan masuk ke direktori
+git clone https://github.com/Joko206/desa_sungai_meranti.git
+cd desa_sungai_meranti
 
-Edit file `.env` untuk konfigurasi:
+# Edit .env untuk konfigurasi database
+cp .env.example .env
+nano .env
+
+# Jalankan setup otomatis
+composer setup
+
+# Jalankan aplikasi
+php artisan serve
+```
+
+Aplikasi akan berjalan di: **http://localhost:8000**
+
+---
+
+## ⚙️ Konfigurasi
+
+### **1. Database Configuration**
+
+Edit file `.env`:
 
 ```env
-APP_NAME="Desa Sungai Meranti"
-APP_ENV=local
-APP_KEY=
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=desa_sungai_meranti
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
+```
 
+### **2. Mail Configuration**
+
+Untuk development (Mailpit):
+```env
 MAIL_MAILER=smtp
-MAIL_HOST=your_smtp_host
+MAIL_HOST=mailpit
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="noreply@desasungaimeranti.com"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+Untuk production (SMTP):
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
-MAIL_USERNAME=your_email
-MAIL_PASSWORD=your_password
+MAIL_USERNAME=your_email@gmail.com
+MAIL_PASSWORD=your_app_password
 MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="noreply@desasungaimeranti.com"
+MAIL_FROM_NAME="${APP_NAME}"
 ```
 
-## 📁 Struktur Proyek
+### **3. Cache & Session Configuration**
 
-```
-desa_sungai_meranti/
-├── app/
-│   ├── Http/
-│   │   ├── Controllers/
-│   │   │   ├── AuthController.php
-│   │   │   ├── PengajuanController.php
-│   │   │   ├── AdminPengajuanController.php
-│   │   │   └── JenisSuratController.php
-│   │   └── Middleware/
-│   ├── Models/
-│   │   ├── UserDesa.php
-│   │   ├── PengajuanSurat.php
-│   │   ├── JenisSurat.php
-│   │   └── SuratTerbit.php
-│   └── Services/
-│       └── SuratGeneratorService.php
-├── database/
-│   ├── migrations/
-│   └── seeders/
-├── resources/
-│   ├── views/
-│   │   ├── layout/
-│   │   ├── auth/
-│   │   └── warga/
-│   └── js/
-├── routes/
-│   ├── web.php
-│   └── api.php
-├── public/
-│   ├── logo-desa.png
-│   └── Desa-teluk-Meranti-1.jpg
-└── tests/
+```env
+CACHE_DRIVER=file
+SESSION_DRIVER=file
+QUEUE_CONNECTION=sync
 ```
 
-## 🌐 API Documentation
-
-### Authentication Endpoints
-```
-POST   /api/login          # Login user
-POST   /api/register       # Register new user
-POST   /api/logout         # Logout user
-GET    /api/user           # Get current user
-```
-
-### Document Management
-```
-GET    /api/jenis-surat     # Get all document types
-GET    /api/jenis-surat/{id} # Get specific document type
-GET    /api/jenis-surat/{id}/placeholders # Get form placeholders
+Untuk production gunakan Redis:
+```env
+CACHE_DRIVER=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
 ```
 
-### Application Management
-```
-GET    /api/pengajuan       # Get user applications
-POST   /api/pengajuan       # Create new application
-GET    /api/pengajuan/{id}  # Get specific application
-PUT    /api/pengajuan/{id}  # Update application
-DELETE /api/pengajuan/{id}  # Delete application
+### **4. Admin Secret Code**
+
+```env
+ADMIN_SECRET_CODE=your_secret_code_here
 ```
 
-### Tracking
+Kode ini digunakan saat registrasi admin.
+
+---
+
+## 🗄️ Struktur Database
+
+### **Tabel Utama**
+
+#### **`role`** - Tabel Role Pengguna
+```sql
+- id (PK)
+- nama_role (admin, warga)
+- timestamps
 ```
-GET    /api/tracking/{tracking_code} # Track application status
+
+#### **`user_desa`** - Tabel User/Warga
+```sql
+- id (PK)
+- role_id (FK → role)
+- nik (16 karakter, unique)
+- nama
+- email (unique)
+- password
+- tempat_lahir
+- tanggal_lahir
+- jenis_kelamin
+- alamat
+- no_telepon
+- timestamps
 ```
 
-## 👤 Default User Accounts
+#### **`jenis_surat`** - Tabel Master Jenis Surat
+```sql
+- id (PK)
+- nama_surat
+- deskripsi
+- syarat (JSON)
+- file_template (path)
+- form_fields (JSON)
+- butuh_tanda_tangan_pihak_lain
+- is_active
+- timestamps
+```
 
-Setelah menjalankan seeders, akun default yang tersedia:
+#### **`pengajuan_surat`** - Tabel Pengajuan
+```sql
+- id (PK)
+- user_id (FK → user_desa)
+- jenis_surat_id (FK → jenis_surat)
+- data_surat (JSON)
+- dokumen_pendukung (JSON)
+- status (pending, diproses, selesai, ditolak)
+- catatan_admin
+- file_tanda_tangan_pihak_lain
+- tanggal_pengajuan
+- tanggal_selesai
+- timestamps
+```
 
-### Admin Account
-- **Email**: admin@desasungaimeranti.id
-- **Password**: password123
-- **Role**: Administrator
+#### **`surat_terbit`** - Tabel Surat yang Diterbitkan
+```sql
+- id (PK)
+- pengajuan_id (FK → pengajuan_surat)
+- nomor_surat (unique)
+- file_surat (path)
+- tanggal_terbit
+- timestamps
+```
 
-### Resident Account
-- **Email**: warga@desasungaimeranti.id  
-- **Password**: password123
-- **Role**: Resident
+### **Relasi Database**
 
-## 🧪 Testing
+```
+role ──┬─→ user_desa ──→ pengajuan_surat ──→ surat_terbit
+       │                        ↑
+       └────────────────────────┘
+              jenis_surat
+```
 
+---
+
+## 📖 Penggunaan
+
+### **Untuk Warga**
+
+1. **Registrasi Akun**
+   - Akses `/register`
+   - Isi NIK, nama, email, dan data diri
+   - Verifikasi email
+
+2. **Login**
+   - Akses `/login`
+   - Masukkan NIK dan password
+   - Masuk ke dashboard warga
+
+3. **Ajukan Surat**
+   - Pilih jenis surat yang diinginkan
+   - Isi formulir pengajuan
+   - Upload dokumen persyaratan
+   - Submit pengajuan
+
+4. **Tracking Status**
+   - Cek status di dashboard
+   - Lihat detail pengajuan
+   - Download surat jika sudah selesai
+
+### **Untuk Admin**
+
+1. **Login Admin**
+   - Akses `/login`
+   - Gunakan akun admin
+   - Masuk ke panel admin
+
+2. **Kelola Pengajuan**
+   - Lihat daftar pengajuan di `/admin/pengajuan`
+   - Verifikasi dokumen
+   - Update status (Diproses/Selesai/Ditolak)
+   - Generate nomor surat
+
+3. **Kelola Master Data**
+   - Tambah/Edit jenis surat di `/admin/jenis-surat`
+   - Upload template dokumen
+   - Konfigurasi form fields
+   - Atur syarat dokumen
+
+---
+
+## 🔒 Security Features
+
+### **Authentication & Authorization**
+- ✅ **Rate Limiting** - Maksimal 3 percobaan login gagal
+- ✅ **Account Lockout** - Blokir 2 menit setelah 3x gagal login
+- ✅ **Password Hashing** - BCrypt dengan cost factor 12
+- ✅ **CSRF Protection** - Token CSRF pada semua form
+- ✅ **XSS Prevention** - Input sanitization & output encoding
+- ✅ **SQL Injection Protection** - Eloquent ORM & prepared statements
+
+### **Data Security**
+- ✅ **File Upload Validation** - Whitelist file types & size limits
+- ✅ **Secure File Storage** - Files stored outside public directory
+- ✅ **Session Security** - HTTP-only cookies, secure flag in production
+- ✅ **Input Validation** - Server-side validation untuk semua input
+- ✅ **Email Verification** - Verifikasi email pada registrasi
+
+### **Rate Limiting Details**
+
+```php
+// Login Rate Limiting
+Max Attempts: 3
+Lockout Duration: 2 minutes
+Key: nik + IP address
+Features:
+  - Countdown timer dengan progress bar
+  - Auto reload setelah lockout habis
+  - Peringatan sisa percobaan
+```
+
+---
+
+## 📡 API Documentation
+
+### **Authentication Endpoints**
+
+#### **Register**
+```http
+POST /api/register
+Content-Type: application/json
+
+{
+  "nik": "1234567890123456",
+  "nama": "John Doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "password_confirmation": "password123",
+  "tempat_lahir": "Jakarta",
+  "tanggal_lahir": "1990-01-01",
+  "jenis_kelamin": "L",
+  "alamat": "Jl. Example No. 123",
+  "no_telepon": "081234567890"
+}
+```
+
+#### **Login**
+```http
+POST /api/login
+Content-Type: application/json
+
+{
+  "nik": "1234567890123456",
+  "password": "password123"
+}
+
+Response:
+{
+  "success": true,
+  "message": "Login berhasil",
+  "token": "1|xxxxxxxxxxxxx",
+  "user": {
+    "nik": "1234567890123456",
+    "nama": "John Doe",
+    "email": "john@example.com",
+    "role_id": 2
+  }
+}
+```
+
+### **Pengajuan Endpoints** (Authenticated)
+
+#### **Get All Pengajuan**
+```http
+GET /api/pengajuan
+Authorization: Bearer {token}
+
+Response:
+{
+  "data": [...]
+}
+```
+
+#### **Create Pengajuan**
+```http
+POST /api/pengajuan
+Authorization: Bearer {token}
+Content-Type: multipart/form-data
+
+{
+  "jenis_surat_id": 1,
+  "data_surat": {...},
+  "dokumen_pendukung": [file1, file2]
+}
+```
+
+---
+
+## 📸 Screenshots
+
+### **Landing Page**
+<img src="docs/screenshots/landing.png" alt="Landing Page" width="800"/>
+
+### **Login & Registration**
+<img src="docs/screenshots/login.png" alt="Login Page" width="400"/> <img src="docs/screenshots/register.png" alt="Register Page" width="400"/>
+
+### **Dashboard Warga**
+<img src="docs/screenshots/warga-dashboard.png" alt="Warga Dashboard" width="800"/>
+
+### **Dashboard Admin**
+<img src="docs/screenshots/admin-dashboard.png" alt="Admin Dashboard" width="800"/>
+
+---
+
+## 🗺️ Roadmap
+
+### **Version 1.0** ✅ (Current)
+- [x] Sistem autentikasi & registrasi
+- [x] Dashboard warga & admin
+- [x] Pengajuan surat online
+- [x] Tracking status real-time
+- [x] Rate limiting & security
+- [x] Email notifications
+
+### **Version 1.1** 🚧 (In Progress)
+- [ ] Multi-language support (ID/EN)
+- [ ] Advanced reporting & analytics
+- [ ] Export to PDF
+- [ ] Mobile app (Flutter)
+- [ ] Push notifications
+- [ ] QR Code verification
+
+### **Version 2.0** 📋 (Planned)
+- [ ] E-signature integration
+- [ ] Payment gateway (Midtrans)
+- [ ] SMS notifications
+- [ ] WhatsApp bot integration
+- [ ] AI-powered document verification
+- [ ] Blockchain for document authenticity
+
+---
+
+## 🤝 Kontribusi
+
+Kami menerima kontribusi dari siapa saja! Berikut cara berkontribusi:
+
+### **1. Fork Repository**
 ```bash
-# Run all tests
-php artisan test
-
-# Run tests with coverage
-php artisan test --coverage
-
-# Run specific test
-php artisan test tests/Feature/Api/ApiWorkflowTest.php
+# Fork di GitHub, lalu clone
+git clone https://github.com/YOUR_USERNAME/desa_sungai_meranti.git
+cd desa_sungai_meranti
 ```
 
-## 🚀 Deployment
-
-### Production Setup
+### **2. Buat Branch Baru**
 ```bash
-# Install production dependencies
-composer install --optimize-autoloader --no-dev
-
-# Optimize for production
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-# Set proper permissions
-chmod -R 755 storage bootstrap/cache
+git checkout -b feature/fitur-baru
+# atau
+git checkout -b fix/perbaikan-bug
 ```
 
-### Using Laravel Sail (Docker)
+### **3. Commit Perubahan**
 ```bash
-# Build and start containers
-./vendor/bin/sail up -d
-
-# Run migrations
-./vendor/bin/sail artisan migrate
-
-# Build assets
-./vendor/bin/sail npm run build
+git add .
+git commit -m "feat: menambahkan fitur baru"
+# atau
+git commit -m "fix: memperbaiki bug pada login"
 ```
 
-## 🤝 Contributing
+### **4. Push & Pull Request**
+```bash
+git push origin feature/fitur-baru
+```
+Kemudian buat Pull Request di GitHub.
 
-Kami sangat menghargai kontribusi dari komunitas! Berikut panduan berkontribusi:
+### **Commit Convention**
+Gunakan [Conventional Commits](https://www.conventionalcommits.org/):
+- `feat:` - Fitur baru
+- `fix:` - Perbaikan bug
+- `docs:` - Perubahan dokumentasi
+- `style:` - Perubahan format code
+- `refactor:` - Refactoring code
+- `test:` - Menambah test
+- `chore:` - Maintenance
 
-1. **Fork** repository ini
-2. Buat **feature branch** (`git checkout -b feature/AmazingFeature`)
-3. **Commit** perubahan Anda (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** ke branch (`git push origin feature/AmazingFeature`)
-5. Buka **Pull Request**
+---
 
-### Coding Standards
-- Ikuti [PSR-12](https://www.php-fig.org/psr/psr-12/) coding standards
-- Gunakan PHPStan untuk static analysis
-- Pastikan semua test passing
-- Tulis dokumentasi untuk fitur baru
+## 📄 Lisensi
 
-## 📝 Changelog
+Project ini dilisensikan under **MIT License**. Lihat file [LICENSE](LICENSE) untuk detail.
 
-### v2.0.0 (2025-10-29)
-- ✅ Implementasi logo clickable di semua layout
-- ✅ Optimasi tampilan jenis surat tanpa foto
-- ✅ Peningkatan responsivitas UI/UX
-- ✅ Perbaikan sistem tracking real-time
-- ✅ Optimasi performa dan loading speed
+```
+MIT License
 
-### v1.0.0 (2025-10-26)
-- 🎉 Initial release
-- ✅ Sistem autentikasi lengkap
-- ✅ Dashboard untuk warga dan admin
-- ✅ Sistem pengajuan surat online
-- ✅ API RESTful
-- ✅ Dokumentasi komprehensif
+Copyright (c) 2025 Desa Sungai Meranti
 
-## 📞 Support & Contact
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction...
+```
 
-Tim Pengembangan Desa Sungai Meranti
+---
 
-- **Email**: dev@desasungaimeranti.id
-- **Website**: [https://desasungaimeranti.id](https://desasungaimeranti.id)
-- **GitHub**: [Joko206/desa_sungai_meranti](https://github.com/Joko206/desa_sungai_meranti)
+## 👥 Tim Pengembang
 
-## 📄 License
+### **Core Team**
 
-Proyek ini dilisensikan di bawah MIT License - lihat file [LICENSE](LICENSE) untuk detail lengkap.
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/Joko206">
+        <img src="https://github.com/Joko206.png" width="100px;" alt="Joko206"/>
+        <br />
+        <sub><b>Joko206</b></sub>
+      </a>
+      <br />
+      <sub>Project Lead & Full Stack Developer</sub>
+    </td>
+  </tr>
+</table>
 
-## 🙏 Acknowledgments
+### **Contributors**
 
-- **Laravel Team** - Untuk framework yang luar biasa
-- **Tailwind CSS** - Untuk utility-first CSS framework
-- **Alpine.js** - Untuk JavaScript framework yang ringan
-- ** Komunitas PHP Indonesia** - Untuk inspirasi dan support
-- **Masyarakat Desa Sungai Meranti** - Untuk trust dan kesempatan
+Terima kasih kepada semua kontributor yang telah membantu project ini! 🙏
+
+<a href="https://github.com/Joko206/desa_sungai_meranti/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Joko206/desa_sungai_meranti" />
+</a>
+
+---
+
+## 📞 Kontak & Support
+
+### **Kantor Desa Sungai Meranti**
+- 📍 **Alamat:** Desa Sungai Meranti, Kec. Siak Kecil, Kab. Bengkalis, Riau
+- 📧 **Email:** desasungaimeranti@gmail.com
+- 📱 **Telepon:** (0766) XXX-XXXX
+- 🌐 **Website:** https://desasungaimeranti.go.id
+
+### **Developer Support**
+- 💬 **Discussions:** [GitHub Discussions](https://github.com/Joko206/desa_sungai_meranti/discussions)
+- 🐛 **Bug Reports:** [GitHub Issues](https://github.com/Joko206/desa_sungai_meranti/issues)
+- 📖 **Documentation:** [Wiki](https://github.com/Joko206/desa_sungai_meranti/wiki)
+
+---
+
+## 🌟 Acknowledgments
+
+Terima kasih kepada:
+- **Laravel Team** - Framework yang luar biasa
+- **Tailwind Labs** - CSS framework yang powerful
+- **PHPOffice** - Library document processing
+- **Masyarakat Desa Sungai Meranti** - Dukungan dan feedback
+- **Open Source Community** - Inspirasi dan pembelajaran
+
+---
+
+## 📊 Project Statistics
+
+![GitHub stars](https://img.shields.io/github/stars/Joko206/desa_sungai_meranti?style=social)
+![GitHub forks](https://img.shields.io/github/forks/Joko206/desa_sungai_meranti?style=social)
+![GitHub issues](https://img.shields.io/github/issues/Joko206/desa_sungai_meranti)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/Joko206/desa_sungai_meranti)
+![GitHub last commit](https://img.shields.io/github/last-commit/Joko206/desa_sungai_meranti)
+![GitHub contributors](https://img.shields.io/github/contributors/Joko206/desa_sungai_meranti)
 
 ---
 
 <div align="center">
 
-**Dibuat dengan ❤️ untuk masyarakat Indonesia**
+**Made with ❤️ for Desa Sungai Meranti**
 
-[🇮🇩 Desa Sungai Meranti | Kabupaten Bengkalis | Provinsi Riau 🇮🇩](https://desasungaimeranti.id)
+**⭐ Star this repository if you find it helpful!**
+
+[⬆ Back to Top](#-simadesa---sistem-informasi-administrasi-desa-sungai-meranti)
 
 </div>
