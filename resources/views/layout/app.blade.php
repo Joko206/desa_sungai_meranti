@@ -218,5 +218,6 @@
             </div>
         </div>
     </footer>
+@include('layout.lockscreen')
 </body>
 </html>

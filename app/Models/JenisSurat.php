@@ -24,6 +24,59 @@ class JenisSurat extends Model
         'butuh_tanda_tangan_pihak_lain' => 'boolean'
     ];
 
+    // Gabungan boot: log perubahan & enhance field
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Log perubahan
+        static::created(function ($model) {
+            LogPerubahan::create([
+                'user_id' => auth()->id(),
+                'model' => class_basename($model),
+                'model_id' => $model->id,
+                'action' => 'created',
+                'before' => null,
+                'after' => json_encode($model->getAttributes()),
+            ]);
+        });
+        static::updating(function ($model) {
+            $original = $model->getOriginal();
+            LogPerubahan::create([
+                'user_id' => auth()->id(),
+                'model' => class_basename($model),
+                'model_id' => $model->id,
+                'action' => 'updated',
+                'before' => json_encode($original),
+                'after' => json_encode($model->getDirty()),
+            ]);
+        });
+        static::deleted(function ($model) {
+            LogPerubahan::create([
+                'user_id' => auth()->id(),
+                'model' => class_basename($model),
+                'model_id' => $model->id,
+                'action' => 'deleted',
+                'before' => json_encode($model->getAttributes()),
+                'after' => null,
+            ]);
+        });
+
+        // Enhance field logic
+        static::creating(function ($jenisSurat) {
+            $currentFields = $jenisSurat->form_structure ?? [];
+            $enhancedFields = self::enhanceExistingFields($currentFields);
+            $jenisSurat->form_structure = $enhancedFields;
+        });
+        static::updating(function ($jenisSurat) {
+            if ($jenisSurat->isDirty('form_structure')) {
+                $currentFields = $jenisSurat->form_structure ?? [];
+                $enhancedFields = self::enhanceExistingFields($currentFields);
+                $jenisSurat->form_structure = $enhancedFields;
+            }
+        });
+    }
+
     // Scope untuk jenis surat yang aktif
     public function scopeActive($query)
     {
@@ -488,30 +541,5 @@ class JenisSurat extends Model
     }
 
     // Event listeners for automatic field enhancement (only existing fields)
-    protected static function boot()
-    {
-        parent::boot();
-        
-        // When creating new jenis_surat, only enhance existing fields
-        static::creating(function ($jenisSurat) {
-            $currentFields = $jenisSurat->form_structure ?? [];
-            
-            // Only enhance existing fields, don't add new ones
-            $enhancedFields = self::enhanceExistingFields($currentFields);
-            
-            $jenisSurat->form_structure = $enhancedFields;
-        });
-        
-        // When updating jenis_surat, only enhance existing fields
-        static::updating(function ($jenisSurat) {
-            if ($jenisSurat->isDirty('form_structure')) {
-                $currentFields = $jenisSurat->form_structure ?? [];
-                
-                // Only enhance existing fields, don't add new ones
-                $enhancedFields = self::enhanceExistingFields($currentFields);
-                
-                $jenisSurat->form_structure = $enhancedFields;
-            }
-        });
-    }
+   
 }

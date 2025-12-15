@@ -17,6 +17,7 @@ class Kernel extends HttpKernel
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        \App\Http\Middleware\LogKegiatanUserGlobal::class,
     ];
 
     /**
@@ -55,5 +56,6 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'rate.limit' => \App\Http\Middleware\RateLimitMiddleware::class,
+        'adminjamkerjabaru' => \App\Http\Middleware\AdminJamKerjaBaru::class,
     ];
 }

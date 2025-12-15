@@ -17,12 +17,12 @@ class RoleMiddleware
         
         $user = Auth::user();
         
-        // Get user role from relationship
-        if (!$user->roleModel) {
+        // Get user role from relationship (support roleModel or role)
+        $roleObj = $user->roleModel ?? $user->role ?? null;
+        if (!$roleObj) {
             throw new AccessDeniedHttpException('User role not found');
         }
-        
-        $userRole = $user->roleModel->nama_role;
+        $userRole = $roleObj->nama_role;
         
         if (!in_array($userRole, $roles)) {
             throw new AccessDeniedHttpException(
