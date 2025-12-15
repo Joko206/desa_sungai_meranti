@@ -32,6 +32,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\SecurityHeadersMiddleware::class,
             \App\Http\Middleware\InputValidationMiddleware::class,
             \App\Http\Middleware\SessionSecurityMiddleware::class,
+            \App\Http\Middleware\SessionTimeout::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 

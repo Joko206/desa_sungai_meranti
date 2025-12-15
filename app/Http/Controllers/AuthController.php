@@ -192,7 +192,26 @@ class AuthController extends Controller
 
             // Handle web form submission
             if (!$r->isJson()) {
-                Auth::login($user);
+                // Check if "Remember Me" is checked
+                $remember = $r->has('remember');
+                
+                // Set session lifetime based on remember me
+                if ($remember) {
+                    // Remember me: 1 day (1440 minutes)
+                    config(['session.lifetime' => 1440]);
+                } else {
+                    // Regular session: 5 minutes
+                    config(['session.lifetime' => 5]);
+                }
+                
+                // Login with or without remember me
+                Auth::login($user, $remember);
+                
+                // Regenerate session for security
+                $r->session()->regenerate();
+                
+                // Set initial last activity time
+                $r->session()->put('last_activity', time());
                 
                 // Redirect based on user role
                 $roleName = $user->role ? $user->role->nama_role : 'warga';
