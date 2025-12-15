@@ -27,6 +27,23 @@
                         </p>
                     </div>
 
+                    <!-- Session Timeout Alert -->
+                    @if(session('error') && str_contains(session('error'), 'Sesi Anda telah berakhir'))
+                        <div class="bg-amber-500/20 border-2 border-amber-400/50 rounded-2xl p-5 backdrop-blur-sm">
+                            <div class="flex items-start gap-4">
+                                <div class="flex-shrink-0">
+                                    <svg class="w-7 h-7 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                <div class="flex-1 space-y-2">
+                                    <h3 class="text-lg font-bold text-amber-100">Sesi Telah Berakhir</h3>
+                                    <p class="text-amber-200 text-sm leading-relaxed">{{ session('error') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     <!-- Rate Limit Alert -->
                     @error('nik')
                         @if(str_contains($message, 'Terlalu banyak percobaan'))

@@ -39,10 +39,8 @@ class UserDesa extends Authenticatable
         return $this->hasMany(PengajuanSurat::class, 'nik_pemohon', 'nik');
     }
 
-    public function setPasswordAttribute($value)
-    {
-        $this->attributes['password'] = Hash::make($value);
-    }
+    
+    
 
     // Helper method to check if user has specific role
     public function hasRole($roleName)

@@ -17,14 +17,15 @@ class SessionTimeout
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check()) {
+        // Only check for authenticated users and non-login/logout routes
+        if (Auth::check() && !in_array($request->route()->getName(), ['login', 'logout', 'password.search-email', 'password.reset'])) {
             $lastActivity = Session::get('last_activity');
             $currentTime = time();
             
-            // Get session lifetime from config (in minutes)
-            $sessionLifetime = config('session.lifetime') * 60; // Convert to seconds
+            // Get session lifetime in seconds from env or use default from config
+            $sessionLifetimeSeconds = (int) env('SESSION_LIFETIME_SECONDS', config('session.lifetime') * 60);
             
-            if ($lastActivity && ($currentTime - $lastActivity > $sessionLifetime)) {
+            if ($lastActivity && ($currentTime - $lastActivity > $sessionLifetimeSeconds)) {
                 // Session has expired due to inactivity
                 Auth::logout();
                 Session::flush();
