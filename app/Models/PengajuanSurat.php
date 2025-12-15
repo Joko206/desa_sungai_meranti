@@ -32,4 +32,44 @@ class PengajuanSurat extends Model
     {
         return $this->hasOne(SuratTerbit::class, 'pengajuan_id');
     }
+
+    // Log perubahan otomatis
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($model) {
+            \App\Models\LogPerubahan::create([
+                'user_id' => auth()->id(),
+                'model' => self::class,
+                'model_id' => $model->id,
+                'action' => 'created',
+                'before' => null,
+                'after' => json_encode($model->getAttributes()),
+            ]);
+        });
+
+        static::updating(function ($model) {
+            $original = $model->getOriginal();
+            \App\Models\LogPerubahan::create([
+                'user_id' => auth()->id(),
+                'model' => self::class,
+                'model_id' => $model->id,
+                'action' => 'updated',
+                'before' => json_encode($original),
+                'after' => json_encode($model->getDirty()),
+            ]);
+        });
+
+        static::deleted(function ($model) {
+            \App\Models\LogPerubahan::create([
+                'user_id' => auth()->id(),
+                'model' => self::class,
+                'model_id' => $model->id,
+                'action' => 'deleted',
+                'before' => json_encode($model->getAttributes()),
+                'after' => null,
+            ]);
+        });
+    }
 }

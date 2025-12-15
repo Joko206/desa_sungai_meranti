@@ -11,6 +11,11 @@ use App\Http\Controllers\JenisSuratController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\FileController;
+use App\Http\Middleware\AdminJamKerjaBaru;
+use App\Http\Middleware\LogKegiatanUserGlobal;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+
 
 // Home Route
 
@@ -69,6 +74,9 @@ Route::get('/kontak', function() {
     return view('kontak');
 })->name('kontak');
 
+// Hapus middleware closure logging yang menyebabkan error
+// Jika ingin logging global, gunakan middleware class LogKegiatanUserGlobal di Kernel.php atau group route
+
 // Protected Routes
 Route::middleware('auth')->group(function () {
     // Pengajuan Routes
@@ -90,11 +98,11 @@ Route::middleware('auth')->group(function () {
     });
 
     // Admin Routes
-    Route::middleware('role:admin')->group(function () {
+    Route::middleware(['role:admin',AdminJamKerjaBaru::class])->group(function () {
         Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     });
 
-    Route::prefix('admin')->middleware('role:admin')->group(function () {
+    Route::prefix('admin')->middleware(['role:admin',AdminJamKerjaBaru::class])->group(function () {
         // Template serving route with CORS headers for Office Online preview
         Route::get('/templates/{filename}', function($filename) {
             // Security: Validate filename to prevent directory traversal
@@ -141,12 +149,18 @@ Route::middleware('auth')->group(function () {
         Route::patch('/jenis-surat/bulk-toggle-status', [JenisSuratController::class, 'bulkToggleStatus'])->name('admin.jenis-surat.bulk-toggle-status');
         Route::delete('/jenis-surat/bulk-delete', [JenisSuratController::class, 'bulkDelete'])->name('admin.jenis-surat.bulk-delete');
     });
+
+    // Lock screen unlock route
+    Route::post('/unlock-session', [\App\Http\Controllers\LockScreenController::class, 'unlock'])->middleware('auth');
 });
 
-// API Routes for Admin (must be after web routes)
-Route::prefix('api/admin')->middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/dashboard-stats', [AdminDashboardController::class, 'dashboardStats']);
-    Route::get('/recent-pengajuan', [AdminDashboardController::class, 'recentPengajuan']);
+// Terapkan logging aktivitas user ke seluruh route web
+Route::middleware([LogKegiatanUserGlobal::class])->group(function () {
+    // API Routes for Admin (must be after web routes)
+    Route::prefix('api/admin')->middleware(['auth', 'role:admin'])->group(function () {
+        Route::get('/dashboard-stats', [AdminDashboardController::class, 'dashboardStats']);
+        Route::get('/recent-pengajuan', [AdminDashboardController::class, 'recentPengajuan']);
+    });
 });
 
 
